@@ -25,23 +25,29 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "MudawamaUI"
             isStatic = true
+
+            export(projects.shared.core.domain)
         }
     }
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":shared:core:domain"))
-                implementation(project(":shared:designsystem"))
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
+                api(projects.shared.core.domain)
+                implementation(projects.shared.core.data)
+                implementation(projects.shared.designsystem)
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.material3)
+
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.koin.core)
             }
         }
 
         androidMain {
             dependencies {
-
+                implementation(libs.koin.android)
             }
         }
 

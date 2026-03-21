@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
     alias(libs.plugins.androidLint)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
@@ -39,13 +41,17 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-
+                implementation(projects.shared.core.domain)
+                implementation(libs.compose.runtime)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.jetbrains.lifecycle.viewmodel)
+                implementation(libs.jetbrains.lifecycle.runtime.compose)
             }
         }
 
         androidMain {
             dependencies {
-
+                implementation(libs.androidx.activity.compose)
             }
         }
 

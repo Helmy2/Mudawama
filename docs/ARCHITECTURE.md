@@ -13,9 +13,9 @@ mudawama/
 │
 ├── shared/                     # Foundational infrastructure (Not feature-specific)
 │   ├── core/
-│   │   ├── domain/             # Result wrappers, DataError interfaces
-│   │   ├── data/               # Ktor client setup, Room DB builders
-│   │   └── presentation/       # Orbit MVI BaseViewModels, UiMessageManager
+│   │   ├── domain/             # Result wrappers, DataError interfaces, MudawamaLogger, ConnectivityObserver
+│   │   ├── data/               # Ktor client setup, Room DB builders, Tink/Platform Session Encryptors
+│   │   └── presentation/       # Custom MVI BaseViewModels, UiMessageManager, Permission State Composables
 │   │
 │   ├── designsystem/           # Compose themes, typography, localized strings, icons
 │   │
@@ -78,3 +78,18 @@ To prevent breaking the architecture, follow these strict dependency rules when 
 2. `data` modules must depend on their own `:domain`, plus `shared:core:data`.
 3. `presentation` modules must depend on their own `:domain`, `shared:core:presentation`, and `shared:designsystem`.
 4. Feature modules may **never** depend on other feature modules. (If features must communicate, they do so via deep-linking in the `umbrella-ui` NavHost or via shared IDs).
+
+---
+
+## 💉 Dependency Injection (Koin)
+
+Our Koin architecture follows the **Composition Root** pattern, ensuring that dependency injection is initialized at the highest level of the application, keeping lower layers decoupled from the DI lifecycle.
+
+### The Flow
+1. **Module Composition:** Each layer provides its own Koin definitions (e.g., `coreDataModule`). Platform-specific implementations (like `DataStore` or native encryptors) are provided via `androidCoreDataModule` and `iosCoreDataModule`, which internally use `includes(coreDataModule)` to cleanly bundle the common logic.
+2. **Umbrella Initialization:** The `umbrella-ui` module serves as the primary KMP composition root. It aggregates the data modules and prepares the DI container for any future UI-level elements like ViewModels.
+3. **Native Launch:**
+   - **Android:** The `MudawamaApplication` class safely calls `startKoin { setupModules() }`.
+   - **iOS:** The native `iOSApp.swift` instantiates the Swift-specific `IosEncryptor` and passes it into KMP via `KoinInitializerKt.initializeKoin(iosEncryptor: swiftEncryptor)`, allowing `umbrella-ui` to configure and execute `startKoin`.
+
+By restricting `startKoin` to the top-level composition root (the umbrella module or native apps), we ensure that feature modules can easily register their dependencies (such as Use Cases or ViewModels) into the DI graph without encountering race conditions or initialization limitations.
