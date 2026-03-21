@@ -32,6 +32,7 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(project(":shared:core:domain"))
+                implementation(project(":shared:designsystem"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
