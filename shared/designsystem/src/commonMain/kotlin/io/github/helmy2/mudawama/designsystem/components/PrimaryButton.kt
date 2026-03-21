@@ -14,7 +14,7 @@ import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.designsystem.utils.mudawamaButtonSemantics
 
 @Composable
-fun PrimaryButton(
+fun MudawamaPrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     text: String,

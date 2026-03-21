@@ -12,7 +12,7 @@ Sample usage
 
 ```kotlin
 MudawamaTheme {
-    PrimaryButton(onClick = {}, text = "Start")
+    MudawamaPrimaryButton(onClick = {}, text = "Start")
 }
 ```
 
