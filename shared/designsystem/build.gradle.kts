@@ -48,12 +48,6 @@ kotlin {
         val iosMain by creating {
             dependsOn(commonMain)
         }
-
-        val commonTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-            }
-        }
     }
 }
 

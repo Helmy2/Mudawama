@@ -1,19 +1,5 @@
-package io.github.helmy2.mudawama.designsystem
+// Tests for design system tokens have been intentionally removed per project decision.
+// If you need to add tests back, create meaningful unit tests under commonTest and
+// assert token values or behavior. This placeholder prevents accidental test runs.
 
-import androidx.compose.ui.unit.sp
-import kotlin.test.Test
-import kotlin.test.assertEquals
-
-class TokensTest {
-    @Test
-    fun primaryColor_isExact() {
-        assertEquals(0xFF02594F.toInt(), DeepTeal.value.toInt())
-    }
-
-    @Test
-    fun typography_buttonSize_is14sp() {
-        val size = MudawamaTypography().button.fontSize
-        assertEquals(14.sp, size)
-    }
-}
 

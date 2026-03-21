@@ -6,7 +6,7 @@ Purpose: Create a Kotlin Multiplatform (KMP) "shared:designsystem" module that c
 
 Goals:
 - Provide a stable, well-documented theme API (MudawamaTheme) exposing colors, typography, and shapes.
-- Ship a minimal, tested set of components: MudawamaPrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard.
+ - Ship a minimal, tested set of components: PrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard.
 - Offer platform-friendly tokens (colors, type, shapes) from commonMain so features can share consistent styling.
 - Make the API ergonomic, KMP-friendly, and resilient to dark mode and dynamic type.
 
@@ -129,7 +129,7 @@ Components
 ----------
 For each component below, the public API is defined for use from commonMain and should not expose platform-specific types.
 
-1) MudawamaPrimaryButton
+1) PrimaryButton
 -------------------------
 - Purpose: Emphasized primary CTA button.
 
@@ -137,7 +137,7 @@ Public API (commonMain):
 
 ```kotlin
 @Composable
-fun MudawamaPrimaryButton(
+fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     text: String,
@@ -170,9 +170,9 @@ Compose MPP notes:
 Example usage:
 
 ```kotlin
-MudawamaPrimaryButton(onClick = { /* navigate */ }, text = "Start")
+PrimaryButton(onClick = { /* navigate */ }, text = "Start")
 
-MudawamaPrimaryButton(
+PrimaryButton(
     onClick = { /* save */ },
     text = "Save",
     leadingIcon = { Icon(Icons.Default.Check, contentDescription = null) }
@@ -273,7 +273,7 @@ Suggested KMP source layout:
   - Shapes.kt                   // MudawamaShapes tokens
   - Tokens.kt                   // Lightweight mapping of color/typography/shape tokens
   - components/
-    - PrimaryButton.kt          // MudawamaPrimaryButton implementation
+    - PrimaryButton.kt          // PrimaryButton implementation
     - GhostButton.kt            // MudawamaGhostButton implementation
     - SurfaceCard.kt            // MudawamaSurfaceCard implementation
   - utils/
@@ -355,7 +355,7 @@ Example preview (Android/Compose preview):
 @Composable
 fun PrimaryButtonPreview() {
     MudawamaTheme {
-        MudawamaPrimaryButton(onClick = {}, text = "Start")
+        PrimaryButton(onClick = {}, text = "Start")
     }
 }
 ```
@@ -392,7 +392,7 @@ The feature is complete when all items below pass verification:
 2. Color tokens match the exact hex values specified (DeepTeal #02594F, CalmEmerald #1B8049, OffWhiteBackground #F7F7F4, PureWhiteSurface #FFFFFF, CharcoalText #1D2322, MutedRedError #C45151).
 3. Typography tokens defined with the sizes/weights listed and available from commonMain.
 4. Shapes tokens include small/medium/large with 8dp/16dp radii and are used by the components.
-5. MudawamaPrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard are implemented in commonMain with the public APIs specified, including modifier and onClick usage.
+5. PrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard are implemented in commonMain with the public APIs specified, including modifier and onClick usage.
 6. Components render correctly on Android (Compose) with requested paddings/min-sizes and corner radii.
 7. Accessibility: tappable components have Role.Button semantics, accept contentDescription for icons, and pass basic provider checks (focusable, enabled state exposure).
 8. Unit tests present in commonTest validate color and typography tokens.
