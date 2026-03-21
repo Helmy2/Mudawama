@@ -10,6 +10,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.designsystem.components.PrimaryButton
+import io.github.helmy2.mudawama.designsystem.components.MudawamaGhostButton
+import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
+import io.github.helmy2.mudawama.designsystem.components.DesignSystemGallery
 
 @Preview(showBackground = true)
 @Composable
@@ -23,6 +26,26 @@ fun PrimaryButtonPreview() {
 			PrimaryButton(onClick = {}, text = "With Icon", leadingIcon = { Text("✓", color = MudawamaTheme.colors.onPrimary) })
 		}
 	}
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GhostAndCardPreview() {
+	MudawamaTheme {
+		Column {
+			MudawamaGhostButton(onClick = {}, text = "Cancel")
+			Spacer(modifier = Modifier.height(8.dp))
+			MudawamaSurfaceCard(onClick = null) {
+				Text("Card title")
+			}
+		}
+	}
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DesignSystemGalleryPreview() {
+	DesignSystemGallery()
 }
 
 @Preview(showBackground = true)
