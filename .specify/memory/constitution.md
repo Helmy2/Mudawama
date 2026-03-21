@@ -1,0 +1,300 @@
+<!--
+Sync Impact Report
+
+- Version change: (template) -> 1.0.0
+- Modified principles: initial creation for Mudawama
+  - Architectural Boundaries (packaging-by-feature, domain/data/presentation)
+  - Error Handling & State Management (Railway, safeCall, MVI)
+  - Tech Stack & Library Constraints (Compose MPP, Room KMP, Ktor, Koin)
+  - Code Quality & Style (Kotlin 2.x idioms, preview wrappers, resources)
+- Added sections: Examples, Enforcement Checklist, CI Script Snippet
+- Removed sections: template placeholders replaced with concrete rules
+- Templates requiring updates:
+  - .specify/templates/plan-template.md ⚠ pending (not present or requires manual review)
+  - .specify/templates/spec-template.md ⚠ pending (not present or requires manual review)
+  - .specify/templates/tasks-template.md ⚠ pending (not present or requires manual review)
+  - .specify/templates/commands/*.md ⚠ pending (not present)
+  - Runtime docs (README.md, docs/*) ✅ reviewed (no automatic edits performed)
+- Follow-up TODOs:
+  - TODO(RATIFICATION_DATE): original adoption date unknown — project maintainers
+    MUST replace this with the project ratification date when available.
+-->
+
+# Mudawama Constitution
+
+## Core Principles
+
+### Architectural Boundaries (Clean Architecture & Multi-Module)
+
+Packaging-by-feature with a strict three-layer split for each feature:
+`:domain`, `:data`, `:presentation`. Shared modules are `shared:core`
+and `shared:designsystem`.
+
+- Domain Layer MUST be 100% pure Kotlin: NO Android SDK, NO iOS
+  frameworks, NO Ktor clients, NO Room/SQLDelight access, NO Compose UI
+  imports.
+- Presentation Layer MUST use Jetpack Compose Multiplatform only.
+  NO Android XML layouts, Context references, or UIKit/SwiftUI.
+- Dependency direction MUST be: `:presentation -> :domain <- :data`.
+  Feature modules MUST NOT depend on other feature modules. Allowed
+  cross-feature dependencies are only `shared:core` and
+  `shared:designsystem`.
+
+Rationale
+
+This separation keeps business logic portable, testable, and platform
+agnostic. A strict dependency graph prevents accidental coupling between
+features and preserves a single source of truth for business rules.
+
+### Error Handling & State Management
+
+- Railway-Oriented Programming: Domain and Presentation layers MUST NOT
+  throw or catch exceptions as part of their public APIs. UseCases and
+  Repositories MUST return a custom generic wrapper: `Result<D, E>`
+  (where `D` is data and `E` is a specific `DataError` interface). Do NOT use the standard `kotlin.Result` as it forces Throwables.
+- Safe Boundary: All database and network calls in the Data layer MUST be
+  wrapped in a `safeCall { }` extension which catches standard Exceptions (e.g. `SQLiteException`, `IOException`) and converts them into
+  `DataError` enum values.
+- MVI Architecture: Presentation MUST follow an Orbit-style MVI:
+    - immutable State data class
+    - Action sealed interface / sealed class for user intents
+    - Event sealed interface / sealed class for one-shot side effects
+
+Rationale
+
+Explicit error channels and immutable states make flows deterministic
+and easier to test. Mapping all throwable errors at the Data boundary
+keeps domain logic free of plumbing concerns.
+
+### Tech Stack & Library Constraints
+
+- UI: Jetpack Compose Multiplatform.
+- Database: androidx.room (Room for Kotlin Multiplatform). NO SQLDelight.
+- Network: io.ktor:ktor-client-core. NO Retrofit.
+- DI: io.insert-koin:koin-core for KMP. NO Dagger/Hilt.
+- Coroutines: ALWAYS inject CoroutineDispatcher; DO NOT hardcode
+  Dispatchers.IO or Dispatchers.Main.
+
+Rationale
+
+Using an explicit, constrained stack enforces cross-platform portability
+and makes reviews and CI automation straightforward.
+
+### Code Quality & Style
+
+- Code MUST target idiomatic Kotlin 2.x styles: small focused
+  components, composition over inheritance, and clear separation of
+  concerns.
+- UI components MUST provide a Preview wrapper and separate state
+  hoisting from stateless UI functions.
+- Strings and icons MUST be retrieved via
+  `org.jetbrains.compose.resources.stringResource` or equivalent
+  resource accessors; NO hardcoded user-facing strings in UI code.
+
+Rationale
+
+Modern Kotlin idioms and resource-driven UIs improve maintainability and
+localization support.
+
+## Additional Constraints (Implementation Details)
+
+- UseCases and Repository interfaces live in `:domain` and use only
+  primitive Kotlin types and project-defined domain models.
+- Data implementations live in `:data` and may depend on platform
+  libraries (Room, Ktor) but must map results to domain models and
+  `Result<D, E>` before returning to domain.
+- Presentation lives in `:presentation` and exposes a single State and
+  Action interface to the UI. ViewModels expose flows or state holders
+  representing immutable State and emit Events for one-shots.
+
+## Governance
+
+- Amendment procedure: Changes MUST be proposed through a Pull Request
+  with a clear rationale and the required version bump. The PR MUST be
+  approved by at least one maintainer listed in the CODEOWNERS file.
+- Versioning policy: Use semantic versioning for the constitution itself
+  (MAJOR.MINOR.PATCH) and update `CONSTITUTION_VERSION` and
+  `LAST_AMENDED_DATE` when merging amendments.
+    - MAJOR: Backward-incompatible principle removal or redefinition.
+    - MINOR: New principle or material expansion of guidance.
+    - PATCH: Wording clarifications, typos, or small non-semantic edits.
+- Compliance review: A periodic (suggest quarterly) audit SHOULD be
+  scheduled to ensure the codebase and templates continue to match the
+  constitution.
+
+## Enforcement Checklist (for reviewers and CI)
+
+- Repository layout: Ensure each feature has `domain`, `data`, and
+  `presentation` submodules where applicable.
+- Domain layer:
+    - Confirm no forbidden imports (android.*, io.ktor.*, androidx.compose.*, androidx.room.*).
+    - Confirm interfaces return `Result<D, E>` and contain no platform APIs.
+- Data layer:
+    - Confirm network/db calls are wrapped in `safeCall { }`.
+    - Confirm only allowed libraries (Ktor, Room) are used for
+      implementations.
+- Presentation layer:
+    - Confirm ViewModels implement MVI shapes (State, Action, Event)
+      and do not throw exceptions.
+- Cross-cutting:
+    - Confirm DI uses Koin only; no Dagger/Hilt imports.
+    - Confirm CoroutineDispatcher is injected and no direct calls to
+      Dispatchers.IO/Main are present.
+
+## Machine-readable forbidden import regexes
+
+- Domain forbidden import regexes (applied to files in domain modules):
+
+    - ^import\s+android\.
+    - ^import\s+androidx\.
+    - ^import\s+io\.ktor\.
+    - ^import\s+androidx\.room\.
+    - ^import\s+UIKit\b
+    - ^import\s+SwiftUI\b
+
+- Presentation forbidden import regexes (applied to shared presentation code):
+
+    - ^import\s+android\.content\.Context
+    - ^import\s+android\.view\.
+    - ^import\s+SwiftUI\b
+    - ^import\s+UIKit\b
+    - ^import\s+com\.squareup\.retrofit2\.
+
+- Data forbidden import regexes (disallowed libraries in data implementations):
+
+    - ^import\s+com\.squareup\.retrofit2\.
+    - ^import\s+com\.squareup\.sqldelight\.
+
+- Global forbidden patterns:
+
+    - ^import\s+com\.google\.dagger\.
+    - ^import\s+dagger\.
+    - Dispatchers\.IO
+    - Dispatchers\.Main
+
+## CI Script Snippet (suggested `scripts/check_constitution.sh`)
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+echo "Running Mudawama constitution checks in $ROOT_DIR"
+
+fail=0
+
+check() {
+  local pattern="$1"; shift
+  local path="$1"; shift
+  if grep -REn --line-number --exclude-dir=build --exclude-dir=.gradle -e "$pattern" "$path"; then
+    echo "-- Violation found for pattern: $pattern in $path" >&2
+    fail=1
+  fi
+}
+
+# Scan shared code for domain violations
+check "^import\\s+android\\." "feature/*/domain/" || true
+check "^import\\s+io\\.ktor\\." "feature/*/domain/" || true
+check "^import\\s+androidx\\.room\\." "feature/*/domain/" || true
+check "^import\\s+androidx\\.compose\\." "feature/*/domain/" || true
+
+# Presentation forbidden imports
+check "^import\\s+android\\.content\\.Context" "feature/*/presentation/" || true
+check "^import\\s+SwiftUI" "feature/*/presentation/" || true
+check "^import\\s+UIKit" "feature/*/presentation/" || true
+
+# Data forbidden libraries
+check "^import\\s+com\\.squareup\\.retrofit2" "feature/*/data/" || true
+check "^import\\s+com\\.squareup\\.sqldelight" "feature/*/data/" || true
+
+# DI and dispatcher forbidden usages
+check "com\\.google\\.dagger" "." || true
+check "Dispatchers\\\\.IO|Dispatchers\\\\.Main" "." || true
+
+if [ "$fail" -ne 0 ]; then
+  echo "Constitution checks detected violations" >&2
+  exit 2
+fi
+
+echo "Constitution checks passed (no obvious violations)"
+```
+
+## Appendix: Examples
+
+Domain - allowed example
+
+```kotlin
+// package feature.habits.domain
+
+// import io.github.helmy2.mudawama.core.domain.Result
+// import io.github.helmy2.mudawama.core.domain.DataError
+// import kotlinx.coroutines.CoroutineDispatcher
+
+interface HabitRepository {
+  suspend fun getHabits(): Result<List<Habit>, DataError>
+}
+
+class GetHabitsUseCase(private val repo: HabitRepository,
+                       private val dispatcher: CoroutineDispatcher) {
+  suspend operator fun invoke() = repo.getHabits()
+}
+```
+
+Domain - forbidden example (platform/API leakage)
+
+```kotlin
+// FORBIDDEN in domain
+// import android.content.Context
+// import androidx.room.Room
+```
+
+Presentation - allowed example (Compose MPP)
+
+```kotlin
+// import androidx.compose.runtime.Composable
+// import org.jetbrains.compose.ui.tooling.preview.Preview
+
+data class HabitState(val items: List<Habit> = emptyList())
+
+@Composable
+fun HabitScreen(state: HabitState, onAction: (HabitAction) -> Unit) {
+  // Stateless UI
+}
+
+@Preview
+@Composable
+fun HabitScreenPreview() {
+  HabitScreen(state = HabitState()) {}
+}
+```
+
+Presentation - forbidden example
+
+```kotlin
+// FORBIDDEN in shared presentation
+// import android.view.View
+// import android.content.Context
+```
+
+Data - allowed example (Ktor + safeCall)
+
+```kotlin
+suspend fun getRemoteHabits(): Result<List<HabitDto>, DataError.Remote> =
+  safeCall {
+    client.get("/habits").body()
+  }
+```
+
+Data - forbidden example
+
+```kotlin
+// FORBIDDEN: using Retrofit or SQLDelight
+// import com.squareup.retrofit2.Retrofit
+// import com.squareup.sqldelight.db.SqlDriver
+```
+
+## Revision information
+
+- CONSTITUTION_VERSION: 1.0.0
+- RATIFICATION_DATE: 2026-03-21
+- LAST_AMENDED_DATE: 2026-03-21
