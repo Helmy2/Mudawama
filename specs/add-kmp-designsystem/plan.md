@@ -82,8 +82,7 @@
 
  Acceptance criteria (mapped to tasks/tests)
  - (1) MudawamaTheme present — DS-002 + DS-006; verify via local preview and unit tests.
- - (2) Color tokens match hex — DS-003; test TokensTest.primaryColor_isExact.
-   - (2) Color tokens match hex — DS-003. Note: TokensTest was removed per project decision; tests are deprecated for now.
+ - (2) Color tokens match hex — DS-003. Token/unit tests in `commonTest` are DEPRECATED/REMOVED for the MVP; visual verification will be performed via `DesignSystemGallery` and previews.
  - (3) Typography tokens — DS-004; test TypographyTest.buttonWeightAndSize.
  - (4) Shapes tokens — DS-005; test ShapesTest.mediumRadius_is16dp.
  - (5) Components implemented in commonMain — DS-008..DS-010; tests MudawamaPrimaryButtonTest, GhostButtonTest, SurfaceCardTest.

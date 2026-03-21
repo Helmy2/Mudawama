@@ -100,6 +100,108 @@ fun MudawamaTheme(
     // Provide Colors, Typography, Shapes to MaterialTheme (compose.material3)
 }
 
+Feature: Add KMP shared design system (shared:designsystem)
+
+Overview and Goals
+------------------
+Purpose: Create a Kotlin Multiplatform (KMP) "shared:designsystem" module that centralizes visual tokens, theme, and a small set of common UI components for the Mudawama app. The module must be implemented with Compose Multiplatform (org.jetbrains.compose), expose idiomatic Kotlin APIs from commonMain, and be consumable by Android and iOS (via SwiftUI interop where applicable). Desktop targets are optional.
+
+Goals:
+- Provide a stable, well-documented theme API (MudawamaTheme) exposing colors, typography, and shapes.
+- Ship a minimal set of components: MudawamaPrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard.
+- Offer platform-friendly tokens (colors, type, shapes) from commonMain so features can share consistent styling.
+- Make the API ergonomic, KMP-friendly, and resilient to dark mode and dynamic type.
+
+Constraints and Compatibility
+----------------------------
+- Platform: Kotlin Multiplatform (commonMain + platform-specific source sets). Targets: Android and iOS (iosArm64 / iosX64 / iosSimulatorArm64). Desktop/JVM target optional (recommend jvm target when needed).
+- UI implementation: org.jetbrains.compose (Compose Multiplatform) for common UI code. Provide guidance for SwiftUI interop (UIView/UIViewRepresentable or SwiftUI hosting when Compose for iOS is used) but do not mandate specific bridging on iOS consumers.
+- API surface must be idiomatic Kotlin and available from commonMain. Avoid exposing platform-only types in public APIs.
+- Keep module footprint minimal; avoid bringing large transitive dependencies.
+
+Color Palette
+-------------
+Named tokens (use these exact hex values):
+
+- DeepTeal (primary): #02594F
+- CalmEmerald (primaryVariant / accent): #1B8049
+- OffWhiteBackground (background): #F7F7F4
+- PureWhiteSurface (surface): #FFFFFF
+- CharcoalText (onSurface / primary text): #1D2322
+- MutedRedError (error): #C45151
+
+Roles and usages:
+- primary: DeepTeal (#02594F)
+- primaryVariant / accent: CalmEmerald (#1B8049)
+- background: OffWhiteBackground (#F7F7F4) — page background, behind scrollable content
+- surface: PureWhiteSurface (#FFFFFF) — cards, sheets, navigation bars
+- onSurface: CharcoalText (#1D2322) — primary text on surface/background
+- onPrimary: PureWhiteSurface (#FFFFFF) — text/icons on top of primary buttons
+- error: MutedRedError (#C45151)
+
+Light / Dark considerations:
+- Light theme: use tokens as defined above.
+- Dark theme recommendations (semantic mappings):
+  - primary: DeepTeal -> provide a `primaryDark` token for dark variants (e.g., an explicit suggested hex such as #47A88B as an example). Implementers should include an explicit `primaryDark` value in the dark palette rather than relying on ad-hoc runtime blending.
+  - background (dark): map OffWhiteBackground -> CharcoalText-like deep background (#0F1413 or #0B0E0E). Keep surface darker than background by a small elevation delta.
+  - onSurface (dark): use OffWhiteBackground (#F7F7F4) or PureWhiteSurface (#FFFFFF) for high contrast on dark surfaces.
+
+Suggested alpha usages (light theme):
+- Disabled text: CharcoalText at 60% alpha (#1D2322@0.60)
+- Secondary text / hint: CharcoalText at 54% alpha
+- Dividers / strokes: CharcoalText at 12-16% alpha depending on elevation
+- Overlay scrim (e.g., modal dim): CharcoalText at 60-72% alpha
+
+Typography
+----------
+Design goals: highly readable scale optimized for prayer/reading-focused app: generous line heights, clear hierarchy, and support for dynamic scaling.
+
+Token naming (suitable for Compose Multiplatform):
+- H1: weight=700, size=28sp, lineHeight=34sp, letterSpacing=0sp
+- H2: weight=600, size=22sp, lineHeight=28sp, letterSpacing=0sp
+- H3: weight=600, size=18sp, lineHeight=24sp, letterSpacing=0sp
+- H4: weight=600, size=16sp, lineHeight=22sp, letterSpacing=0sp
+- H5: weight=500, size=14sp, lineHeight=20sp, letterSpacing=0.15sp
+- H6: weight=500, size=12sp, lineHeight=18sp, letterSpacing=0.15sp
+
+- body1: weight=400, size=16sp, lineHeight=24sp, letterSpacing=0.25sp
+- body2: weight=400, size=14sp, lineHeight=20sp, letterSpacing=0.25sp
+- caption: weight=400, size=12sp, lineHeight=16sp, letterSpacing=0.4sp
+- button: weight=600, size=14sp, lineHeight=16sp, letterSpacing=1.25sp (uppercase optional at call-site)
+
+Font guidance:
+- Default: use platform system fonts via Compose Multiplatform (e.g., FontFamily.Default). This ensures native typography elasticity and accessibility.
+- Optional: allow module consumers to provide a bundled font family via a Theme parameter (see MudawamaTheme API). If consumers provide a custom FontFamily, it should be applied across typographic tokens.
+
+Shapes
+------
+Standard shape tokens (use DP references that map to platform units in Compose):
+- ShapeSmall (controls, chips): 8.dp radius
+- ShapeMedium (buttons, inputs): 16.dp radius
+- ShapeLarge (cards, surfaced containers): 16.dp radius (or 12.dp where a slightly softer corner is desired)
+
+Usage recommendations:
+- Buttons: ShapeMedium (16dp) for primary controls to give a friendly rounded appearance.
+- Cards and surfaces: ShapeLarge (16dp) or 8dp depending on visual density; default to 16dp for Mudawama's approachable aesthetic.
+- Icon buttons / chips: ShapeSmall (8dp) for compact elements.
+
+Theme API
+---------
+Provide a single entry composable `MudawamaTheme` that wraps Compose Material 3 (compose.material3) MaterialTheme and exposes tokens via a Kotlin object.
+
+API sketch (Kotlin, commonMain):
+
+```kotlin
+package io.github.helmy2.mudawama.designsystem
+
+@Composable
+fun MudawamaTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
+) {
+    // Provide Colors, Typography, Shapes to MaterialTheme (compose.material3)
+}
+
 object MudawamaTheme {
     val colors: MudawamaColors
     val typography: MudawamaTypography
@@ -274,8 +376,8 @@ Suggested KMP source layout:
   - Tokens.kt                   // Lightweight mapping of color/typography/shape tokens
   - components/
     - MudawamaPrimaryButton.kt          // MudawamaPrimaryButton implementation
-    - GhostButton.kt            // MudawamaGhostButton implementation
-    - SurfaceCard.kt            // MudawamaSurfaceCard implementation
+    - MudawamaGhostButton.kt            // MudawamaGhostButton implementation
+    - MudawamaSurfaceCard.kt            // MudawamaSurfaceCard implementation
   - utils/
     - Accessibility.kt         // common semantics helpers
     - Platform.kt              // small helpers if needed for platform detection
@@ -285,7 +387,7 @@ Files description:
 - Colors.kt: contains color constants and palette definitions for light/dark.
 - Typography.kt: defines typography tokens and a public MudawamaTypography data class.
 - Shapes.kt: defines shape tokens as a data class and converters to Compose shapes.
-- MudawamaPrimaryButton.kt, GhostButton.kt, SurfaceCard.kt: component implementations using Compose primitives.
+- MudawamaPrimaryButton.kt, MudawamaGhostButton.kt, MudawamaSurfaceCard.kt: component implementations using Compose primitives.
 - Accessibility.kt: common helpers to attach semantic properties consistently.
 
 Build and Dependencies
@@ -330,12 +432,13 @@ kotlin {
 
 Testing & Previews
 ------------------
-Unit tests:
-- Token tests: simple unit tests in commonTest to assert hex values and token mappings (e.g., primary == Color(0xFF02594F)).
-- Typography tests: assert that token sizes and weights are defined as expected.
+Testing policy:
+- Token/unit tests in `commonTest` were discussed early in planning but the project has chosen to DEPRECATE/REMOVE those token/unit tests for the initial MVP. This is a deliberate decision to rely on theme-first previews, integration samples, and manual verification for visual tokens. The project may reintroduce automated token assertions later if desired — at present the artifacts and plan mark token/unit tests as DEPRECATED for the MVP.
+- Instead, provide robust previews, a `DesignSystemGallery` composable showcasing every component in light/dark and scaled type, and an integration sample integrated into `androidApp`'s `App.kt` (or a sample activity) so reviewers and QA can validate tokens and component behavior.
 
 Compose previews:
 - Provide preview composables for Android Studio and Compose Multiplatform preview tooling that show each component in light and dark themes and with accessibility (large text) scales.
+- Provide a `DesignSystemGallery` composable that renders the main tokens and components (buttons, cards, text scales). This gallery should be included in `samples/Previews.kt` and be referenced by `androidApp`'s `App.kt` for quick local inspection.
 
 Example preview (Android/Compose preview):
 
@@ -366,12 +469,12 @@ The following files should be created in the module (task dependencies noted):
 4) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/Shapes.kt   (independent)
 5) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/Tokens.kt   (helper mappings)
 6) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/MudawamaPrimaryButton.kt  (depends on Theme.kt, Shapes.kt)
-7) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/GhostButton.kt    (depends on Theme.kt)
-8) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/SurfaceCard.kt    (depends on Theme.kt)
+7) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/MudawamaGhostButton.kt    (depends on Theme.kt)
+8) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/MudawamaSurfaceCard.kt    (depends on Theme.kt)
 9) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/utils/Accessibility.kt      (optional helper)
 10) README.md (module usage, integration notes)
 11) build.gradle.kts (module build config)
-12) samples/ (small sample screens showing components usage) — optional but recommended
+12) samples/ (small sample screens showing components usage, including `DesignSystemGallery`)
 
 Acceptance Criteria
 -------------------
@@ -384,8 +487,8 @@ The feature is complete when all items below pass verification:
 5. MudawamaPrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard are implemented in commonMain with the public APIs specified, including modifier and onClick usage.
 6. Components render correctly on Android (Compose) with requested paddings/min-sizes and corner radii.
 7. Accessibility: tappable components have Role.Button semantics, accept contentDescription for icons, and pass basic provider checks (focusable, enabled state exposure).
-8. (Deprecated) Unit tests in commonTest were removed per project decision; token validation is manual for now.
-9. Preview composables demonstrate components in light/dark and large text scale.
+8. Token/unit tests in `commonTest` are DEPRECATED/REMOVED for MVP and acceptance will be validated via previews, `DesignSystemGallery`, integration sample in `androidApp` (App.kt) and manual QA evidence.
+9. Preview composables demonstrate components in light/dark and large text scale; `DesignSystemGallery` is present in previews to aid QA.
 10. Module build.gradle.kts compiles for Android and iOS targets and adds minimal Compose Multiplatform dependencies.
 
 Assumptions
@@ -397,8 +500,3 @@ Assumptions
 Questions / Clarifications
 -------------------------
 1) Fonts: Should the design system bundle a custom typeface (e.g., a bespoke Arabic-friendly font) or should it rely on platform system fonts and allow consumers to inject a FontFamily? (This affects assets and build configuration.)
-
-If no response, default behavior is to use system fonts and provide an optional API to inject a FontFamily.
-
-Specification status: READY for planning
-
