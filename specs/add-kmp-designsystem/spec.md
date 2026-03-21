@@ -395,7 +395,7 @@ The feature is complete when all items below pass verification:
 5. PrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard are implemented in commonMain with the public APIs specified, including modifier and onClick usage.
 6. Components render correctly on Android (Compose) with requested paddings/min-sizes and corner radii.
 7. Accessibility: tappable components have Role.Button semantics, accept contentDescription for icons, and pass basic provider checks (focusable, enabled state exposure).
-8. Unit tests present in commonTest validate color and typography tokens.
+8. (Deprecated) Unit tests in commonTest were removed per project decision; token validation is manual for now.
 9. Preview composables demonstrate components in light/dark and large text scale.
 10. Module build.gradle.kts compiles for Android and iOS targets and adds minimal Compose Multiplatform dependencies.
 

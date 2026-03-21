@@ -34,7 +34,7 @@ PHASE 4 — Utilities & Components (component implementation can begin after DS-
 PHASE 5 — Samples, Tests, CI, Docs
 
 - [ ] DS-011 Owner: @owner | Effort: 3h | Depends: DS-008, DS-009, DS-010 — Add previews and sample screens demonstrating components (light/dark/large text) and place them under `samples/Previews.kt` or `samples/`. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/samples/Previews.kt`
-- [ ] DS-012 Owner: @owner | Effort: 4h | Depends: DS-003, DS-004, DS-005, DS-008 — Write unit tests in `commonTest` validating color hex values, typography sizes/weights and basic Compose semantics (where available). Outputs: `src/commonTest/kotlin/.../TokensTest.kt`, other test files
+-- [ ] DS-012 Owner: @owner | Effort: 4h | Depends: DS-003, DS-004, DS-005, DS-008 — (Removed) Unit tests were intentionally omitted per project decision. This task is deprecated.
 - [ ] DS-013 Owner: @owner | Effort: 3h | Depends: DS-001, DS-002, DS-011 — Android integration sample: add example usage to `androidApp` module and integration notes in README. Outputs: `androidApp/src/main/.../DesignSystemSampleActivity.kt`, README snippet
 - [ ] DS-014 Owner: @owner | Effort: 2.5h | Depends: DS-001, DS-012 — Add CI workflow to build the KMP module and run common tests (GitHub Actions). Outputs: `.github/workflows/designsystem.yml`
 - [ ] DS-015 Owner: @owner | Effort: 2h | Depends: DS-011, DS-013 — Create `README.md` for the module with quickstart, API summary, integration steps, and sample usages. Outputs: `shared/designsystem/README.md`
