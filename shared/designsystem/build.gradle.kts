@@ -3,12 +3,11 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.androidKotlinMultiplatformLibrary)
-    alias(libs.plugins.androidLint)
 }
 
 kotlin {
     android {
-        namespace = "io.github.helmy2.mudawama.umbrella"
+        namespace = "io.github.helmy2.mudawama.designsystem"
         compileSdk {
             version = release(libs.versions.android.compileSdk.get().toInt()) {
                 minorApiLevel = 1
@@ -23,33 +22,36 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "MudawamaUI"
+            baseName = "MudawamaDesignSystem"
             isStatic = true
         }
     }
 
     sourceSets {
-        commonMain {
+        val commonMain by getting {
             dependencies {
-                implementation(project(":shared:core:domain"))
-                implementation(project(":shared:designsystem"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
-            }
-        }
 
-        androidMain {
-            dependencies {
+                implementation(libs.ui.tooling.preview)
 
             }
         }
 
-        iosMain {
+        val androidMain by getting {
             dependencies {
-
+                // Android-specific dependencies if needed
             }
+        }
+
+        val iosMain by creating {
+            dependsOn(commonMain)
         }
     }
-
 }
+
+dependencies {
+    androidRuntimeClasspath(libs.ui.tooling)
+}
+
