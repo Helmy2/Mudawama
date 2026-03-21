@@ -28,25 +28,14 @@ kotlin {
     }
 
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
+                implementation(libs.compose.runtime)
+                implementation(libs.compose.foundation)
+                implementation(libs.compose.material3)
 
                 implementation(libs.ui.tooling.preview)
-
             }
-        }
-
-        val androidMain by getting {
-            dependencies {
-                // Android-specific dependencies if needed
-            }
-        }
-
-        val iosMain by creating {
-            dependsOn(commonMain)
         }
     }
 }

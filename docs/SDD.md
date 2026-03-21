@@ -75,6 +75,16 @@ The Data Repository acts as the single source of truth. When the `GetPrayerTimes
 - `calculation_method_id` (Int) - API specific ID (e.g., 5 for Egyptian General Authority of Survey)
 - `daily_reset_preference` (String) - MIDNIGHT, MAGHRIB
 
+### 3.6 Session & Cryptography (`shared/core/data/session`)
+- Authentication tokens and sensitive user session data are stored securely using platform-specific cryptography. 
+- **Android:** Leverages Google's Tink library (`TinkEncryptor`) coupled with Android Keystore (`AES256_GCM`) to encrypt data before persistence.
+- **iOS:** Uses a custom `IosEncryptor` to encrypt data securely across the Swift/Kotlin boundary.
+
+### 3.7 Network Connectivity Monitoring
+- The `ConnectivityObserver` domain interface provides a `Flow<ConnectivityStatus>` to monitor network availability.
+- **Android:** Uses `AndroidConnectivityObserver` powered by `ConnectivityManager.NetworkCallback`.
+- **iOS:** Uses `IosConnectivityObserver` powered by Darwin's `NWPathMonitor`.
+
 ---
 
 ## 4. Component Design & State Management
@@ -97,6 +107,13 @@ Error messaging is decoupled from individual ViewModels via a Chain of Responsib
 - **`ErrorMapper`:** Each feature implements an `ErrorMapper` to translate its specific `BusinessError`s into localized `UiText`.
 - **`UiErrorAggregator`:** A singleton that coordinates feature mappers and provides fallback translations for generic `DataError`s.
 - **`UiMessageManager`:** A global singleton message queue containing `StateFlow<List<UiMessage>>`. When a ViewModel receives a `Failure` result, it maps the error and enqueues a `Snackbar`, `Toast`, or `Banner`. The global `UiMessageHost` composable observes this queue and renders the messages overlaying the app.
+
+### 4.4 Logging
+- **`MudawamaLogger`:** A unified multiplatform logging interface residing in the Domain layer to prevent platform logging imports coupling business logic.
+- **Implementation:** `KermitLogger` inside the Data layer wraps Touchlab's Kermit to dispatch logs across all native platforms safely.
+
+### 4.5 Permissions Management
+- Centralized utilities (`rememberPermissionState` & `PermissionState`) live in the `core:presentation` Android specific source set. They cleanly map traditional `ActivityResultContracts.RequestPermission` outcomes into readable state machines (`Rationale`, `PermanentlyDenied`) for use directly inside Jetpack Compose screens.
 
 ---
 
