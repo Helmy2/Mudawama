@@ -9,21 +9,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
-import io.github.helmy2.mudawama.designsystem.components.PrimaryButton
+import io.github.helmy2.mudawama.designsystem.components.MudawamaPrimaryButton
 import io.github.helmy2.mudawama.designsystem.components.MudawamaGhostButton
 import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
 import io.github.helmy2.mudawama.designsystem.components.DesignSystemGallery
 
 @Preview(showBackground = true)
 @Composable
-fun PrimaryButtonPreview() {
+fun MudawamaPrimaryButtonPreview() {
 	MudawamaTheme {
 		Column {
-			PrimaryButton(onClick = {}, text = "Start")
+			MudawamaPrimaryButton(onClick = {}, text = "Start")
 			Spacer(modifier = Modifier.height(8.dp))
-			PrimaryButton(onClick = {}, text = "Disabled", enabled = false)
+			MudawamaPrimaryButton(onClick = {}, text = "Disabled", enabled = false)
 			Spacer(modifier = Modifier.height(8.dp))
-			PrimaryButton(onClick = {}, text = "With Icon", leadingIcon = { Text("✓", color = MudawamaTheme.colors.onPrimary) })
+			MudawamaPrimaryButton(onClick = {}, text = "With Icon", leadingIcon = { Text("✓", color = MudawamaTheme.colors.onPrimary) })
 		}
 	}
 }
@@ -50,14 +50,14 @@ fun DesignSystemGalleryPreview() {
 
 @Preview(showBackground = true)
 @Composable
-fun PrimaryButtonDarkPreview() {
+fun MudawamaPrimaryButtonDarkPreview() {
 	MudawamaTheme(darkTheme = true) {
         Column {
-            PrimaryButton(onClick = {}, text = "Start")
+            MudawamaPrimaryButton(onClick = {}, text = "Start")
             Spacer(modifier = Modifier.height(8.dp))
-            PrimaryButton(onClick = {}, text = "Disabled", enabled = false)
+            MudawamaPrimaryButton(onClick = {}, text = "Disabled", enabled = false)
             Spacer(modifier = Modifier.height(8.dp))
-            PrimaryButton(onClick = {}, text = "With Icon", leadingIcon = { Text("✓", color = MudawamaTheme.colors.onPrimary) })
+            MudawamaPrimaryButton(onClick = {}, text = "With Icon", leadingIcon = { Text("✓", color = MudawamaTheme.colors.onPrimary) })
         }
 	}
 }

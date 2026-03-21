@@ -26,8 +26,8 @@ PHASE 3 — Tokens (can run in parallel after DS-001; DS-002 shell enables earli
 PHASE 4 — Utilities & Components (component implementation can begin after DS-002; token wiring (DS-006) improves fidelity)
 
 - [ ] DS-007 Owner: @owner | Effort: 2h | Depends: DS-002 — Implement `utils/Accessibility.kt` and optional `utils/Platform.kt` with common semantics helpers and expect/actual platform helpers. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/utils/Accessibility.kt`, `.../utils/Platform.kt`
-- [ ] DS-008 [P] Owner: @owner | Effort: 5h | Depends: DS-002, DS-007 — Implement `PrimaryButton` in `PrimaryButton.kt` following API and visual specs (padding, min size 48dp, shape medium, colors from `MudawamaTheme`, disabled state, semantics). Provide composable previews. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/PrimaryButton.kt`, preview in `samples/Previews.kt` (or adjacent file)
- - [ ] DS-008 [P] Owner: @owner | Effort: 5h | Depends: DS-002, DS-007 — Implement `PrimaryButton` in `PrimaryButton.kt` following API and visual specs (padding, min size 48dp, shape medium, colors from `MudawamaTheme`, disabled state, semantics). Provide composable previews. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/PrimaryButton.kt`, preview in `samples/Previews.kt` (or adjacent file)
+- [ ] DS-008 [P] Owner: @owner | Effort: 5h | Depends: DS-002, DS-007 — Implement `MudawamaPrimaryButton` in `MudawamaPrimaryButton.kt` following API and visual specs (padding, min size 48dp, shape medium, colors from `MudawamaTheme`, disabled state, semantics). Provide composable previews. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/MudawamaPrimaryButton.kt`, preview in `samples/Previews.kt` (or adjacent file)
+ - [ ] DS-008 [P] Owner: @owner | Effort: 5h | Depends: DS-002, DS-007 — Implement `MudawamaPrimaryButton` in `MudawamaPrimaryButton.kt` following API and visual specs (padding, min size 48dp, shape medium, colors from `MudawamaTheme`, disabled state, semantics). Provide composable previews. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/MudawamaPrimaryButton.kt`, preview in `samples/Previews.kt` (or adjacent file)
 - [ ] DS-009 [P] Owner: @owner | Effort: 4h | Depends: DS-002, DS-007 — Implement `MudawamaGhostButton` in `GhostButton.kt` (outlined and text variants, shape small/medium, semantics). Provide composable previews. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/GhostButton.kt`, preview in `samples/Previews.kt`
 - [ ] DS-010 [P] Owner: @owner | Effort: 3.5h | Depends: DS-002 — Implement `MudawamaSurfaceCard` in `SurfaceCard.kt` (shape large, padding 16dp, optional onClick, elevation). Provide composable previews. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/SurfaceCard.kt`, preview in `samples/Previews.kt`
 
@@ -36,12 +36,12 @@ PHASE 5 — Samples, Tests, CI, Docs
 - [ ] DS-011 Owner: @owner | Effort: 3h | Depends: DS-008, DS-009, DS-010 — Add previews and sample screens demonstrating components (light/dark/large text) and place them under `samples/Previews.kt` or `samples/`. Outputs: `src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/samples/Previews.kt`
 -- [ ] DS-012 Owner: @owner | Effort: 4h | Depends: DS-003, DS-004, DS-005, DS-008 — (Removed) Unit tests were intentionally omitted per project decision. This task is deprecated.
 - [ ] DS-013 Owner: @owner | Effort: 3h | Depends: DS-001, DS-002, DS-011 — Android integration sample: add example usage to `androidApp` module and integration notes in README. Outputs: `androidApp/src/main/.../DesignSystemSampleActivity.kt`, README snippet
-- [ ] DS-014 Owner: @owner | Effort: 2.5h | Depends: DS-001, DS-012 — Add CI workflow to build the KMP module and run common tests (GitHub Actions). Outputs: `.github/workflows/designsystem.yml`
+ - [ ] DS-014 Owner: @owner | Effort: 2.5h | Depends: DS-001 — Add CI workflow to build the KMP module and run common checks (GitHub Actions). Outputs: `.github/workflows/designsystem.yml`
 - [ ] DS-015 Owner: @owner | Effort: 2h | Depends: DS-011, DS-013 — Create `README.md` for the module with quickstart, API summary, integration steps, and sample usages. Outputs: `shared/designsystem/README.md`
-- [ ] DS-016 Owner: @owner / QA | Effort: 4h | Depends: DS-011, DS-012, DS-013 — Final QA: visual review, contrast checks (WCAG AA guidance), accessibility (TalkBack/VoiceOver), and cross-device verification. Outputs: QA checklist and issue backlog items
+ - [ ] DS-016 Owner: @owner / QA | Effort: 4h | Depends: DS-011, DS-013 — Final QA: visual review, contrast checks (WCAG AA guidance), accessibility (TalkBack/VoiceOver), and cross-device verification. Outputs: QA checklist and issue backlog items
 
 DEPENDENCIES (graph)
-- DS-000 → DS-001 → DS-002 → {DS-003, DS-004, DS-005} → DS-006 → DS-007 → {DS-008, DS-009, DS-010} → DS-011 → DS-012 → DS-013 → DS-014 → DS-015 → DS-016
+ - DS-000 → DS-001 → DS-002 → {DS-003, DS-004, DS-005} → DS-006 → DS-007 → {DS-008, DS-009, DS-010} → DS-011 → DS-013 → DS-014 → DS-015 → DS-016
 
 PARALLEL EXECUTION EXAMPLES
 - After DS-001: DS-003, DS-004, DS-005 can run in parallel to define tokens.
@@ -49,8 +49,8 @@ PARALLEL EXECUTION EXAMPLES
 - After DS-006 + DS-007: components DS-008/DS-009/DS-010 should be wired to real tokens; DS-011 previews can be created in parallel to component polishing.
 
 IMPLEMENTATION STRATEGY
-- MVP first: deliver a minimal, usable theme and PrimaryButton so app teams can adopt the look-and-feel:
-  - MVP tasks: DS-001, DS-002 (Theme shell), DS-003, DS-004, DS-005, DS-006 (token wiring), DS-008 (PrimaryButton), DS-012 (basic tests), DS-015 (README). These tasks are marked as the minimum viable set for a safe initial rollout.
+- MVP first: deliver a minimal, usable theme and MudawamaPrimaryButton so app teams can adopt the look-and-feel:
+  - MVP tasks: DS-001, DS-002 (Theme shell), DS-003, DS-004, DS-005, DS-006 (token wiring), DS-008 (MudawamaPrimaryButton), DS-012 (basic tests), DS-015 (README). These tasks are marked as the minimum viable set for a safe initial rollout.
 - Iterative delivery:
   1. Scaffold module (DS-001) and land Theme shell (DS-002) quickly to unblock parallel work.
  2. Implement tokens (DS-003/DS-004/DS-005) in parallel; wire them (DS-006).
@@ -60,7 +60,7 @@ IMPLEMENTATION STRATEGY
 
 OUTPUT SUMMARY
 - Total tasks: 17 (DS-000 .. DS-016)
-- MVP tasks: DS-001, DS-002, DS-003, DS-004, DS-005, DS-006, DS-008, DS-012, DS-015
+ - MVP tasks: DS-001, DS-002, DS-003, DS-004, DS-005, DS-006, DS-008, DS-015
 
 FORMAT VALIDATION
 - All tasks are listed as checklist items with Task IDs DS-000..DS-016. Each includes Owner placeholder, Effort estimate, explicit Dependencies, and Outputs where applicable. Parallelizable tasks are marked with [P].

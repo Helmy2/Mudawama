@@ -10,20 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.core.domain.platform
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
-import io.github.helmy2.mudawama.designsystem.components.PrimaryButton
+import io.github.helmy2.mudawama.designsystem.components.DesignSystemGallery
 
 @Composable
 fun App() {
     MudawamaTheme {
-        Scaffold {
-            Card(
-                modifier = Modifier.padding(it).padding(16.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Hello from ${platform()}")
-                    PrimaryButton(onClick = {}, text = "Start")
-                }
-            }
-        }
+        DesignSystemGallery()
     }
 }

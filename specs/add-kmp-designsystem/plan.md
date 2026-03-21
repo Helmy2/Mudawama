@@ -46,8 +46,8 @@
  - Initial shell (DS-002): provide `@Composable fun MudawamaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit)` mapping inline placeholder tokens to `androidx.compose.material3.MaterialTheme`, and expose `object MudawamaTheme { val colors, typography, shapes }` via CompositionLocals for early usage.
  - Refinement (DS-006): replace placeholders with `MudawamaColors`, `MudawamaTypography`, and `MudawamaShapes`. Map `MudawamaColors` -> `ColorScheme` for Material 3. Provide `LocalMudawamaColors`, `LocalMudawamaTypography`, `LocalMudawamaShapes` composition locals.
 
- PrimaryButton.kt (DS-008)
- - Path: `shared/designsystem/src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/PrimaryButton.kt`
+ MudawamaPrimaryButton.kt (DS-008)
+ - Path: `shared/designsystem/src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/MudawamaPrimaryButton.kt`
  - Public API per spec.
  - Use `androidx.compose.material3.Button` with `ButtonDefaults.buttonColors(containerColor = MudawamaTheme.colors.primary, contentColor = MudawamaTheme.colors.onPrimary)` and `shape = MudawamaTheme.shapes.medium`.
  - Apply content padding (horizontal 16.dp, vertical 12.dp), minHeight 48.dp.
@@ -69,7 +69,7 @@
 
  Testing (DS-012)
  - `commonTest` token assertions (hex equality), typography size assertions, shapes radii.
- - Compose UI tests: semantics and click behavior for PrimaryButton and GhostButton using Compose test rules (AndroidHost or Compose MPP test frameworks).
+ - Compose UI tests: semantics and click behavior for MudawamaPrimaryButton and GhostButton using Compose test rules (AndroidHost or Compose MPP test frameworks).
 
  CI & GitHub Actions (DS-014)
  - Minimal pipeline: `assemble` and `commonTest` on Linux; optional macOS job to assemble Android or iOS targets.
@@ -86,7 +86,7 @@
    - (2) Color tokens match hex — DS-003. Note: TokensTest was removed per project decision; tests are deprecated for now.
  - (3) Typography tokens — DS-004; test TypographyTest.buttonWeightAndSize.
  - (4) Shapes tokens — DS-005; test ShapesTest.mediumRadius_is16dp.
- - (5) Components implemented in commonMain — DS-008..DS-010; tests PrimaryButtonTest, GhostButtonTest, SurfaceCardTest.
+ - (5) Components implemented in commonMain — DS-008..DS-010; tests MudawamaPrimaryButtonTest, GhostButtonTest, SurfaceCardTest.
  - (6) Components render correctly — DS-011 + DS-016 manual QA + sample integration DS-013.
  - (7) Accessibility semantics — DS-007 + tests in DS-012.
 
@@ -104,7 +104,7 @@
    - `shared/designsystem/src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/Typography.kt` (DS-004)
    - `shared/designsystem/src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/Shapes.kt` (DS-005)
    - `shared/designsystem/src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/Tokens.kt` (DS-006)
-   - `shared/designsystem/src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/PrimaryButton.kt` (DS-008)
+   - `shared/designsystem/src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/MudawamaPrimaryButton.kt` (DS-008)
      - Tests: token/unit tests are deprecated and removed per project decision (DS-012 deprecated).
    - `shared/designsystem/README.md` (DS-015)
 
@@ -113,8 +113,8 @@
  - Day-by-day plan (theme-first):
    - Day 1: DS-000, DS-001, DS-002 (theme shell)
    - Day 2: DS-003, DS-004, DS-005, start DS-006 (token wiring)
-   - Day 3: DS-006 finish, DS-007, DS-008 PrimaryButton, DS-009 GhostButton
-   - Day 4: DS-010 SurfaceCard, DS-011 Previews, DS-012 Tests, DS-013 Android sample, DS-015 README
+   - Day 3: DS-006 finish, DS-007, DS-008 MudawamaPrimaryButton, DS-009 GhostButton
+    - Day 4: DS-010 SurfaceCard, DS-011 Previews, DS-013 Android sample, DS-015 README (DS-012 tests deprecated)
 
  Try-it commands (local)
  ```bash

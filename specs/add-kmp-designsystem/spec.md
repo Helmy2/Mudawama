@@ -6,7 +6,7 @@ Purpose: Create a Kotlin Multiplatform (KMP) "shared:designsystem" module that c
 
 Goals:
 - Provide a stable, well-documented theme API (MudawamaTheme) exposing colors, typography, and shapes.
- - Ship a minimal, tested set of components: PrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard.
+ - Ship a minimal, tested set of components: MudawamaPrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard.
 - Offer platform-friendly tokens (colors, type, shapes) from commonMain so features can share consistent styling.
 - Make the API ergonomic, KMP-friendly, and resilient to dark mode and dynamic type.
 
@@ -129,7 +129,7 @@ Components
 ----------
 For each component below, the public API is defined for use from commonMain and should not expose platform-specific types.
 
-1) PrimaryButton
+1) MudawamaPrimaryButton
 -------------------------
 - Purpose: Emphasized primary CTA button.
 
@@ -137,7 +137,7 @@ Public API (commonMain):
 
 ```kotlin
 @Composable
-fun PrimaryButton(
+fun MudawamaPrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     text: String,
@@ -170,9 +170,9 @@ Compose MPP notes:
 Example usage:
 
 ```kotlin
-PrimaryButton(onClick = { /* navigate */ }, text = "Start")
+MudawamaPrimaryButton(onClick = { /* navigate */ }, text = "Start")
 
-PrimaryButton(
+MudawamaPrimaryButton(
     onClick = { /* save */ },
     text = "Save",
     leadingIcon = { Icon(Icons.Default.Check, contentDescription = null) }
@@ -273,7 +273,7 @@ Suggested KMP source layout:
   - Shapes.kt                   // MudawamaShapes tokens
   - Tokens.kt                   // Lightweight mapping of color/typography/shape tokens
   - components/
-    - PrimaryButton.kt          // PrimaryButton implementation
+    - MudawamaPrimaryButton.kt          // MudawamaPrimaryButton implementation
     - GhostButton.kt            // MudawamaGhostButton implementation
     - SurfaceCard.kt            // MudawamaSurfaceCard implementation
   - utils/
@@ -285,7 +285,7 @@ Files description:
 - Colors.kt: contains color constants and palette definitions for light/dark.
 - Typography.kt: defines typography tokens and a public MudawamaTypography data class.
 - Shapes.kt: defines shape tokens as a data class and converters to Compose shapes.
-- PrimaryButton.kt, GhostButton.kt, SurfaceCard.kt: component implementations using Compose primitives.
+- MudawamaPrimaryButton.kt, GhostButton.kt, SurfaceCard.kt: component implementations using Compose primitives.
 - Accessibility.kt: common helpers to attach semantic properties consistently.
 
 Build and Dependencies
@@ -337,17 +337,6 @@ Unit tests:
 Compose previews:
 - Provide preview composables for Android Studio and Compose Multiplatform preview tooling that show each component in light and dark themes and with accessibility (large text) scales.
 
-Example unit test (commonTest):
-
-```kotlin
-class TokensTest {
-    @Test
-    fun primaryColor_isExact() {
-        assertEquals(0xFF02594F.toInt(), MudawamaColors.Light.primary.value)
-    }
-}
-```
-
 Example preview (Android/Compose preview):
 
 ```kotlin
@@ -355,7 +344,7 @@ Example preview (Android/Compose preview):
 @Composable
 fun PrimaryButtonPreview() {
     MudawamaTheme {
-        PrimaryButton(onClick = {}, text = "Start")
+        MudawamaPrimaryButton(onClick = {}, text = "Start")
     }
 }
 ```
@@ -376,7 +365,7 @@ The following files should be created in the module (task dependencies noted):
 3) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/Typography.kt (independent)
 4) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/Shapes.kt   (independent)
 5) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/Tokens.kt   (helper mappings)
-6) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/PrimaryButton.kt  (depends on Theme.kt, Shapes.kt)
+6) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/MudawamaPrimaryButton.kt  (depends on Theme.kt, Shapes.kt)
 7) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/GhostButton.kt    (depends on Theme.kt)
 8) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/components/SurfaceCard.kt    (depends on Theme.kt)
 9) src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/utils/Accessibility.kt      (optional helper)
@@ -392,7 +381,7 @@ The feature is complete when all items below pass verification:
 2. Color tokens match the exact hex values specified (DeepTeal #02594F, CalmEmerald #1B8049, OffWhiteBackground #F7F7F4, PureWhiteSurface #FFFFFF, CharcoalText #1D2322, MutedRedError #C45151).
 3. Typography tokens defined with the sizes/weights listed and available from commonMain.
 4. Shapes tokens include small/medium/large with 8dp/16dp radii and are used by the components.
-5. PrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard are implemented in commonMain with the public APIs specified, including modifier and onClick usage.
+5. MudawamaPrimaryButton, MudawamaGhostButton, MudawamaSurfaceCard are implemented in commonMain with the public APIs specified, including modifier and onClick usage.
 6. Components render correctly on Android (Compose) with requested paddings/min-sizes and corner radii.
 7. Accessibility: tappable components have Role.Button semantics, accept contentDescription for icons, and pass basic provider checks (focusable, enabled state exposure).
 8. (Deprecated) Unit tests in commonTest were removed per project decision; token validation is manual for now.

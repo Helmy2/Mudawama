@@ -13,7 +13,7 @@ import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 fun DesignSystemGallery(modifier: Modifier = Modifier) {
     MudawamaTheme {
         Column(modifier = modifier) {
-            PrimaryButton(onClick = {}, text = "Start")
+            MudawamaPrimaryButton(onClick = {}, text = "Start")
             Spacer(modifier = Modifier.height(8.dp))
             MudawamaGhostButton(onClick = {}, text = "Cancel")
             Spacer(modifier = Modifier.height(8.dp))
