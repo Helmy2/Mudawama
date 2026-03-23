@@ -17,6 +17,8 @@ mudawama/
 │   │   ├── data/               # Ktor client setup, Room DB builders, Tink/Platform Session Encryptors
 │   │   └── presentation/       # Custom MVI BaseViewModels, UiMessageManager, Permission State Composables
 │   │
+│   ├── build-logic/            # Custom Gradle Convention Plugins (shared build logic)
+│   │
 │   ├── designsystem/           # Compose themes, typography, localized strings, icons
 │   │
 │   ├── umbrella-core/          # iOS Export: Pure Business Logic (.framework)
@@ -42,7 +44,7 @@ mudawama/
 All actual product value lives here. Every new feature is physically sliced into three sub-modules:
 * **`:domain` (The Rules):** Pure Kotlin. Cannot import Compose, Android, iOS, or Ktor.
 * **`:data` (The Implementation):** Depends on `:domain`. Handles Room SQLite, APIs, and maps external exceptions into pure `DataError` objects via a `safeCall` wrapper.
-* **`:presentation` (The Screens):** Depends on `:domain`. Contains Orbit MVI ViewModels and Jetpack Compose screens.
+* **`:presentation` (The Screens):** Depends on `:domain`. Contains Orbit-style MVI ViewModels and Jetpack Compose screens.
 
 ### 2. The `shared:core` Split
 To prevent feature modules from importing heavy libraries they don't need, the core infrastructure is aggressively split:
@@ -81,12 +83,24 @@ To prevent breaking the architecture, follow these strict dependency rules when 
 
 ---
 
+## 🛠 Build System & Convention Plugins
+
+Mudawama uses **Gradle Convention Plugins** located in the `build-logic` module to centralize build configuration. This ensures consistency across all modules and enforces performance best practices.
+
+### Core Plugins:
+* **`mudawama.kmp.library`**: Configures the base KMP and Android library settings (JVM 17, SDK versions, etc.).
+* **`mudawama.kmp.koin`**: Standardizes DI setup using the Koin BOM and provides necessary platform extensions (like `koin-android`).
+* **`mudawama.kmp.data`**: Specialized for data modules, automatically applying serialization and Koin compiler plugins.
+* **`mudawama.kmp.presentation`**: Configures CMP, Compose Compiler, and Koin dependencies for UI modules.
+
+---
+
 ## 💉 Dependency Injection (Koin)
 
 Our Koin architecture follows the **Composition Root** pattern, ensuring that dependency injection is initialized at the highest level of the application, keeping lower layers decoupled from the DI lifecycle.
 
 ### The Flow
-1. **Module Composition:** Each layer provides its own Koin definitions (e.g., `coreDataModule`). Platform-specific implementations (like `DataStore` or native encryptors) are provided via `androidCoreDataModule` and `iosCoreDataModule`, which internally use `includes(coreDataModule)` to cleanly bundle the common logic.
+1. **Module Composition:** Each layer provides its own Koin definitions (e.g., `coreDataModule`). Platform-specific implementations (like `DataStore` or native encryptors) are provided via `androidCoreDataModule` and `iosCoreDataModule`. Platform dependencies (like `koin-android`) are automatically managed via the `mudawama.kmp.koin` convention plugin.
 2. **Umbrella Initialization:** The `umbrella-ui` module serves as the primary KMP composition root. It aggregates the data modules and prepares the DI container for any future UI-level elements like ViewModels.
 3. **Native Launch:**
    - **Android:** The `MudawamaApplication` class safely calls `startKoin { setupModules() }`.

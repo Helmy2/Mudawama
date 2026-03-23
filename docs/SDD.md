@@ -11,7 +11,7 @@
 This System Design Document specifies the technical architecture, data design, and component interactions for the Mudawama application. It acts as the technical blueprint for the engineering team and provides the structural context required for AI-driven development via GitHub Spec Kit to implement features correctly without violating architectural boundaries.
 
 ### 1.2 System Overview
-Mudawama is an offline-first application built with Kotlin Multiplatform (KMP) and Compose Multiplatform (CMP). It leverages a local Room database for data persistence, Ktor for network caching, Clean Architecture for strict module boundaries, Railway-Oriented Programming for error handling, and an Orbit-style MVI pattern for state management. The UI is built using Compose Multiplatform for both platforms, with a "dual-umbrella" framework design allowing a clean, future transition to native iOS SwiftUI.
+Mudawama is an offline-first application built with Kotlin Multiplatform (KMP) and Compose Multiplatform (CMP). It leverages a local Room database for data persistence, Ktor for network caching, Clean Architecture for strict module boundaries, Railway-Oriented Programming for error handling, and a custom Orbit-style MVI pattern for state management. The UI is built using Compose Multiplatform for both platforms, with a "dual-umbrella" framework design allowing a clean, future transition to native iOS SwiftUI.
 
 ---
 
@@ -29,7 +29,7 @@ _Dependency Rule:_ `Presentation -> Domain <- Data`
 ### 2.2 Multi-Module & Packaging Strategy
 The repository uses a **"Packaging by Feature"** strategy to ensure horizontal scalability, prevent merge conflicts, and guarantee fast Gradle build times.
 
-- **`build-logic`:** Houses custom Gradle convention plugins (e.g., `mudawama.kmp.compose`, `mudawama.kmp.room`) to centralize complex build configurations.
+- **`build-logic`:** Houses custom Gradle convention plugins (e.g., `mudawama.kmp.library`, `mudawama.kmp.koin`, `mudawama.kmp.data`, `mudawama.kmp.presentation`) to centralize complex build configurations and enforce performance best practices (e.g., eager plugin application for Configuration Cache).
 - **`shared/core`:** Contains the base `Result` classes, Error interfaces, Ktor client engines, and the `UiMessageManager` messaging queue.
 - **`shared/feature/x`:** Each feature (e.g., `habits`, `prayer`) is split into independent `domain`, `data`, and `presentation` sub-modules.
 - **`shared/umbrella-core`:** Aggregates all `domain` and `data` modules for iOS export (no UI). Used for future SwiftUI migration.
@@ -89,8 +89,8 @@ The Data Repository acts as the single source of truth. When the `GetPrayerTimes
 
 ## 4. Component Design & State Management
 
-### 4.1 Orbit-Style MVI (Presentation Layer)
-ViewModels are platform-agnostic (residing in `shared/feature/x/presentation`) and utilize an Orbit-style MVI flow.
+### 4.1 Custom Orbit-style MVI (Presentation Layer)
+ViewModels are platform-agnostic (residing in `shared/feature/x/presentation`) and utilize an Orbit-style MVI flow implemented via standard StateFlow and SharedFlow (no external Orbit library dependency).
 - **`State`:** A single immutable data class representing the UI.
 - **`Action`:** A sealed interface representing user intentions (e.g., `Action.ToggleHabit`).
 - **`Event`:** A sealed interface for one-shot UI side effects (e.g., `Event.ShowConfetti`, `Event.NavigateBack`).

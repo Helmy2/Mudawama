@@ -43,13 +43,26 @@ This repository is thoroughly documented to simulate a complete product lifecycl
 
 ## 🛠 Tech Stack
 Mudawama leverages the latest in cross-platform mobile technology:
-* **Language:** Kotlin 2.x
-* **UI:** Jetpack Compose Multiplatform (Android & iOS)
-* **Architecture:** Clean Architecture + MVI
-* **Local Database:** Room for KMP
-* **Networking:** Ktor
-* **Dependency Injection:** Koin
-* **Tooling:** Gradle Convention Plugins & GitHub Spec Kit
+* **Language:** Kotlin 2.3.20+ (strong K2 compiler enforcement)
+* **UI:** Jetpack Compose Multiplatform 1.10.3+ (Android & iOS)
+* **Architecture:** Clean Architecture + Custom MVI (Orbit-style)
+* **Local Database:** Room for KMP (SQLite)
+* **Networking:** Ktor 3.4.1+ (with Content Negotiation & Logging)
+* **Dependency Injection:** Koin 4.2.0 (with BOM & Platform Extensions)
+* **Tooling:** Optimized Gradle Convention Plugins (Configuration Cache ready) & GitHub Spec Kit
+
+---
+
+## 🏗 Project Structure
+The project follows a modular "Packaging by Feature" strategy to ensure scalability and isolation.
+
+```mermaid
+graph TD
+    App[androidApp / iosApp] --> Umbrella[shared:umbrella-ui]
+    Umbrella --> Feature[feature:habits / feature:prayer]
+    Feature --> Core[shared:core:presentation / data / domain]
+    Feature --> Design[shared:designsystem]
+```
 
 ---
 
