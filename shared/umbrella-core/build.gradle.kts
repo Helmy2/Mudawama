@@ -16,6 +16,7 @@ kotlin {
             dependencies {
                 api(projects.shared.core.domain)
                 api(projects.shared.core.data)
+                api(projects.shared.core.database)
             }
         }
     }

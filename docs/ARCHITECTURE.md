@@ -14,7 +14,8 @@ mudawama/
 ├── shared/                     # Foundational infrastructure (Not feature-specific)
 │   ├── core/
 │   │   ├── domain/             # Result wrappers, DataError interfaces, MudawamaLogger, ConnectivityObserver
-│   │   ├── data/               # Ktor client setup, Room DB builders, Tink/Platform Session Encryptors
+│   │   ├── data/               # Ktor client setup, Tink/Platform Session Encryptors, DataStore
+│   │   ├── database/           # Room KMP database: entities, DAOs, MudawamaDatabase, Koin DI
 │   │   └── presentation/       # Custom MVI BaseViewModels, UiMessageManager, Permission State Composables
 │   │
 │   ├── build-logic/            # Custom Gradle Convention Plugins (shared build logic)
@@ -27,7 +28,7 @@ mudawama/
 └── feature/                    # ALL product features live here
     ├── habits/
     │   ├── domain/             # Models, UseCases, Repository Interfaces
-    │   ├── data/               # Room Entities, DAOs, API Calls
+    │   ├── data/               # DAOs via shared:core:database, API Calls
     │   └── presentation/       # Jetpack Compose UI, ViewModels
     │
     └── prayer/
@@ -49,7 +50,16 @@ All actual product value lives here. Every new feature is physically sliced into
 ### 2. The `shared:core` Split
 To prevent feature modules from importing heavy libraries they don't need, the core infrastructure is aggressively split:
 * A `:feature:x:domain` module only needs `Result` classes, so it depends purely on `shared:core:domain`.
-* It will never accidentally pull in Ktor or Jetpack Compose because those live in `core:data` and `core:presentation`.
+* A `:feature:x:data` module depends on its own `:domain`, `shared:core:data` (for Ktor/DataStore), and `shared:core:database` (for Room entities and DAOs).
+* It will never accidentally pull in Compose UI because that lives in `core:presentation`.
+
+### 3. The `shared:core:database`
+The offline-first persistence layer for the entire app. Built with **Room for KMP** (`androidx.room`), it provides:
+* Three Room entities: `HabitEntity`, `HabitLogEntity`, `QuranBookmarkEntity`
+* Three DAOs: `HabitDao`, `HabitLogDao`, `QuranBookmarkDao`
+* A single `MudawamaDatabase` with an `expect/actual` constructor pattern so Room KSP generates platform bridges automatically
+* Platform-specific `getDatabaseBuilder()` functions (Android uses `Context`, iOS uses `NSHomeDirectory`)
+* A Koin module per platform: `androidCoreDatabaseModule` / `iosCoreDatabaseModule()`
 
 ### 3. The `shared:designsystem`
 Contains all static resources via JetBrains Compose Resources (`strings.xml`, `.ttf` fonts, `.svg` icons) and the global `MudawamaTheme`. Every feature's `:presentation` module depends on this to ensure visual consistency.
@@ -77,7 +87,7 @@ Because Xcode requires a single compiled `.framework` to link against, we use "U
 To prevent breaking the architecture, follow these strict dependency rules when writing `build.gradle.kts` files:
 
 1. `domain` modules may **only** depend on `shared:core:domain`.
-2. `data` modules must depend on their own `:domain`, plus `shared:core:data`.
+2. `data` modules must depend on their own `:domain`, `shared:core:data`, and `shared:core:database`.
 3. `presentation` modules must depend on their own `:domain`, `shared:core:presentation`, and `shared:designsystem`.
 4. Feature modules may **never** depend on other feature modules. (If features must communicate, they do so via deep-linking in the `umbrella-ui` NavHost or via shared IDs).
 
@@ -90,8 +100,9 @@ Mudawama uses **Gradle Convention Plugins** located in the `build-logic` module 
 ### Core Plugins:
 * **`mudawama.kmp.library`**: Configures the base KMP and Android library settings (JVM 17, SDK versions, etc.).
 * **`mudawama.kmp.koin`**: Standardizes DI setup using the Koin BOM and provides necessary platform extensions (like `koin-android`).
-* **`mudawama.kmp.data`**: Specialized for data modules, automatically applying serialization and Koin compiler plugins.
-* **`mudawama.kmp.presentation`**: Configures CMP, Compose Compiler, and Koin dependencies for UI modules.
+* **`mudawama.kmp.data`**: Specialized for data modules, automatically applying serialization, Ktor, and Koin compiler plugins.
+* **`mudawama.kmp.database`**: Specialized for the database module — applies KSP + Room Gradle plugin, configures the schema directory, and adds `room-runtime`, `sqlite-bundled`, and `room-compiler` (per KSP target) automatically.
+* **`mudawama.kmp.presentation`**: Configures CMP, Compose Compiler, `ui-tooling-preview` (commonMain), and Koin dependencies for UI modules.
 
 ---
 
@@ -100,10 +111,12 @@ Mudawama uses **Gradle Convention Plugins** located in the `build-logic` module 
 Our Koin architecture follows the **Composition Root** pattern, ensuring that dependency injection is initialized at the highest level of the application, keeping lower layers decoupled from the DI lifecycle.
 
 ### The Flow
-1. **Module Composition:** Each layer provides its own Koin definitions (e.g., `coreDataModule`). Platform-specific implementations (like `DataStore` or native encryptors) are provided via `androidCoreDataModule` and `iosCoreDataModule`. Platform dependencies (like `koin-android`) are automatically managed via the `mudawama.kmp.koin` convention plugin.
-2. **Umbrella Initialization:** The `umbrella-ui` module serves as the primary KMP composition root. It aggregates the data modules and prepares the DI container for any future UI-level elements like ViewModels.
+1. **Module Composition:** Each layer provides its own Koin definitions. Platform-specific implementations are provided via platform-specific modules:
+   - `androidCoreDataModule` / `iosCoreDataModule(iosEncryptor)` — Ktor, DataStore, Encryptor, ConnectivityObserver
+   - `androidCoreDatabaseModule` / `iosCoreDatabaseModule()` — `MudawamaDatabase` + all three DAOs
+2. **Umbrella Initialization:** The `umbrella-ui` module is the KMP composition root. It aggregates all module DI registrations and boots Koin.
 3. **Native Launch:**
-   - **Android:** The `MudawamaApplication` class safely calls `startKoin { setupModules() }`.
-   - **iOS:** The native `iOSApp.swift` instantiates the Swift-specific `IosEncryptor` and passes it into KMP via `KoinInitializerKt.initializeKoin(iosEncryptor: swiftEncryptor)`, allowing `umbrella-ui` to configure and execute `startKoin`.
+   - **Android:** `MudawamaApplication.onCreate()` calls `startKoin { androidContext(...); setupModules() }`, which registers both the data and database modules.
+   - **iOS:** `iOSApp.swift` instantiates a Swift `IosEncryptor` and passes it into KMP via `KoinInitializerKt.initializeKoin(iosEncryptor:)`, which registers both platform modules.
 
 By restricting `startKoin` to the top-level composition root (the umbrella module or native apps), we ensure that feature modules can easily register their dependencies (such as Use Cases or ViewModels) into the DI graph without encountering race conditions or initialization limitations.

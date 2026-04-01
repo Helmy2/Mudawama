@@ -38,49 +38,67 @@ The repository uses a **"Packaging by Feature"** strategy to ensure horizontal s
 
 ---
 
-## 3. Data Design (Room, Ktor, & DataStore)
+## 3. Data Design (Room KMP, Ktor, & DataStore)
 
-The application operates primarily offline using KMP-compatible Room. The database normalizes the definition of a habit (the rule) from the daily completion log (the action), while also caching external API data.
+The application operates entirely offline using **Room for KMP** (`androidx.room` 2.7+). The schema normalises the definition of a habit (the rule) from its daily completion log (the action), and stores the user's Quran reading position as a singleton bookmark.
 
-### 3.1 Entity: `HabitEntity`
-- `id` (String, UUID, Primary Key)
-- `title` (String) - e.g., "Fajr", "Read Quran", "Duha"
-- `type` (Enum) - `PRAYER`, `QURAN`, `FASTING`, `CUSTOM`
-- `frequencyType` (Enum) - `DAILY`, `SPECIFIC_DAYS`
-- `frequencyValue` (String) - e.g., "1,4" for Monday/Thursday
-- `createdAt` (Long, Timestamp)
+### 3.1 Entity: `HabitEntity` — `habits` table
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `String` (UUID) | Primary Key |
+| `name` | `String` | Display name (e.g. "Fajr", "Read Quran") |
+| `iconKey` | `String` | Icon identifier key |
+| `type` | `String` | Enum: `BOOLEAN` or `COUNTER` |
+| `category` | `String` | Enum: `PRAYER`, `QURAN`, `ATHKAR`, `CUSTOM` |
+| `frequencyDays` | `String` | Comma-separated days e.g. `"MON,WED,FRI"` |
+| `isCore` | `Boolean` | `true` = cannot be deleted by the user |
+| `goalCount` | `Int?` | Nullable; only used when `type = COUNTER` |
+| `createdAt` | `Long` | Unix timestamp millis |
 
-### 3.2 Entity: `DailyLogEntity`
-- `id` (String, UUID, Primary Key)
-- `habitId` (String, UUID, Foreign Key referencing `HabitEntity`)
-- `date` (String) - ISO-8601 date string (e.g., "2026-03-18")
-- `status` (Enum) - `PENDING`, `COMPLETED`, `COMPLETED_JAMAAH`, `MISSED`
-- `metricValue` (Int, Nullable) - Used for variable tracking (e.g., number of Quran pages read)
-- `updatedAt` (Long, Timestamp)
+### 3.2 Entity: `HabitLogEntity` — `habit_logs` table
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `String` (UUID) | Primary Key |
+| `habitId` | `String` | FK → `habits.id` ON DELETE CASCADE |
+| `date` | `String` | ISO date `"yyyy-MM-dd"` |
+| `status` | `String` | Enum: `PENDING`, `COMPLETED`, `MISSED` |
+| `completedCount` | `Int` | Repetitions for COUNTER habits; 0 for BOOLEAN |
+| `loggedAt` | `Long` | Unix timestamp millis |
 
-### 3.3 Entity: `PrayerTimeCacheEntity`
-- `date` (String, Primary Key) - Format: "DD-MM-YYYY"
-- `fajr` (String)
-- `dhuhr` (String)
-- `asr` (String)
-- `maghrib` (String)
-- `isha` (String)
+### 3.3 Entity: `QuranBookmarkEntity` — `quran_bookmarks` table
+Singleton row (`id = 1` always).
 
-### 3.4 Data Flow & Caching Strategy
-The Data Repository acts as the single source of truth. When the `GetPrayerTimesUseCase` requests times, the repository queries `PrayerTimeCacheEntity`. If the data exists, it returns immediately. If missing, it utilizes the `Ktor` client to fetch a full month from `http://api.aladhan.com/v1/calendarByCity`, saves it to the Room database, and returns the requested date.
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `Int` | Always 1 |
+| `surah` | `Int` | 1–114 |
+| `ayah` | `Int` | Ayah number within the surah |
+| `dailyGoalPages` | `Int` | User's daily reading goal |
+| `pagesReadToday` | `Int` | Resets each day via `resetDailyPages()` |
+| `lastUpdated` | `Long` | Unix timestamp millis |
 
-### 3.5 DataStore Preferences (`shared/core/datastore`)
-- `theme_preference` (String) - LIGHT, DARK, SYSTEM
-- `language_preference` (String) - EN, AR
-- `calculation_method_id` (Int) - API specific ID (e.g., 5 for Egyptian General Authority of Survey)
-- `daily_reset_preference` (String) - MIDNIGHT, MAGHRIB
+### 3.4 Database: `MudawamaDatabase`
+- Single `RoomDatabase` class with `@ConstructedBy(MudawamaDatabaseConstructor::class)`
+- Room KSP auto-generates the `actual object MudawamaDatabaseConstructor` for each platform
+- Android builder uses `getDatabaseBuilder(Context)` with `getDatabasePath("mudawama.db")`
+- iOS builder uses `getDatabaseBuilder()` with `NSHomeDirectory() + "/mudawama.db"`
+- All DAOs use `suspend` functions and `Flow<>` for reactive reads
 
-### 3.6 Session & Cryptography (`shared/core/data/session`)
+### 3.5 Data Flow & Caching Strategy
+The Data Repository acts as the single source of truth. When a feature module's Use Case requests data, its repository queries the relevant DAO from `MudawamaDatabase`. If the data requires network enrichment (e.g. prayer times), the repository utilises the Ktor client to fetch from the remote API, persists the result locally, and returns it.
+
+### 3.6 DataStore Preferences (`shared/core/data/session`)
+- `theme_preference` (String) — LIGHT, DARK, SYSTEM
+- `language_preference` (String) — EN, AR
+- `calculation_method_id` (Int) — API-specific ID
+- `daily_reset_preference` (String) — MIDNIGHT, MAGHRIB
+
+### 3.7 Session & Cryptography (`shared/core/data/session`)
 - Authentication tokens and sensitive user session data are stored securely using platform-specific cryptography. 
 - **Android:** Leverages Google's Tink library (`TinkEncryptor`) coupled with Android Keystore (`AES256_GCM`) to encrypt data before persistence.
 - **iOS:** Uses a custom `IosEncryptor` to encrypt data securely across the Swift/Kotlin boundary.
 
-### 3.7 Network Connectivity Monitoring
+### 3.8 Network Connectivity Monitoring
 - The `ConnectivityObserver` domain interface provides a `Flow<ConnectivityStatus>` to monitor network availability.
 - **Android:** Uses `AndroidConnectivityObserver` powered by `ConnectivityManager.NetworkCallback`.
 - **iOS:** Uses `IosConnectivityObserver` powered by Darwin's `NWPathMonitor`.

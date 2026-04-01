@@ -25,6 +25,8 @@ dependencies {
     implementation(libs.plugins.androidLint.toDependency())
     implementation(libs.plugins.koin.compiler.toDependency())
     implementation(libs.plugins.kotlinxSerialization.toDependency())
+    implementation(libs.plugins.ksp.toDependency())
+    implementation(libs.plugins.room.toDependency())
 }
 
 fun Provider<PluginDependency>.toDependency(): Provider<String> =
@@ -51,6 +53,10 @@ gradlePlugin {
         register("kmpKoin") {
             id = "mudawama.kmp.koin"
             implementationClass = "KmpKoinConventionPlugin"
+        }
+        register("kmpDatabase") {
+            id = "mudawama.kmp.database"
+            implementationClass = "KmpDatabaseConventionPlugin"
         }
     }
 }

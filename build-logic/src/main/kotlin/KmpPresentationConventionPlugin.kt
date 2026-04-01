@@ -37,6 +37,7 @@ class KmpPresentationConventionPlugin : Plugin<Project> {
                         sourceSets.apply {
                             commonMain.dependencies {
                                 implementation(libs.bundles.compose)
+                                implementation(libs.ui.tooling.preview)
                             }
                             androidMain.dependencies {
                                 implementation(libs.androidx.activity.compose)
