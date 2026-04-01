@@ -60,8 +60,11 @@ The project follows a modular "Packaging by Feature" strategy to ensure scalabil
 graph TD
     App[androidApp / iosApp] --> Umbrella[shared:umbrella-ui]
     Umbrella --> Feature[feature:habits / feature:prayer]
+    Umbrella --> CoreDB[shared:core:database]
     Feature --> Core[shared:core:presentation / data / domain]
+    Feature --> CoreDB
     Feature --> Design[shared:designsystem]
+    CoreDB --> CoreDomain[shared:core:domain]
 ```
 
 ---
