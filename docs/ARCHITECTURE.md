@@ -16,6 +16,7 @@ mudawama/
 │   │   ├── domain/             # Result wrappers, DataError interfaces, MudawamaLogger, ConnectivityObserver
 │   │   ├── data/               # Ktor client setup, Tink/Platform Session Encryptors, DataStore
 │   │   ├── database/           # Room KMP database: entities, DAOs, MudawamaDatabase, Koin DI
+│   │   ├── time/               # TimeProvider interface, RolloverPolicy, logical date calculation, Koin DI
 │   │   └── presentation/       # Custom MVI BaseViewModels, UiMessageManager, Permission State Composables
 │   │
 │   ├── build-logic/            # Custom Gradle Convention Plugins (shared build logic)
@@ -61,7 +62,16 @@ The offline-first persistence layer for the entire app. Built with **Room for KM
 * Platform-specific `getDatabaseBuilder()` functions (Android uses `Context`, iOS uses `NSHomeDirectory`)
 * A Koin module per platform: `androidCoreDatabaseModule` / `iosCoreDatabaseModule()`
 
-### 3. The `shared:designsystem`
+### 4. The `shared:core:time`
+The single source of truth for all date and time operations across the app. **Features must never call `Clock.System.now()` directly** (SC-002). It provides:
+* **`TimeProvider`** — Interface exposing `nowInstant()` and `logicalDate()`. Injected via Koin everywhere time is needed.
+* **`RolloverPolicy`** — Data class encoding when the logical day resets: `Standard` (midnight, `offsetHour = 0`) or `fixed(hour)` for Islamic evening rollover (e.g., `fixed(18)` for Maghrib) or night-owl morning offset.
+* **`SystemTimeProvider`** — The **only** production call site for `Clock.System.now()` in the entire codebase.
+* **`FakeTimeProvider`** — Test double with a mutable `fixedInstant`, living in `commonMain` so any module's unit tests can freeze time deterministically.
+* **`DateFormatters`** — Top-level helpers converting `Instant`/`LocalDate` to `"yyyy-MM-dd"` ISO strings for database storage.
+* A Koin factory `timeModule(rolloverPolicy)` (defaults to `Standard`).
+
+### 5. The `shared:designsystem`
 Contains all static resources via JetBrains Compose Resources (`strings.xml`, `.ttf` fonts, `.svg` icons) and the global `MudawamaTheme`. Every feature's `:presentation` module depends on this to ensure visual consistency.
 
 ---
@@ -87,7 +97,7 @@ Because Xcode requires a single compiled `.framework` to link against, we use "U
 To prevent breaking the architecture, follow these strict dependency rules when writing `build.gradle.kts` files:
 
 1. `domain` modules may **only** depend on `shared:core:domain`.
-2. `data` modules must depend on their own `:domain`, `shared:core:data`, and `shared:core:database`.
+2. `data` modules must depend on their own `:domain`, `shared:core:data`, `shared:core:database`, and `shared:core:time` (for logical date stamping).
 3. `presentation` modules must depend on their own `:domain`, `shared:core:presentation`, and `shared:designsystem`.
 4. Feature modules may **never** depend on other feature modules. (If features must communicate, they do so via deep-linking in the `umbrella-ui` NavHost or via shared IDs).
 
@@ -114,9 +124,10 @@ Our Koin architecture follows the **Composition Root** pattern, ensuring that de
 1. **Module Composition:** Each layer provides its own Koin definitions. Platform-specific implementations are provided via platform-specific modules:
    - `androidCoreDataModule` / `iosCoreDataModule(iosEncryptor)` — Ktor, DataStore, Encryptor, ConnectivityObserver
    - `androidCoreDatabaseModule` / `iosCoreDatabaseModule()` — `MudawamaDatabase` + all three DAOs
+   - `timeModule(rolloverPolicy)` — `TimeProvider` singleton (platform-agnostic; `commonMain` only)
 2. **Umbrella Initialization:** The `umbrella-ui` module is the KMP composition root. It aggregates all module DI registrations and boots Koin.
 3. **Native Launch:**
-   - **Android:** `MudawamaApplication.onCreate()` calls `startKoin { androidContext(...); setupModules() }`, which registers both the data and database modules.
-   - **iOS:** `iOSApp.swift` instantiates a Swift `IosEncryptor` and passes it into KMP via `KoinInitializerKt.initializeKoin(iosEncryptor:)`, which registers both platform modules.
+   - **Android:** `MudawamaApplication.onCreate()` calls `startKoin { androidContext(...); setupModules() }`, which registers the data, database, and time modules.
+   - **iOS:** `iOSApp.swift` instantiates a Swift `IosEncryptor` and passes it into KMP via `KoinInitializerKt.initializeKoin(iosEncryptor:)`, which registers all three platform modules.
 
 By restricting `startKoin` to the top-level composition root (the umbrella module or native apps), we ensure that feature modules can easily register their dependencies (such as Use Cases or ViewModels) into the DI graph without encountering race conditions or initialization limitations.

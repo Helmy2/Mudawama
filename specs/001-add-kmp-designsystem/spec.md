@@ -367,7 +367,7 @@ Module Structure
 ----------------
 Suggested KMP source layout:
 
-    specs/add-kmp-designsystem/
+    specs/001-add-kmp-designsystem/
     - src/commonMain/kotlin/io/github/helmy2/mudawama/designsystem/
   - Theme.kt                    // MudawamaTheme composable, public token accessors
   - Colors.kt                   // MudawamaColors data class + light/dark palettes
