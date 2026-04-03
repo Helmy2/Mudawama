@@ -17,6 +17,7 @@ kotlin {
                 api(projects.shared.core.domain)
                 implementation(projects.shared.core.data)
                 implementation(projects.shared.core.database)
+                implementation(projects.shared.core.time)
                 implementation(projects.shared.designsystem)
             }
         }

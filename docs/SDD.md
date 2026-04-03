@@ -103,6 +103,38 @@ The Data Repository acts as the single source of truth. When a feature module's 
 - **Android:** Uses `AndroidConnectivityObserver` powered by `ConnectivityManager.NetworkCallback`.
 - **iOS:** Uses `IosConnectivityObserver` powered by Darwin's `NWPathMonitor`.
 
+### 3.9 Time Provider & Logical Date (`shared/core/time`)
+All date and time operations are centralized in this module. **No feature or data module may call `Clock.System.now()` directly** (SC-002 — enforced by a CI grep check). All time reads flow through the injected `TimeProvider`.
+
+#### 3.9.1 `TimeProvider` Interface
+```kotlin
+interface TimeProvider {
+    fun nowInstant(): Instant
+    fun logicalDate(timeZone: TimeZone = TimeZone.currentSystemDefault()): LocalDate
+}
+```
+- `SystemTimeProvider` — the sole production `Clock.System` call site.
+- `FakeTimeProvider(fixedInstant)` — ships in `commonMain`; any test can freeze time deterministically without platform setup.
+
+#### 3.9.2 `RolloverPolicy`
+Encodes when the *logical day* resets, satisfying FR-5.1 (configurable Islamic day boundary):
+
+| `offsetHour` | Behaviour |
+|---|---|
+| `0` (`Standard`) | Logical day = calendar day. Day rolls at midnight. |
+| `1–11` (morning offset) | Hours before `offsetHour` still belong to the *previous* logical day (night-owl mode). |
+| `12–23` (evening offset) | Hours at or after `offsetHour` already belong to the *next* logical day (Islamic Maghrib-style). |
+
+The `computeLogicalDate(calendarDate, hour, policy)` internal function implements the branching algorithm. The default policy is `RolloverPolicy.Standard`; callers can supply `RolloverPolicy.fixed(18)` for an 18:00 Maghrib rollover.
+
+#### 3.9.3 `DateFormatters`
+Top-level helpers used whenever an `Instant` or `LocalDate` is serialized to the database:
+- `Instant.toIsoDateString(timeZone): String` → `"yyyy-MM-dd"`
+- `LocalDate.toIsoString(): String` → `"yyyy-MM-dd"`
+
+#### 3.9.4 DI
+`timeModule(rolloverPolicy: RolloverPolicy = RolloverPolicy.Standard): Module` — registered at the composition root in `umbrella-ui`'s `KoinInitializer`. It is 100% `commonMain`; no platform-specific source sets are needed.
+
 ---
 
 ## 4. Component Design & State Management

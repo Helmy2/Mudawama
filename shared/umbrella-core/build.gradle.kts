@@ -9,6 +9,7 @@ kotlin {
 
     configureIosFramework("MudawamaCore", isStatic = true) {
         export(projects.shared.core.domain)
+        export(projects.shared.core.time)
     }
 
     sourceSets {
@@ -17,6 +18,7 @@ kotlin {
                 api(projects.shared.core.domain)
                 api(projects.shared.core.data)
                 api(projects.shared.core.database)
+                api(projects.shared.core.time)
             }
         }
     }
