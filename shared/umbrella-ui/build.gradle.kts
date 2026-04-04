@@ -19,6 +19,7 @@ kotlin {
                 implementation(projects.shared.core.database)
                 implementation(projects.shared.core.time)
                 implementation(projects.shared.designsystem)
+                implementation(projects.shared.navigation)
             }
         }
     }
