@@ -43,4 +43,5 @@ include(":shared:core:presentation")
 include(":shared:umbrella-ui")
 include(":shared:umbrella-core")
 include(":shared:designsystem")
+include(":shared:navigation")
 

@@ -22,6 +22,7 @@ mudawama/
 │   ├── build-logic/            # Custom Gradle Convention Plugins (shared build logic)
 │   │
 │   ├── designsystem/           # Compose themes, typography, localized strings, icons
+│   ├── navigation/             # App Shell, floating bottom nav bar, Navigation 3 routing graph
 │   │
 │   ├── umbrella-core/          # iOS Export: Pure Business Logic (.framework)
 │   └── umbrella-ui/            # iOS Export: Compose UI & NavGraph (.framework)
@@ -71,7 +72,16 @@ The single source of truth for all date and time operations across the app. **Fe
 * **`DateFormatters`** — Top-level helpers converting `Instant`/`LocalDate` to `"yyyy-MM-dd"` ISO strings for database storage.
 * A Koin factory `timeModule(rolloverPolicy)` (defaults to `Standard`).
 
-### 5. The `shared:designsystem`
+### 5. The `shared:navigation`
+The structural skeleton of the app. Provides a single `MudawamaAppShell` composable — the only entry point platform shells (`androidApp`, `iosApp`) need to call. It delivers:
+* **Type-safe routing** using JetBrains Navigation 3 (`navigation3-ui:1.0.0-alpha06`). Routes are `@Serializable data object` instances implementing a `sealed interface Route : NavKey`, making `when(route)` exhaustive at compile time.
+* **`MudawamaBottomBar`** — a floating glassmorphism navigation bar (80 % opacity, 20 dp blur, 28 dp corner radius, 16 dp horizontal float margin). The active tab is derived exclusively from `backStack.lastOrNull()` — no separate remembered state variable.
+* **`NavDisplay` + `entryProvider`** (Navigation 3) replacing the old `NavHost` / `NavController` pattern entirely.
+* **Four placeholder screens** (Home, Prayer, Athkar, Habits) for immediate smoke-testing before real feature screens are wired in.
+* 100% `commonMain` code — no `androidMain` or `iosMain` source sets.
+* Depends on `shared:designsystem` via `api(…)` so consumers inherit `MudawamaTheme` tokens transitively.
+
+### 6. The `shared:designsystem`
 Contains all static resources via JetBrains Compose Resources (`strings.xml`, `.ttf` fonts, `.svg` icons) and the global `MudawamaTheme`. Every feature's `:presentation` module depends on this to ensure visual consistency.
 
 ---
@@ -81,9 +91,9 @@ Contains all static resources via JetBrains Compose Resources (`strings.xml`, `.
 Because Xcode requires a single compiled `.framework` to link against, we use "Umbrella" modules to aggregate our KMP code. We maintain two distinct umbrellas to support the project's evolution.
 
 ### Phase 1: `shared:umbrella-ui`
-* **What it is:** The complete cross-platform application.
-* **Dependencies:** Aggregates all `feature:x:presentation` modules, the NavHost, and the `designsystem`.
-* **Usage:** Used to launch the MVP quickly. The iOS app simply instantiates a `ComposeUIViewController` to render the app.
+* **What it is:** The complete cross-platform application composition root.
+* **Dependencies:** Aggregates all `feature:x:presentation` modules, depends on `shared:navigation` (which owns the routing graph), and the `designsystem`.
+* **Usage:** Used to launch the MVP quickly. The iOS app simply instantiates a `ComposeUIViewController` to render the app via `MudawamaAppShell`.
 
 ### Phase 2: `shared:umbrella-core`
 * **What it is:** The pure brain of the app (Zero UI).
@@ -99,7 +109,8 @@ To prevent breaking the architecture, follow these strict dependency rules when 
 1. `domain` modules may **only** depend on `shared:core:domain`.
 2. `data` modules must depend on their own `:domain`, `shared:core:data`, `shared:core:database`, and `shared:core:time` (for logical date stamping).
 3. `presentation` modules must depend on their own `:domain`, `shared:core:presentation`, and `shared:designsystem`.
-4. Feature modules may **never** depend on other feature modules. (If features must communicate, they do so via deep-linking in the `umbrella-ui` NavHost or via shared IDs).
+4. Feature modules may **never** depend on other feature modules. (If features must communicate, they do so via deep-linking in the `shared:navigation` routing graph or via shared IDs).
+5. `shared:navigation` may only depend on `shared:designsystem` (via `api`) — it must never depend on feature modules or core infrastructure directly.
 
 ---
 

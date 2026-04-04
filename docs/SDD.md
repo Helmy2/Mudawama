@@ -135,6 +135,34 @@ Top-level helpers used whenever an `Instant` or `LocalDate` is serialized to the
 #### 3.9.4 DI
 `timeModule(rolloverPolicy: RolloverPolicy = RolloverPolicy.Standard): Module` — registered at the composition root in `umbrella-ui`'s `KoinInitializer`. It is 100% `commonMain`; no platform-specific source sets are needed.
 
+### 3.10 Navigation Shell (`shared/navigation`)
+The single structural entry point for the entire application UI. Platform shells (`androidApp` → `MainActivity`, `iosApp` → `ContentView`) call exactly one composable: `MudawamaAppShell()`.
+
+#### 3.10.1 Routing Model
+Routes are defined as `@Serializable data object` instances implementing `sealed interface Route : NavKey` from JetBrains Navigation 3 (`navigation3-ui:1.0.0-alpha06`). The sealed hierarchy makes every `when(route)` in the rendering block exhaustive at compile time — adding a new route without handling it is a compiler error, not a runtime crash.
+
+| Route | Destination |
+|---|---|
+| `HomeRoute` | Home placeholder → future Home feature screen |
+| `PrayerRoute` | Prayer placeholder → future Prayer feature screen |
+| `AthkarRoute` | Athkar placeholder → future Athkar feature screen |
+| `HabitsRoute` | Habits placeholder → future Habits feature screen |
+
+#### 3.10.2 Backstack Management
+Navigation 3 `rememberNavBackStack` owns a `SnapshotStateList<NavKey>`. Tab switching uses a single-top guard:
+```kotlin
+if (backStack.lastOrNull() != route) { backStack.clear(); backStack.add(route) }
+```
+No `NavController`, `NavOptions`, or `launchSingleTop` are used. The `SavedStateConfiguration` with a polymorphic `SerializersModule` enables Compose's saved-state mechanism to survive process death.
+
+#### 3.10.3 Floating Bottom Navigation Bar
+`MudawamaBottomBar` derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack.
+
+Glassmorphism implementation: a layered `Box` where the background sub-layer applies `.background(surface.copy(alpha = 0.80f)).blur(20.dp)` and the foreground `NavigationBar` renders with `containerColor = Transparent`. The bar is "floating" via `padding(horizontal = 16.dp)` + `clip(RoundedCornerShape(28.dp))` and inset-safe via `windowInsetsPadding(WindowInsets.navigationBars)`.
+
+#### 3.10.4 DI
+No Koin module — `shared:navigation` is purely a UI shell with no injected services. DI is handled by the modules that own real feature ViewModels.
+
 ---
 
 ## 4. Component Design & State Management
