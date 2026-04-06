@@ -124,6 +124,16 @@ import mudawama.shared.designsystem.<string_key>   // individual key (optional, 
 
 The legacy package `io.github.helmy2.mudawama.designsystem.generated.resources.Res` does **not** exist and will fail to compile. A `Res as DsRes` alias is also forbidden — there is only one `Res` in the project, so no alias is needed.
 
+**`publicResClass = true`.** Compose Resources generates `Res` as `internal` by default. Because other modules import this `Res`, `shared/designsystem/build.gradle.kts` sets:
+
+```kotlin
+compose.resources {
+    publicResClass = true
+}
+```
+
+Any module whose `Res` is consumed outside its own compilation unit must do the same.
+
 ---
 
 ## ☂️ The Dual-Umbrella Strategy (iOS Exports)

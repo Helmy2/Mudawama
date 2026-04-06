@@ -148,6 +148,20 @@ file that references string resources. The legacy pattern
 wrong and will not compile. Using a `as DsRes` alias is also forbidden —
 there is only one `Res`, so no alias is needed.
 
+**`publicResClass = true` requirement.** By default the Compose Resources
+plugin generates `Res` as `internal`. Because `shared/designsystem`'s
+`Res` is imported by other modules, its `build.gradle.kts` MUST declare:
+
+```kotlin
+compose.resources {
+    publicResClass = true
+}
+```
+
+Any module whose generated `Res` is consumed outside its own compilation
+unit MUST set `publicResClass = true`. Modules that keep resources
+private (i.e., not shared outward) may omit this setting.
+
 Reference UI screens (canonical filenames in `docs/ui/`):
 
 | File | Screen |
