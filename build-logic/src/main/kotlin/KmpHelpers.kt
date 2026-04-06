@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.KotlinDependencyHandler
 
 fun KotlinMultiplatformExtension.configureIosFramework(
     name: String,
@@ -17,17 +16,4 @@ fun KotlinMultiplatformExtension.configureIosFramework(
             export?.invoke(this)
         }
     }
-}
-
-fun KotlinDependencyHandler.koin(libs: org.gradle.accessors.dm.LibrariesForLibs) {
-    implementation(project.dependencies.platform(libs.koin.bom))
-    implementation(libs.bundles.koin)
-}
-
-fun KotlinDependencyHandler.ktor(libs: org.gradle.accessors.dm.LibrariesForLibs) {
-    implementation(libs.bundles.ktor)
-}
-
-fun KotlinDependencyHandler.lifecycle(libs: org.gradle.accessors.dm.LibrariesForLibs) {
-    implementation(libs.bundles.lifecycle)
 }

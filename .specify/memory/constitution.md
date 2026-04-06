@@ -1,23 +1,11 @@
 <!--
 Sync Impact Report
 
-- Version change: (template) -> 1.0.0
-- Modified principles: initial creation for Mudawama
-  - Architectural Boundaries (packaging-by-feature, domain/data/presentation)
-  - Error Handling & State Management (Railway, safeCall, MVI)
-  - Tech Stack & Library Constraints (Compose MPP, Room KMP, Ktor, Koin)
-  - Code Quality & Style (Kotlin 2.x idioms, preview wrappers, resources)
-- Added sections: Examples, Enforcement Checklist, CI Script Snippet
-- Removed sections: template placeholders replaced with concrete rules
-- Templates requiring updates:
-  - .specify/templates/plan-template.md ⚠ pending (not present or requires manual review)
-  - .specify/templates/spec-template.md ⚠ pending (not present or requires manual review)
-  - .specify/templates/tasks-template.md ⚠ pending (not present or requires manual review)
-  - .specify/templates/commands/*.md ⚠ pending (not present)
-  - Runtime docs (README.md, docs/*) ✅ reviewed (no automatic edits performed)
-- Follow-up TODOs:
-  - TODO(RATIFICATION_DATE): original adoption date unknown — project maintainers
-    MUST replace this with the project ratification date when available.
+- Version change: 1.1.0 -> 1.2.0
+- Modified principles: 2026-04-06 amendment
+  - Added: UI Fidelity & String Resources principle
+    (no hardcoded strings; all text via stringResource; UI MUST match docs/ui/ references)
+- Runtime docs updated: docs/ARCHITECTURE.md, docs/SDD.md, docs/DESIGN.md
 -->
 
 # Mudawama Constitution
@@ -66,7 +54,18 @@ Explicit error channels and immutable states make flows deterministic
 and easier to test. Mapping all throwable errors at the Data boundary
 keeps domain logic free of plumbing concerns.
 
-### Tech Stack & Library Constraints
+### Build System & Convention Plugins
+
+Convention plugins in `build-logic` MUST be single-responsibility: they only apply and configure Gradle plugins (toolchain, compiler plugins, resource packaging). Plugins MUST NOT inject library dependencies via `implementation(...)` or `api(...)`.
+
+The sole permitted exception is `mudawama.kmp.koin`: a dependency-shorthand plugin that injects `koin.bom` (platform), `bundles.koin`, and `koin.android`. This exception is justified because all three declarations always travel together across 8+ KMP modules and never appear independently.
+
+- `androidApp` and other Android-only modules are not KMP modules and therefore cannot use `mudawama.kmp.koin`; they MUST declare Koin dependencies inline.
+- When a convention plugin is used in only one module, its config MUST be inlined directly into that module's `build.gradle.kts` instead.
+
+Rationale
+
+Keeping plugins free of hidden dependency injection makes the dependency graph explicit and auditable. A reviewer reading any `build.gradle.kts` sees the complete picture without having to trace through convention plugin source code.
 
 - UI: Jetpack Compose Multiplatform.
 - Database: androidx.room (Room for Kotlin Multiplatform). NO SQLDelight.
@@ -95,6 +94,55 @@ Rationale
 
 Modern Kotlin idioms and resource-driven UIs improve maintainability and
 localization support.
+
+### UI Fidelity & String Resources
+
+Every screen, bottom sheet, and component MUST match the reference
+designs in `docs/ui/`. The reference set is the single source of truth
+for layout, labeling, and copy.
+
+- ALL user-visible strings MUST be declared in
+  `shared/designsystem/src/commonMain/composeResources/values/strings.xml`
+  and accessed exclusively via `stringResource(Res.string.*)`.
+  Hardcoded string literals in any `@Composable` function are a
+  build-blocking violation.
+- String keys MUST follow `snake_case` and be scoped by screen/component
+  (e.g., `home_next_prayer_label`, `habits_add_new_habit_button`,
+  `quran_log_reading_title`).
+- Placeholder / format strings MUST use `%1$s` / `%1$d` positional
+  arguments (Compose Resources format), never string concatenation.
+- Icons and drawables MUST be declared as Compose Resources
+  (`Res.drawable.*`) — no hardcoded `R.drawable` Android references in
+  `commonMain` code.
+
+Reference UI screens (canonical filenames in `docs/ui/`):
+
+| File | Screen |
+|---|---|
+| `welcome_to_mudawama.png` | Onboarding / Welcome |
+| `home_dashboard.png` | Home — daily overview + next prayer card |
+| `daily_habits.png` | Daily Habits list (core rituals + personal) |
+| `daily_prayer_tracker.png` | Today's Prayers detail |
+| `quran_daily_reading_tracker.png` | Quran Reading tracker |
+| `daily_athkar_tracker.png` | Daily Athkar overview |
+| `morning_athkar_reading.png` | Morning Athkar session (tap-to-count) |
+| `post_prayer_athkar.png` | Post-Prayer Athkar checklist |
+| `tasbeeh_counter.png` | Tasbeeh Counter |
+| `insights_progress.png` | Insights / Progress |
+| `settings.png` | Settings |
+| `new_habit_bottom_sheet.png` | New Habit bottom sheet |
+| `manage_habit_bottom_sheet.png` | Manage Habit bottom sheet |
+| `log_reading_bottom_sheet.png` | Log Reading bottom sheet |
+| `quran_reading_goal_bottom_sheet.png` | Daily Quran Goal bottom sheet |
+| `select_surah_ayah_bottom_sheet.png` | Update Position (Surah/Ayah) bottom sheet |
+| `tasbeeh_goal_bottom_sheet.png` | Daily Tasbeeh Goal bottom sheet |
+
+Rationale
+
+Anchoring every string to a resource file guarantees full Arabic
+localization support (a core product value) without touching Kotlin
+source. Binding implementation to the reference UI images prevents
+design drift and gives reviewers an unambiguous acceptance criterion.
 
 ## Additional Constraints (Implementation Details)
 
@@ -136,6 +184,8 @@ localization support.
 - Presentation layer:
     - Confirm ViewModels implement MVI shapes (State, Action, Event)
       and do not throw exceptions.
+    - Confirm zero hardcoded user-facing string literals in `@Composable`
+      functions (grep for `Text("` with a literal argument).
 - Cross-cutting:
     - Confirm DI uses Koin only; no Dagger/Hilt imports.
     - Confirm CoroutineDispatcher is injected and no direct calls to
@@ -171,6 +221,10 @@ localization support.
     - ^import\s+dagger\.
     - Dispatchers\.IO
     - Dispatchers\.Main
+
+- Presentation hardcoded-string pattern (applied to commonMain Composables):
+
+    - Text\(\s*"[^"R][^"]*"\s*[,)]
 
 ## CI Script Snippet (suggested `scripts/check_constitution.sh`)
 
@@ -210,6 +264,10 @@ check "^import\\s+com\\.squareup\\.sqldelight" "feature/*/data/" || true
 # DI and dispatcher forbidden usages
 check "com\\.google\\.dagger" "." || true
 check "Dispatchers\\\\.IO|Dispatchers\\\\.Main" "." || true
+
+# Hardcoded strings in Composables (commonMain)
+check 'Text(\s*"[^"R][^"]*"\s*[,)]' "shared/" || true
+check 'Text(\s*"[^"R][^"]*"\s*[,)]' "feature/" || true
 
 if [ "$fail" -ne 0 ]; then
   echo "Constitution checks detected violations" >&2
@@ -295,6 +353,6 @@ Data - forbidden example
 
 ## Revision information
 
-- CONSTITUTION_VERSION: 1.0.0
+- CONSTITUTION_VERSION: 1.2.0
 - RATIFICATION_DATE: 2026-03-21
-- LAST_AMENDED_DATE: 2026-03-21
+- LAST_AMENDED_DATE: 2026-04-06

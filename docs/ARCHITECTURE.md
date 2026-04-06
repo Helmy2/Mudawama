@@ -75,14 +75,29 @@ The single source of truth for all date and time operations across the app. **Fe
 ### 5. The `shared:navigation`
 The structural skeleton of the app. Provides a single `MudawamaAppShell` composable — the only entry point platform shells (`androidApp`, `iosApp`) need to call. It delivers:
 * **Type-safe routing** using JetBrains Navigation 3 (`navigation3-ui:1.0.0-alpha06`). Routes are `@Serializable data object` instances implementing a `sealed interface Route : NavKey`, making `when(route)` exhaustive at compile time.
-* **`MudawamaBottomBar`** — a floating glassmorphism navigation bar (80 % opacity, 20 dp blur, 28 dp corner radius, 16 dp horizontal float margin). The active tab is derived exclusively from `backStack.lastOrNull()` — no separate remembered state variable.
+* **`MudawamaBottomBar`** — a floating glassmorphism navigation bar with **4 tabs: Home, Prayers, Quran, Athkar** (80% opacity, 20dp blur, 28dp corner radius, 16dp horizontal float margin). Active tab is a rounded-square deep teal container with white icon + label; inactive tabs use `on-surface-variant`. Active tab is derived exclusively from `backStack.lastOrNull()` — no separate remembered state variable.
 * **`NavDisplay` + `entryProvider`** (Navigation 3) replacing the old `NavHost` / `NavController` pattern entirely.
-* **Four placeholder screens** (Home, Prayer, Athkar, Habits) for immediate smoke-testing before real feature screens are wired in.
+* **Full screen inventory** — all routes listed below correspond to reference UI screens in `docs/ui/`:
+
+| Route | Screen | `docs/ui/` reference |
+|---|---|---|
+| `OnboardingRoute` | Welcome / Onboarding | `welcome_to_mudawama.png` |
+| `HomeRoute` | Home Dashboard | `home_dashboard.png` |
+| `PrayerRoute` | Today's Prayers | `daily_prayer_tracker.png` |
+| `QuranRoute` | Quran Reading Tracker | `quran_daily_reading_tracker.png` |
+| `AthkarRoute` | Daily Athkar | `daily_athkar_tracker.png` |
+| `HabitsRoute` | Daily Habits | `daily_habits.png` |
+| `TasbeehRoute` | Tasbeeh Counter | `tasbeeh_counter.png` |
+| `InsightsRoute` | Insights / Progress | `insights_progress.png` |
+| `SettingsRoute` | Settings | `settings.png` |
+
 * 100% `commonMain` code — no `androidMain` or `iosMain` source sets.
 * Depends on `shared:designsystem` via `api(…)` so consumers inherit `MudawamaTheme` tokens transitively.
 
 ### 6. The `shared:designsystem`
 Contains all static resources via JetBrains Compose Resources (`strings.xml`, `.ttf` fonts, `.svg` icons) and the global `MudawamaTheme`. Every feature's `:presentation` module depends on this to ensure visual consistency.
+
+**String resource rule (enforced):** All user-visible strings MUST be declared in `strings.xml` inside this module and accessed via `stringResource(Res.string.*)`. Hardcoded string literals in `@Composable` functions are a build-blocking violation. See `docs/DESIGN.md` section 1 for key naming conventions.
 
 ---
 
@@ -116,14 +131,14 @@ To prevent breaking the architecture, follow these strict dependency rules when 
 
 ## 🛠 Build System & Convention Plugins
 
-Mudawama uses **Gradle Convention Plugins** located in the `build-logic` module to centralize build configuration. This ensures consistency across all modules and enforces performance best practices.
+Mudawama uses **Gradle Convention Plugins** located in the `build-logic` module to centralize build configuration. Each plugin has a single responsibility: applying and configuring Gradle plugins only. All dependencies are declared explicitly in each module's own `build.gradle.kts`.
 
-### Core Plugins:
-* **`mudawama.kmp.library`**: Configures the base KMP and Android library settings (JVM 17, SDK versions, etc.).
-* **`mudawama.kmp.koin`**: Standardizes DI setup using the Koin BOM and provides necessary platform extensions (like `koin-android`).
-* **`mudawama.kmp.data`**: Specialized for data modules, automatically applying serialization, Ktor, and Koin compiler plugins.
-* **`mudawama.kmp.database`**: Specialized for the database module — applies KSP + Room Gradle plugin, configures the schema directory, and adds `room-runtime`, `sqlite-bundled`, and `room-compiler` (per KSP target) automatically.
-* **`mudawama.kmp.presentation`**: Configures CMP, Compose Compiler, `ui-tooling-preview` (commonMain), and Koin dependencies for UI modules.
+### Convention Plugins:
+* **`mudawama.kmp`**: Configures the base KMP toolchain — `kotlin.multiplatform`, `com.android.kotlin.multiplatform.library`, JVM 17, SDK versions, and iOS targets. No dependencies are injected.
+* **`mudawama.kmp.compose`**: Extends `mudawama.kmp` with Compose Multiplatform — applies `org.jetbrains.compose` + `org.jetbrains.kotlin.plugin.compose`, sets the per-module `packageOfResClass`, and enables `androidResources` for `.cvr` asset packaging. No dependencies are injected.
+* **`mudawama.kmp.koin`**: Dependency-shorthand plugin. Applies no Gradle plugins; injects `koin.bom` (platform), `bundles.koin`, and `koin.android` into every KMP module that uses Koin. Justified because all three declarations always travel together across 8+ modules.
+
+> **Single-responsibility rule:** Convention plugins only apply/configure Gradle plugins. All other dependencies are declared explicitly in each module's own `build.gradle.kts`. The `mudawama.kmp.koin` exception is the only permitted dependency-injection shorthand.
 
 ---
 

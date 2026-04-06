@@ -1,5 +1,6 @@
 plugins {
-    id("mudawama.kmp.presentation")
+    id("mudawama.kmp.compose")
+    id("mudawama.kmp.koin")
 }
 
 kotlin {
@@ -20,6 +21,20 @@ kotlin {
                 implementation(projects.shared.core.time)
                 implementation(projects.shared.designsystem)
                 implementation(projects.shared.navigation)
+                implementation(projects.feature.habits.domain)
+                implementation(projects.feature.habits.data)
+                implementation(projects.feature.habits.presentation)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.bundles.compose)
+                implementation(libs.bundles.lifecycle)
+                implementation(libs.compose.resources)
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.ui.tooling)
+                implementation(libs.ui.tooling.preview)
             }
         }
     }

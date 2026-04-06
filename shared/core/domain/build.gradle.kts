@@ -1,5 +1,5 @@
 plugins {
-    id("mudawama.kmp.library")
+    id("mudawama.kmp")
 }
 
 kotlin {

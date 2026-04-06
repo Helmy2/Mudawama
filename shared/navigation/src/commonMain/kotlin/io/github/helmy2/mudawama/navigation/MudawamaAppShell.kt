@@ -22,7 +22,9 @@ import kotlinx.serialization.modules.subclass
  * // FR-002: MudawamaTheme wraps all content; darkTheme derived from isSystemInDarkTheme() — never hardcoded
  */
 @Composable
-fun MudawamaAppShell() {
+fun MudawamaAppShell(
+    habitsScreen: @Composable () -> Unit
+) {
     MudawamaTheme(darkTheme = isSystemInDarkTheme()) {
         val backStack = rememberNavBackStack(
             SavedStateConfiguration {
@@ -70,7 +72,7 @@ fun MudawamaAppShell() {
                     }
 
                     entry<HabitsRoute> {
-                        HabitsPlaceholderScreen()
+                        habitsScreen()
                     }
                 }
             )
@@ -81,6 +83,6 @@ fun MudawamaAppShell() {
 @Preview
 @Composable
 fun MudawamaAppShellPreview() {
-    MudawamaAppShell()
+    MudawamaAppShell({})
 }
 

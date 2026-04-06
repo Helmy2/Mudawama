@@ -44,4 +44,7 @@ include(":shared:umbrella-ui")
 include(":shared:umbrella-core")
 include(":shared:designsystem")
 include(":shared:navigation")
+include(":feature:habits:domain")
+include(":feature:habits:data")
+include(":feature:habits:presentation")
 

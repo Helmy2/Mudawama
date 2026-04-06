@@ -1,5 +1,5 @@
 plugins {
-    id("mudawama.kmp.presentation")
+    id("mudawama.kmp.compose")
 }
 
 kotlin {
@@ -12,6 +12,17 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
+                implementation(libs.kotlinx.coroutines.core)
+                implementation(libs.bundles.compose)
+                implementation(libs.bundles.lifecycle)
+                implementation(libs.compose.resources)
+                implementation(libs.ui.tooling.preview)
+            }
+        }
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.ui.tooling)
             }
         }
     }

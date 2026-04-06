@@ -29,7 +29,7 @@ _Dependency Rule:_ `Presentation -> Domain <- Data`
 ### 2.2 Multi-Module & Packaging Strategy
 The repository uses a **"Packaging by Feature"** strategy to ensure horizontal scalability, prevent merge conflicts, and guarantee fast Gradle build times.
 
-- **`build-logic`:** Houses custom Gradle convention plugins (e.g., `mudawama.kmp.library`, `mudawama.kmp.koin`, `mudawama.kmp.data`, `mudawama.kmp.presentation`) to centralize complex build configurations and enforce performance best practices (e.g., eager plugin application for Configuration Cache).
+- **`build-logic`:** Houses custom Gradle convention plugins (`mudawama.kmp`, `mudawama.kmp.compose`, `mudawama.kmp.koin`) to centralize build configuration. Plugins only apply/configure Gradle toolchain and compiler plugins — all library dependencies are declared explicitly in each module's own `build.gradle.kts`. The sole exception is `mudawama.kmp.koin`, a dependency-shorthand plugin that injects the three Koin declarations that always travel together.
 - **`shared/core`:** Contains the base `Result` classes, Error interfaces, Ktor client engines, and the `UiMessageManager` messaging queue.
 - **`shared/feature/x`:** Each feature (e.g., `habits`, `prayer`) is split into independent `domain`, `data`, and `presentation` sub-modules.
 - **`shared/umbrella-core`:** Aggregates all `domain` and `data` modules for iOS export (no UI). Used for future SwiftUI migration.
@@ -141,26 +141,37 @@ The single structural entry point for the entire application UI. Platform shells
 #### 3.10.1 Routing Model
 Routes are defined as `@Serializable data object` instances implementing `sealed interface Route : NavKey` from JetBrains Navigation 3 (`navigation3-ui:1.0.0-alpha06`). The sealed hierarchy makes every `when(route)` in the rendering block exhaustive at compile time — adding a new route without handling it is a compiler error, not a runtime crash.
 
-| Route | Destination |
-|---|---|
-| `HomeRoute` | Home placeholder → future Home feature screen |
-| `PrayerRoute` | Prayer placeholder → future Prayer feature screen |
-| `AthkarRoute` | Athkar placeholder → future Athkar feature screen |
-| `HabitsRoute` | Habits placeholder → future Habits feature screen |
+#### 3.10.2 Screen & Route Inventory
 
-#### 3.10.2 Backstack Management
+The following screens are defined in the reference UI (`docs/ui/`) and MUST each have a corresponding `@Serializable data object` route:
+
+| Route | Screen | Bottom-sheet children |
+|---|---|---|
+| `HomeRoute` | Home Dashboard | — |
+| `PrayerRoute` | Today's Prayers | — |
+| `QuranRoute` | Quran Reading Tracker | `LogReadingSheet`, `QuranGoalSheet`, `UpdatePositionSheet` |
+| `AthkarRoute` | Daily Athkar | `MorningAthkarSession`, `PostPrayerAthkar` |
+| `HabitsRoute` | Daily Habits | `NewHabitSheet`, `ManageHabitSheet` |
+| `TasbeehRoute` | Tasbeeh Counter | `TasbeehGoalSheet` |
+| `InsightsRoute` | Insights / Progress | — |
+| `SettingsRoute` | Settings | — |
+| `OnboardingRoute` | Welcome / Onboarding | — |
+
+Bottom sheets are NOT top-level routes; they are launched as `ModalBottomSheet` from within the screen composable that owns them.
+
+#### 3.10.3 Backstack Management
 Navigation 3 `rememberNavBackStack` owns a `SnapshotStateList<NavKey>`. Tab switching uses a single-top guard:
 ```kotlin
 if (backStack.lastOrNull() != route) { backStack.clear(); backStack.add(route) }
 ```
 No `NavController`, `NavOptions`, or `launchSingleTop` are used. The `SavedStateConfiguration` with a polymorphic `SerializersModule` enables Compose's saved-state mechanism to survive process death.
 
-#### 3.10.3 Floating Bottom Navigation Bar
-`MudawamaBottomBar` derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack.
+#### 3.10.4 Floating Bottom Navigation Bar
+`MudawamaBottomBar` has **4 tabs**: Home, Prayers, Quran, Athkar. It derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack. Active tab renders as a rounded-square deep teal container with white icon + label; inactive tabs show icon + label in `on-surface-variant`.
 
 Glassmorphism implementation: a layered `Box` where the background sub-layer applies `.background(surface.copy(alpha = 0.80f)).blur(20.dp)` and the foreground `NavigationBar` renders with `containerColor = Transparent`. The bar is "floating" via `padding(horizontal = 16.dp)` + `clip(RoundedCornerShape(28.dp))` and inset-safe via `windowInsetsPadding(WindowInsets.navigationBars)`.
 
-#### 3.10.4 DI
+#### 3.10.5 DI
 No Koin module — `shared:navigation` is purely a UI shell with no injected services. DI is handled by the modules that own real feature ViewModels.
 
 ---

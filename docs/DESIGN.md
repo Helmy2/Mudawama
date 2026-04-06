@@ -2,6 +2,53 @@
 
 ---
 
+## 0. Canonical UI References
+
+All implementation MUST be faithful to the reference screens stored in `docs/ui/`. These images are the single source of truth for layout, copy, and component states. Any deviation requires an explicit design decision recorded in a PR description.
+
+| File | Screen / Component |
+|---|---|
+| `welcome_to_mudawama.png` | Onboarding welcome — arch illustration, tagline, "Start My Journey" CTA |
+| `home_dashboard.png` | Home — date strip, Next Prayer hero card, Daily Rituals grid, pending habits list |
+| `daily_habits.png` | Daily Habits — Core Rituals section + Personal Habits section, Add New Habit button |
+| `daily_prayer_tracker.png` | Today's Prayers — daily completion hero card, 5-prayer list with time + check toggle |
+| `quran_daily_reading_tracker.png` | Quran Reading — progress ring, Goal card, Resume Reading card, Recent Logs list |
+| `daily_athkar_tracker.png` | Daily Athkar — Morning / Evening / Post-Prayer Athkar cards, inspirational quote |
+| `morning_athkar_reading.png` | Morning Athkar session — per-dhikr cards with Arabic text, TAP TO COUNT button |
+| `post_prayer_athkar.png` | Post-Prayer Athkar — Tasbeeh Al-Fatima counters, Key Quranic Verses, Other Supplications |
+| `tasbeeh_counter.png` | Tasbeeh Counter — large count ring, TAP SCREEN CTA, Reset/Goal actions, session stats |
+| `insights_progress.png` | Insights — weekly heatmap, streak card, Prayer Completion stats, Quran Reading stats |
+| `settings.png` | Settings — Preferences, Analytics, Daily Intentions, Data, About sections |
+| `new_habit_bottom_sheet.png` | New Habit sheet — name field, icon picker, frequency day selector, goal type selector |
+| `manage_habit_bottom_sheet.png` | Manage Habit sheet — Edit / Reset Today's Progress / Delete actions |
+| `log_reading_bottom_sheet.png` | Log Reading sheet — page count ring, quick-add chips, current position row |
+| `quran_reading_goal_bottom_sheet.png` | Daily Quran Goal sheet — stepper, popular goals chips |
+| `select_surah_ayah_bottom_sheet.png` | Update Position sheet — searchable surah list + ayah number picker |
+| `tasbeeh_goal_bottom_sheet.png` | Daily Tasbeeh Goal sheet — target count stepper, preset tiles (33/100/300) |
+
+---
+
+## 1. String Resources Rule (NON-NEGOTIABLE)
+
+Every user-visible string displayed in a `@Composable` function MUST be
+declared in `shared/designsystem/src/commonMain/composeResources/values/strings.xml`
+and accessed via `stringResource(Res.string.<key>)`.
+
+- **Hardcoded string literals inside `@Composable` functions are forbidden**
+  (e.g., `Text("Next Prayer")` is a violation; `Text(stringResource(Res.string.home_next_prayer_label))` is correct).
+- Key naming convention: `<screen>_<element>_<type>` in `snake_case`.
+  Examples: `home_next_prayer_label`, `habits_add_new_habit_button`,
+  `quran_log_reading_title`, `athkar_morning_start_button`.
+- Format/placeholder strings use `%1$s` / `%1$d` positional args.
+- Static labels visible in the UI reference images (section headings,
+  button labels, placeholder text, motivational copy) MUST each have a
+  dedicated string resource key — they must not be embedded in code.
+
+This rule exists to support full Arabic (`ar`) localization, which is a
+core product value, without requiring any Kotlin source changes.
+
+---
+
 ## 1. Overview & Creative North Star
 **Creative North Star: "The Digital Sanctuary"**
 
@@ -70,18 +117,45 @@ If a border is required for accessibility (e.g., an unselected habit state), use
 ### Cards & Habit Lists
 - **No Dividers:** Forbid the use of divider lines. Separate list items using `spacing-4` (1.4rem) or subtle background shifts between cards.
 - **Roundedness:** Use `xl` (1.5rem / 24px) for habit cards to create a soft, organic feel. Use `full` (9999px) for progress bars and chips.
+- **Core Rituals row** (`daily_habits.png`): circular progress ring (green stroke) + title + subtitle. Uses `surface-container-lowest` card on `surface-container-low` background.
+- **Personal Habits row** (`daily_habits.png`): icon chip + habit name + three-dot overflow menu. No progress ring.
+- **Prayer list row** (`daily_prayer_tracker.png`): circular icon (color-coded per prayer) + name + time + circular checkbox toggle.
+- **Habit list row** (`home_dashboard.png`): icon + name + category label + circular checkbox. Pending/Completed segmented control above list.
+
+### Hero Cards
+- **Next Prayer card** (`home_dashboard.png`): full-width, deep teal (`#004f45`) fill, rounded `xl`. Displays label "NEXT PRAYER", prayer name (Display-LG), countdown "X:XX minutes remaining", and a green linear progress bar at bottom.
+- **Daily Completion card** (`daily_prayer_tracker.png`): deep teal fill, "DAILY COMPLETION", fraction display (e.g., "2 / 5"), circular progress ring at right.
+- **Streak card** (`insights_progress.png`): deep teal fill, flame emoji, "X Day Streak", motivational subtitle.
+
+### Progress Rings
+- **Visual Style:** `12px` stroke width. Background track: `surface-container-highest`. Filled arc: `secondary` (Success Green `#006e1c`). Completed state: full ring + checkmark icon.
+- **Sizes:** Large (Quran/Tasbeeh screens, ~160dp), Medium (Daily Rituals grid cards, ~56dp), Small (habit list rows, ~40dp).
+- **Interaction:** On completion, trigger haptic pulse and soft glow expansion (4% opacity secondary color).
+
+### Bottom Sheets
+All bottom sheets follow a consistent structure (see reference images):
+- Drag handle pill at top center.
+- Header row: close `×` icon (left), title (center), primary action button or text link (right).
+- Content body with appropriate input controls.
+- Sheets: New Habit, Manage Habit, Log Reading, Daily Quran Goal, Update Position, Daily Tasbeeh Goal.
 
 ### Buttons (The "Thumb-First" Action)
-- **Primary:** Gradient fill (`primary` to `primary-container`), `xl` roundedness, white text.
-- **Secondary:** `surface-container-high` background with `primary` text. No border.
+- **Primary:** Deep teal fill (`#004f45`), `xl` roundedness, white text. Used for main CTAs ("Start My Journey", "Log Reading", "TAP SCREEN", "Save").
+- **Secondary:** `surface-container-high` background with `primary` text. No border. Used for quick-add chips ("+1 Page", "+5 Pages", "1 Juz").
 - **Tertiary:** Transparent background, `primary` text, underlined only on hover/active states.
+- **Destructive:** Red fill / red text for delete actions (see `manage_habit_bottom_sheet.png`).
 
-### Habit Progress Rings
-- **Visual Style:** Use a `12px` stroke width. The background of the ring should be `surface-container-highest`. The "filled" portion should use the `secondary` (Success Green) color.
-- **Interaction:** On completion, trigger a haptic pulse and a soft glow expansion (4% opacity secondary color).
+### Date Strip
+(`home_dashboard.png`, `daily_prayer_tracker.png`): horizontal row of day/date pill chips. Active day: deep teal fill + white text + dot indicator below. Inactive: `surface-container` fill + `on-surface-variant` text.
+
+### Bottom Navigation Bar
+4 tabs: **Home**, **Prayers**, **Quran**, **Athkar**. Active tab: rounded square deep teal container with white icon + label. Inactive: icon + label in `on-surface-variant`. Floating glassmorphism style (80% opacity, 20dp blur, 28dp corner radius, 16dp horizontal margin).
 
 ### Input Fields
-- **Style:** Minimalist. No enclosing box. Use a `surface-container-low` background with a `3px` bottom-weighted indicator in `primary` only when focused.
+- **Style:** Minimalist. `surface-container-low` background, `full` roundedness, no visible border box. Placeholder text in `on-surface-variant`. Used in New Habit name field and Search Surah field.
+
+### Tasbeeh Counter
+(`tasbeeh_counter.png`): Large neumorphic circle with count + dhikr label. Outer arc progress ring. Three action controls below: Reset (icon button), TAP SCREEN (primary wide button), Goal (icon button). Stats row at bottom showing "TODAY'S TOTAL" and "CURRENT SESSION".
 
 ---
 

@@ -109,7 +109,7 @@ The application is built using a modern, scalable, and modular approach designed
 
 To maintain the MVP timeline, the following features will be excluded:
 
-- Cloud synchronization / Firebase backend (Data is strictly local via SQLDelight).
+- Cloud synchronization / Firebase backend (Data is strictly local via Room for KMP).
     
 - Quran Mushaf (reading the actual Arabic text inside the app).
     
