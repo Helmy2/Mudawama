@@ -30,7 +30,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
-import mudawama.shared.designsystem.Res as DsRes
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.cd_mark_complete
+import mudawama.shared.designsystem.cd_mark_incomplete
 import mudawama.shared.designsystem.habit_progress_count
 import mudawama.shared.designsystem.habit_progress_fraction
 import io.github.helmy2.mudawama.habits.domain.model.Habit
@@ -41,9 +43,6 @@ import io.github.helmy2.mudawama.habits.presentation.util.iconKeyToImageVector
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import mudawama.feature.habits.presentation.Res
-import mudawama.feature.habits.presentation.cd_mark_complete
-import mudawama.feature.habits.presentation.cd_mark_incomplete
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
@@ -76,7 +75,7 @@ fun HabitCoreRitualItem(
 
     val progressLabel = when (habit.type) {
         HabitType.BOOLEAN -> if (isCompleted) "1/1" else "0/1"
-        HabitType.NUMERIC -> stringResource(DsRes.string.habit_progress_fraction, numericProgress, goal)
+        HabitType.NUMERIC -> stringResource(Res.string.habit_progress_fraction, numericProgress, goal)
     }
 
     Card(

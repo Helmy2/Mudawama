@@ -39,14 +39,14 @@ import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.habits.domain.model.Habit
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import kotlinx.datetime.DayOfWeek
-import mudawama.feature.habits.presentation.Res
-import mudawama.feature.habits.presentation.action_delete_habit
-import mudawama.feature.habits.presentation.action_delete_habit_subtitle
-import mudawama.feature.habits.presentation.action_edit_habit
-import mudawama.feature.habits.presentation.action_edit_habit_subtitle
-import mudawama.feature.habits.presentation.action_manage_habit
-import mudawama.feature.habits.presentation.action_reset_today
-import mudawama.feature.habits.presentation.action_reset_today_subtitle
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.action_delete_habit
+import mudawama.shared.designsystem.action_delete_habit_subtitle
+import mudawama.shared.designsystem.action_edit_habit
+import mudawama.shared.designsystem.action_edit_habit_subtitle
+import mudawama.shared.designsystem.action_manage_habit
+import mudawama.shared.designsystem.action_reset_today
+import mudawama.shared.designsystem.action_reset_today_subtitle
 import org.jetbrains.compose.resources.stringResource
 
 /**

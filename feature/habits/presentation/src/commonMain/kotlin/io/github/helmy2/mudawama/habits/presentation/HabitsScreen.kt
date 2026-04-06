@@ -54,13 +54,13 @@ import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiEvent
 import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiState
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
-import mudawama.feature.habits.presentation.Res
-import mudawama.feature.habits.presentation.action_delete
-import mudawama.feature.habits.presentation.btn_cancel
-import mudawama.feature.habits.presentation.dialog_delete_message
-import mudawama.feature.habits.presentation.dialog_delete_title
-import mudawama.shared.designsystem.Res as DsRes
+import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.action_add_new_habit
+import mudawama.shared.designsystem.action_delete
+import mudawama.shared.designsystem.btn_cancel
+import mudawama.shared.designsystem.dialog_delete_message
+import mudawama.shared.designsystem.dialog_delete_title
+import mudawama.shared.designsystem.habits_screen_title
 import mudawama.shared.designsystem.section_core_rituals
 import mudawama.shared.designsystem.section_personal_habits
 import org.jetbrains.compose.resources.getString
@@ -143,7 +143,7 @@ private fun HabitsScreenContent(
                     // ── Core Rituals section ───────────────────────────────
                     if (coreHabits.isNotEmpty()) {
                         item {
-                            SectionHeader(stringResource(DsRes.string.section_core_rituals))
+                            SectionHeader(stringResource(Res.string.section_core_rituals))
                             Spacer(Modifier.height(8.dp))
                         }
                         items(coreHabits, key = { it.habit.id }) { habitWithStatus ->
@@ -163,7 +163,7 @@ private fun HabitsScreenContent(
 
                     // ── Personal Habits section ────────────────────────────
                     item {
-                        SectionHeader(stringResource(DsRes.string.section_personal_habits))
+                        SectionHeader(stringResource(Res.string.section_personal_habits))
                         Spacer(Modifier.height(8.dp))
                     }
 
@@ -277,7 +277,7 @@ private fun AddNewHabitButton(
         ) {
             Icon(Icons.Default.Add, contentDescription = null)
             Text(
-                text = stringResource(DsRes.string.action_add_new_habit),
+                text = stringResource(Res.string.action_add_new_habit),
                 style = MudawamaTheme.typography.h5,
                 modifier = Modifier.padding(start = 8.dp),
             )

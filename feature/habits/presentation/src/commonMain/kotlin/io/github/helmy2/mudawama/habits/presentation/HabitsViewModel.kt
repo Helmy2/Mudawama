@@ -15,11 +15,11 @@ import io.github.helmy2.mudawama.habits.presentation.model.BottomSheetMode
 import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiAction
 import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiEvent
 import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiState
-import mudawama.feature.habits.presentation.Res
-import mudawama.feature.habits.presentation.error_cannot_delete_core
-import mudawama.feature.habits.presentation.error_generic
-import mudawama.feature.habits.presentation.error_name_empty_snackbar
-import mudawama.feature.habits.presentation.error_no_day_selected_snackbar
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.error_cannot_delete_core
+import mudawama.shared.designsystem.error_generic
+import mudawama.shared.designsystem.error_name_empty_snackbar
+import mudawama.shared.designsystem.error_no_day_selected_snackbar
 
 class HabitsViewModel(
     private val observeHabitsUseCase: ObserveHabitsWithTodayStatusUseCase,

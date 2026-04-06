@@ -53,23 +53,22 @@ import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiAction
 import io.github.helmy2.mudawama.habits.presentation.util.HABIT_ICONS
 import io.github.helmy2.mudawama.habits.presentation.util.iconKeyToImageVector
 import kotlinx.datetime.DayOfWeek
-import mudawama.feature.habits.presentation.Res
-import mudawama.feature.habits.presentation.hint_habit_name_placeholder
-import mudawama.feature.habits.presentation.label_daily_reminder
-import mudawama.feature.habits.presentation.label_daily_reminder_subtitle
-import mudawama.feature.habits.presentation.label_frequency
-import mudawama.feature.habits.presentation.label_goal_type
-import mudawama.feature.habits.presentation.label_habit_name
-import mudawama.feature.habits.presentation.label_identity_icon
-import mudawama.feature.habits.presentation.title_edit_habit
-import mudawama.feature.habits.presentation.title_new_habit
-import mudawama.feature.habits.presentation.type_checkoff_subtitle
-import mudawama.feature.habits.presentation.type_checkoff_title
-import mudawama.feature.habits.presentation.type_counter_subtitle
-import mudawama.feature.habits.presentation.type_counter_title
-import mudawama.shared.designsystem.Res as DsRes
+import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.action_close
 import mudawama.shared.designsystem.action_save
+import mudawama.shared.designsystem.hint_habit_name_placeholder
+import mudawama.shared.designsystem.label_daily_reminder
+import mudawama.shared.designsystem.label_daily_reminder_subtitle
+import mudawama.shared.designsystem.label_frequency
+import mudawama.shared.designsystem.label_goal_type
+import mudawama.shared.designsystem.label_habit_name
+import mudawama.shared.designsystem.label_identity_icon
+import mudawama.shared.designsystem.title_edit_habit
+import mudawama.shared.designsystem.title_new_habit
+import mudawama.shared.designsystem.type_checkoff_subtitle
+import mudawama.shared.designsystem.type_checkoff_title
+import mudawama.shared.designsystem.type_counter_subtitle
+import mudawama.shared.designsystem.type_counter_title
 import org.jetbrains.compose.resources.stringResource
 
 private val DAYS_ORDERED = listOf(
@@ -137,7 +136,7 @@ fun HabitBottomSheet(
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = stringResource(DsRes.string.action_close),
+                        contentDescription = stringResource(Res.string.action_close),
                         tint = MudawamaTheme.colors.onSurface,
                     )
                 }
@@ -175,7 +174,7 @@ fun HabitBottomSheet(
                     ),
                 ) {
                     Text(
-                        text = stringResource(DsRes.string.action_save),
+                        text = stringResource(Res.string.action_save),
                         style = MudawamaTheme.typography.h5,
                         fontWeight = FontWeight.SemiBold,
                     )

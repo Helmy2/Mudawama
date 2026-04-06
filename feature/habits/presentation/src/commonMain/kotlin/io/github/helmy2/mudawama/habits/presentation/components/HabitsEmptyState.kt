@@ -14,9 +14,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
-import mudawama.feature.habits.presentation.Res
-import mudawama.feature.habits.presentation.empty_habits_body
-import mudawama.feature.habits.presentation.empty_habits_title
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.empty_habits_body
+import mudawama.shared.designsystem.empty_habits_title
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
