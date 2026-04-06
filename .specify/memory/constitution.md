@@ -8,7 +8,11 @@ Sync Impact Report
 - Modified principles: 2026-04-06 amendment (v1.3.0)
   - Added: String Resource Consolidation rule
     (single strings.xml in shared/designsystem; packageOfResClass convention documented)
-- Runtime docs updated: docs/ARCHITECTURE.md, docs/SDD.md, docs/DESIGN.md
+- Modified principles: 2026-04-06 amendment (v1.3.1)
+  - Added: surfaceVariant token rule and dark-mode color constants rule
+    (MudawamaColors now has surfaceVariant; icon chips must use surfaceVariant not surface;
+     dark-mode Color values must be named constants in Colors.kt, not inline literals in Theme.kt)
+- Runtime docs updated: docs/ARCHITECTURE.md, docs/DESIGN.md
 -->
 
 # Mudawama Constitution
@@ -161,6 +165,30 @@ compose.resources {
 Any module whose generated `Res` is consumed outside its own compilation
 unit MUST set `publicResClass = true`. Modules that keep resources
 private (i.e., not shared outward) may omit this setting.
+
+#### Design System Color Tokens (v1.3.1)
+
+`MudawamaColors` has the following semantic slots. ALL slots must be
+populated in both `LightMudawamaColors` and `DarkMudawamaColors`:
+
+- `primary` — CTAs, progress rings, active icons
+- `onPrimary` — text/icons on primary-filled surfaces
+- `background` — deepest page layer
+- `surface` — cards and sheets
+- `surfaceVariant` — icon chips, secondary containers (must be visually distinct from `surface`)
+- `onSurface` — body text, secondary icons
+- `error` — destructive / validation states
+
+**`surfaceVariant` rule.** Icon chip backgrounds MUST use
+`MudawamaTheme.colors.surfaceVariant`, not `surface`. On dark themes,
+`surface` and the card background are nearly identical; using `surface`
+makes chips invisible. Icon tint inside chips MUST use `primary`.
+
+**Dark-mode color constants rule.** Every dark-mode `Color(0xFF…)` value
+MUST be a named constant declared in
+`shared/designsystem/…/designsystem/Colors.kt`. Inline `Color(0xFF…)`
+literals inside `Theme.kt` for dark values are forbidden — they are
+invisible to code search and impossible to audit.
 
 Reference UI screens (canonical filenames in `docs/ui/`):
 
@@ -405,6 +433,6 @@ Data - forbidden example
 
 ## Revision information
 
-- CONSTITUTION_VERSION: 1.3.0
+- CONSTITUTION_VERSION: 1.3.1
 - RATIFICATION_DATE: 2026-03-21
 - LAST_AMENDED_DATE: 2026-04-06

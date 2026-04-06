@@ -87,14 +87,35 @@ The palette is anchored in nature: the deep permanence of the emerald forest and
 - **Secondary (Success):** `#006e1c` (The 'Completed' Growth)
 - **Tertiary (Pending):** `#444646` (The Quiet Neutral)
 
+### Implementation Tokens (`MudawamaColors`)
+
+The design system exposes a `MudawamaColors` data class with the following semantic slots, provided via `MudawamaTheme.colors.*`:
+
+| Token | Light value | Dark value | Usage |
+|---|---|---|---|
+| `primary` | `#02594F` DeepTeal | `#4DB882` EmeraldLight | CTAs, progress rings, active icons |
+| `onPrimary` | `#FFFFFF` | `#003828` | Text/icons on primary-colored surfaces |
+| `background` | `#F7F7F4` OffWhite | `#0F1412` DarkBackground | Page-level fill (deepest layer) |
+| `surface` | `#FFFFFF` | `#1A2120` DarkSurface | Cards and sheets — one step above background |
+| `surfaceVariant` | `#F7F7F4` OffWhite | `#243130` DarkSurfaceVariant | Icon chips, secondary containers — two steps above background |
+| `onSurface` | `#1D2322` Charcoal | `#E8F0EF` DarkOnSurface | Body text, secondary icons |
+| `error` | `#C45151` MutedRed | `#FF6B6B` DarkError | Destructive actions, validation errors |
+
+**Dark mode rationale:**
+- `EmeraldLight (#4DB882)` replaces `CalmEmerald (#1B8049)` as primary — the old value was too dark to achieve AA contrast on near-black backgrounds.
+- Background (`#0F1412`) and surface (`#1A2120`) are clearly separated (≈5% luminance step) so cards are visible without borders.
+- `surfaceVariant (#243130)` gives icon chips a distinct background — without this slot they blended into the card on dark surfaces.
+- `DarkOnSurface (#E8F0EF)` is a warm off-white rather than pure white, reducing eye strain in dark environments.
+- `DarkError (#FF6B6B)` is brighter than the light-mode `#C45151` so error text remains legible on dark backgrounds.
+
 ### The "No-Line" Rule
 **Explicit Instruction:** Designers are prohibited from using 1px solid borders to section content. Boundaries must be defined solely through background color shifts. For example, a `surface-container-low` section sitting on a `surface` background creates a clear but "borderless" transition.
 
 ### Surface Hierarchy & Nesting
 Treat the UI as a series of physical layers—like stacked sheets of fine, heavy-weight paper.
-- **Layer 0 (Base):** `surface` (#fafaf5) – The world the app lives in.
-- **Layer 1 (Sections):** `surface-container-low` (#f4f4ef) – Used for broad content groupings.
-- **Layer 2 (Cards):** `surface-container-lowest` (#ffffff) – Use white cards on sand backgrounds to create a "lifted" feel without heavy shadows.
+- **Layer 0 (Base):** `background` — The world the app lives in.
+- **Layer 1 (Cards / Sheets):** `surface` — Use for habit cards, bottom sheets, dialog backgrounds.
+- **Layer 2 (Chips / Secondary containers):** `surfaceVariant` — Use for icon chips and any element that needs to stand out from a `surface` card without using `primary`.
 
 ### Signature Textures (Glass & Gradient)
 To achieve a premium editorial feel:
@@ -135,8 +156,9 @@ If a border is required for accessibility (e.g., an unselected habit state), use
 ### Cards & Habit Lists
 - **No Dividers:** Forbid the use of divider lines. Separate list items using `spacing-4` (1.4rem) or subtle background shifts between cards.
 - **Roundedness:** Use `xl` (1.5rem / 24px) for habit cards to create a soft, organic feel. Use `full` (9999px) for progress bars and chips.
-- **Core Rituals row** (`daily_habits.png`): circular progress ring (green stroke) + title + subtitle. Uses `surface-container-lowest` card on `surface-container-low` background.
-- **Personal Habits row** (`daily_habits.png`): icon chip + habit name + three-dot overflow menu. No progress ring.
+- **Core Rituals row** (`daily_habits.png`): circular progress ring (green stroke) + title + subtitle. Uses `surface` card on `background`. The ring shows `N/goal` for NUMERIC habits or a full green ring + check for completed BOOLEAN habits.
+- **Personal Habits row — BOOLEAN** (`daily_habits.png`): `surfaceVariant` icon chip (teal icon tint) + habit name + `RadioButtonUnchecked` / `CheckCircle` toggle + three-dot overflow menu. The entire card is tappable and toggles completion. Completed state: name dimmed to 50% alpha, icon becomes filled `CheckCircle` in `primary` teal.
+- **Personal Habits row — NUMERIC (counter)**: same icon chip layout, but the trailing control is a `− count/goal +` stepper using `FilledIconButton` with `primary.copy(alpha=0.12)` container. The card itself is not tappable; only the `−`/`+` buttons trigger count changes. Count label turns `primary` teal when the habit is completed.
 - **Prayer list row** (`daily_prayer_tracker.png`): circular icon (color-coded per prayer) + name + time + circular checkbox toggle.
 - **Habit list row** (`home_dashboard.png`): icon + name + category label + circular checkbox. Pending/Completed segmented control above list.
 
