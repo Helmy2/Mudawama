@@ -1,32 +1,38 @@
 package io.github.helmy2.mudawama.habits.presentation.components
 
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import io.github.helmy2.mudawama.designsystem.generated.resources.Res as DsRes
+import io.github.helmy2.mudawama.designsystem.generated.resources.habit_progress_count
+import io.github.helmy2.mudawama.designsystem.generated.resources.habit_progress_fraction
 import io.github.helmy2.mudawama.habits.domain.model.Habit
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus
@@ -36,121 +42,223 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import mudawama.feature.habits.presentation.Res
-import mudawama.feature.habits.presentation.cd_increment_count
 import mudawama.feature.habits.presentation.cd_mark_complete
 import mudawama.feature.habits.presentation.cd_mark_incomplete
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
 
+/**
+ * Row for a CORE RITUAL habit (isCore = true).
+ *
+ * Layout (matches daily_habits.png CORE RITUALS section):
+ *   [circular progress ring] | habit name (bold) + subtitle | [chevron >]
+ *
+ * The ring shows numeric progress (completedCount / goalCount) for NUMERIC habits,
+ * or a full green ring with a check icon for completed BOOLEAN habits.
+ */
 @Composable
-fun HabitListItem(
+fun HabitCoreRitualItem(
     habitWithStatus: HabitWithStatus,
     onToggle: () -> Unit,
     onIncrement: () -> Unit,
-    onLongPress: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val habit = habitWithStatus.habit
     val todayLog = habitWithStatus.todayLog
-
-    // Derived display properties (never stored — spec §HabitWithStatus KDoc)
-    val isCompletedToday = todayLog?.status == LogStatus.COMPLETED
-    val todayDayOfWeek = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek }
-    val isDueToday = todayDayOfWeek in habit.frequencyDays
+    val isCompleted = todayLog?.status == LogStatus.COMPLETED
     val numericProgress = todayLog?.completedCount ?: 0
-    val isNumericGoalReached = habit.goalCount != null && numericProgress >= habit.goalCount!!
+    val goal = habit.goalCount ?: 1
+
+    val progressFraction = when (habit.type) {
+        HabitType.BOOLEAN -> if (isCompleted) 1f else 0f
+        HabitType.NUMERIC -> if (goal > 0) (numericProgress.toFloat() / goal).coerceIn(0f, 1f) else 0f
+    }
+
+    val progressLabel = when (habit.type) {
+        HabitType.BOOLEAN -> if (isCompleted) "1/1" else "0/1"
+        HabitType.NUMERIC -> stringResource(DsRes.string.habit_progress_fraction, numericProgress, goal)
+    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MudawamaTheme.colors.surface,
-        ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MudawamaTheme.colors.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
-        Column(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .pointerInput(onLongPress) {
-                    detectTapGestures(onLongPress = { onLongPress() })
-                }
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth(),
+            // ── Circular progress ring ─────────────────────────────────────
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(56.dp),
             ) {
-                // Habit icon
-                Icon(
-                    imageVector = iconKeyToImageVector(habit.iconKey),
-                    contentDescription = null,
-                    tint = if (isDueToday) MudawamaTheme.colors.primary
-                    else MudawamaTheme.colors.onSurface.copy(alpha = 0.4f),
-                    modifier = Modifier.size(24.dp),
+                // Track (background arc)
+                CircularProgressIndicator(
+                    progress = { 1f },
+                    modifier = Modifier.size(56.dp),
+                    color = MudawamaTheme.colors.primary.copy(alpha = 0.12f),
+                    strokeWidth = 4.dp,
+                    strokeCap = StrokeCap.Round,
                 )
+                // Filled arc
+                CircularProgressIndicator(
+                    progress = { progressFraction },
+                    modifier = Modifier.size(56.dp),
+                    color = MudawamaTheme.colors.primary,
+                    strokeWidth = 4.dp,
+                    strokeCap = StrokeCap.Round,
+                )
+                // Center label
+                Text(
+                    text = progressLabel,
+                    style = MudawamaTheme.typography.caption,
+                    color = MudawamaTheme.colors.onSurface,
+                )
+            }
 
-                Spacer(modifier = Modifier.width(12.dp))
+            Spacer(Modifier.width(16.dp))
 
-                // Name
+            // ── Name + subtitle ────────────────────────────────────────────
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = habit.name,
                     style = MudawamaTheme.typography.h4,
-                    color = if (isDueToday) MudawamaTheme.colors.onSurface
-                    else MudawamaTheme.colors.onSurface.copy(alpha = 0.4f),
-                    modifier = Modifier.weight(1f),
+                    color = MudawamaTheme.colors.onSurface,
                 )
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-                // Completion control
-                when (habit.type) {
-                    HabitType.BOOLEAN -> {
-                        IconButton(onClick = onToggle) {
-                            Icon(
-                                imageVector = if (isCompletedToday) Icons.Default.CheckCircle
-                                else Icons.Default.RadioButtonUnchecked,
-                                contentDescription = if (isCompletedToday)
-                                    stringResource(Res.string.cd_mark_incomplete)
-                                else
-                                    stringResource(Res.string.cd_mark_complete),
-                                tint = if (isCompletedToday) MudawamaTheme.colors.primary
-                                else MudawamaTheme.colors.onSurface.copy(alpha = 0.4f),
-                            )
-                        }
-                    }
-
-                    HabitType.NUMERIC -> {
-                        val progressLabel = if (habit.goalCount != null)
-                            "$numericProgress / ${habit.goalCount}"
-                        else
-                            "$numericProgress"
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = progressLabel,
-                                style = MudawamaTheme.typography.body2,
-                                color = if (isNumericGoalReached) MudawamaTheme.colors.primary
-                                else MudawamaTheme.colors.onSurface,
-                            )
-                            Spacer(Modifier.width(4.dp))
-                            IconButton(onClick = onIncrement) {
-                                Icon(
-                                    imageVector = Icons.Default.CheckCircle,
-                                    contentDescription = stringResource(Res.string.cd_increment_count),
-                                    tint = if (isNumericGoalReached) MudawamaTheme.colors.primary
-                                    else MaterialTheme.colorScheme.outline,
-                                )
-                            }
-                        }
-                    }
+                if (isCompleted) {
+                    Text(
+                        text = stringResource(Res.string.cd_mark_incomplete),
+                        style = MudawamaTheme.typography.body2,
+                        color = MudawamaTheme.colors.onSurface.copy(alpha = 0.5f),
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // ── Chevron ────────────────────────────────────────────────────
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = MudawamaTheme.colors.onSurface.copy(alpha = 0.35f),
+                modifier = Modifier.size(20.dp),
+            )
+        }
+    }
+}
 
-            HabitHeatmapRow(
-                weekLogs = habitWithStatus.weekLogs,
-                frequencyDays = habit.frequencyDays,
+/**
+ * Row for a PERSONAL HABIT (isCore = false).
+ *
+ * Layout (matches daily_habits.png PERSONAL HABITS section):
+ *   [icon chip — teal circle] | habit name | [MoreVert ⋮]
+ */
+@Composable
+fun HabitPersonalItem(
+    habitWithStatus: HabitWithStatus,
+    onToggle: () -> Unit,
+    onMoreClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val habit = habitWithStatus.habit
+    val todayLog = habitWithStatus.todayLog
+    val todayDayOfWeek = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek }
+    val isDueToday = todayDayOfWeek in habit.frequencyDays
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MudawamaTheme.colors.surface.copy(alpha = if (isDueToday) 1f else 0.6f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            // ── Icon chip ──────────────────────────────────────────────────
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(MudawamaTheme.colors.surface),
+            ) {
+                Icon(
+                    imageVector = iconKeyToImageVector(habit.iconKey),
+                    contentDescription = null,
+                    tint = MudawamaTheme.colors.onSurface,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+
+            // ── Habit name ─────────────────────────────────────────────────
+            Text(
+                text = habit.name,
+                style = MudawamaTheme.typography.h4,
+                color = MudawamaTheme.colors.onSurface,
+                modifier = Modifier.weight(1f),
+            )
+
+            // ── More (⋮) button ────────────────────────────────────────────
+            IconButton(
+                onClick = onMoreClick,
+                modifier = Modifier.size(36.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = stringResource(Res.string.cd_mark_complete),
+                    tint = MudawamaTheme.colors.onSurface.copy(alpha = 0.4f),
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
+    }
+}
+
+// ── Previews ──────────────────────────────────────────────────────────────────
+
+@Preview(showBackground = true)
+@Composable
+private fun HabitCoreRitualItemPreview() {
+    MudawamaTheme {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.padding(16.dp),
+        ) {
+            HabitCoreRitualItem(
+                habitWithStatus = HabitWithStatus(
+                    habit = Habit(
+                        id = "1", name = "Prayers", iconKey = "pray",
+                        type = HabitType.NUMERIC, category = "PRAYER",
+                        frequencyDays = DayOfWeek.entries.toSet(),
+                        isCore = true, goalCount = 5, createdAt = 0L,
+                    ),
+                    todayLog = null,
+                    weekLogs = List(7) { null },
+                ),
+                onToggle = {},
+                onIncrement = {},
+            )
+            HabitCoreRitualItem(
+                habitWithStatus = HabitWithStatus(
+                    habit = Habit(
+                        id = "2", name = "Athkar", iconKey = "star",
+                        type = HabitType.BOOLEAN, category = "ATHKAR",
+                        frequencyDays = DayOfWeek.entries.toSet(),
+                        isCore = true, goalCount = null, createdAt = 0L,
+                    ),
+                    todayLog = null,
+                    weekLogs = List(7) { null },
+                ),
+                onToggle = {},
+                onIncrement = {},
             )
         }
     }
@@ -158,27 +266,40 @@ fun HabitListItem(
 
 @Preview(showBackground = true)
 @Composable
-fun HabitListItemPreview() {
+private fun HabitPersonalItemPreview() {
     MudawamaTheme {
-        HabitListItem(
-            habitWithStatus = HabitWithStatus(
-                habit = Habit(
-                    id = "1",
-                    name = "Read Quran",
-                    iconKey = "book",
-                    type = HabitType.BOOLEAN,
-                    category = "custom",
-                    frequencyDays = DayOfWeek.entries.toSet(),
-                    isCore = false,
-                    goalCount = null,
-                    createdAt = 0L,
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(16.dp),
+        ) {
+            HabitPersonalItem(
+                habitWithStatus = HabitWithStatus(
+                    habit = Habit(
+                        id = "3", name = "Fasting Mondays", iconKey = "moon",
+                        type = HabitType.BOOLEAN, category = "custom",
+                        frequencyDays = setOf(DayOfWeek.MONDAY),
+                        isCore = false, goalCount = null, createdAt = 0L,
+                    ),
+                    todayLog = null,
+                    weekLogs = List(7) { null },
                 ),
-                todayLog = null,
-                weekLogs = List(7) { null },
-            ),
-            onToggle = {},
-            onIncrement = {},
-            onLongPress = {},
-        )
+                onToggle = {},
+                onMoreClick = {},
+            )
+            HabitPersonalItem(
+                habitWithStatus = HabitWithStatus(
+                    habit = Habit(
+                        id = "4", name = "Give Sadaqah", iconKey = "heart",
+                        type = HabitType.BOOLEAN, category = "custom",
+                        frequencyDays = DayOfWeek.entries.toSet(),
+                        isCore = false, goalCount = null, createdAt = 0L,
+                    ),
+                    todayLog = null,
+                    weekLogs = List(7) { null },
+                ),
+                onToggle = {},
+                onMoreClick = {},
+            )
+        }
     }
 }

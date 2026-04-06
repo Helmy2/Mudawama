@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Bottom navigation tab labels ───────────────────────────────────── -->
+    <string name="nav_tab_home">Home</string>
+    <string name="nav_tab_prayers">Prayers</string>
+    <string name="nav_tab_quran">Quran</string>
+    <string name="nav_tab_athkar">Athkar</string>
+
+    <!-- ── Section headings shared across features ────────────────────────── -->
+    <string name="section_core_rituals">CORE RITUALS</string>
+    <string name="section_personal_habits">PERSONAL HABITS</string>
+
+    <!-- ── Numeric progress format: "%1$d / %2$d" ────────────────────────── -->
+    <string name="habit_progress_fraction">%1$d / %2$d</string>
+    <string name="habit_progress_count">%1$d</string>
+
+    <!-- ── Common actions ─────────────────────────────────────────────────── -->
+    <string name="action_add_new_habit">+ Add New Habit</string>
+    <string name="action_view_all">VIEW ALL</string>
+    <string name="action_save">Save</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_done">Done</string>
+    <string name="action_close">Close</string>
+</resources>

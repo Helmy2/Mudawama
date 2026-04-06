@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ── Screen titles ─────────────────────────────────────────────────── -->
+    <string name="habits_screen_title">Daily Habits</string>
+
     <!-- ── Habit list item ─────────────────────────────────────────────────── -->
     <string name="cd_mark_complete">Mark complete</string>
     <string name="cd_mark_incomplete">Mark incomplete</string>
@@ -45,5 +48,29 @@
     <!-- ── Snackbar / error messages ─────────────────────────────────────── -->
     <string name="error_generic">Something went wrong. Please try again.</string>
     <string name="error_cannot_delete_core">Cannot delete this habit.</string>
+    <string name="error_name_empty_snackbar">Habit name cannot be empty.</string>
+    <string name="error_no_day_selected_snackbar">Please select at least one day.</string>
+
+    <!-- ── Options sheet — additional actions ────────────────────────────── -->
+    <string name="action_manage_habit">Manage Habit</string>
+    <string name="action_edit_habit">Edit Habit</string>
+    <string name="action_edit_habit_subtitle">Modify details, frequency, or icons</string>
+    <string name="action_reset_today">Reset Today\'s Progress</string>
+    <string name="action_reset_today_subtitle">Clear logs for the current day</string>
+    <string name="action_delete_habit">Delete Habit</string>
+    <string name="action_delete_habit_subtitle">Permanently remove this habit and data</string>
+
+    <!-- ── New Habit sheet labels ─────────────────────────────────────────── -->
+    <string name="label_habit_name">HABIT NAME</string>
+    <string name="hint_habit_name_placeholder">e.g., Fasting Mondays, Give Charity</string>
+    <string name="label_identity_icon">IDENTITY ICON</string>
+    <string name="label_frequency">FREQUENCY</string>
+    <string name="label_goal_type">GOAL TYPE</string>
+    <string name="type_checkoff_title">Check-off</string>
+    <string name="type_checkoff_subtitle">Simple completion</string>
+    <string name="type_counter_title">Counter</string>
+    <string name="type_counter_subtitle">Numeric targets</string>
+    <string name="label_daily_reminder">Daily Reminder</string>
+    <string name="label_daily_reminder_subtitle">Nudge me to stay on track</string>
 </resources>
 

@@ -8,6 +8,7 @@ import io.github.helmy2.mudawama.habits.domain.usecase.CreateHabitUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.DeleteHabitUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.IncrementHabitCountUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.ObserveHabitsWithTodayStatusUseCase
+import io.github.helmy2.mudawama.habits.domain.usecase.ResetHabitTodayLogUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.ToggleHabitCompletionUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.UpdateHabitUseCase
 import io.github.helmy2.mudawama.habits.presentation.model.BottomSheetMode
@@ -17,6 +18,8 @@ import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiState
 import mudawama.feature.habits.presentation.Res
 import mudawama.feature.habits.presentation.error_cannot_delete_core
 import mudawama.feature.habits.presentation.error_generic
+import mudawama.feature.habits.presentation.error_name_empty_snackbar
+import mudawama.feature.habits.presentation.error_no_day_selected_snackbar
 
 class HabitsViewModel(
     private val observeHabitsUseCase: ObserveHabitsWithTodayStatusUseCase,
@@ -25,6 +28,7 @@ class HabitsViewModel(
     private val deleteHabitUseCase: DeleteHabitUseCase,
     private val toggleCompletionUseCase: ToggleHabitCompletionUseCase,
     private val incrementCountUseCase: IncrementHabitCountUseCase,
+    private val resetTodayLogUseCase: ResetHabitTodayLogUseCase,
 ) : MviViewModel<HabitsUiState, HabitsUiAction, HabitsUiEvent>(HabitsUiState()) {
 
     init {
@@ -65,6 +69,16 @@ class HabitsViewModel(
                     incrementCountUseCase(action.habitId)
                 }
 
+            is HabitsUiAction.ResetTodayProgress ->
+                exclusiveIntent("reset_${action.habitId}") {
+                    when (resetTodayLogUseCase(action.habitId)) {
+                        is Result.Success ->
+                            reduce { copy(bottomSheetMode = BottomSheetMode.Hidden) }
+                        is Result.Failure ->
+                            emitEvent(HabitsUiEvent.ShowSnackbar(Res.string.error_generic))
+                    }
+                }
+
             HabitsUiAction.DismissBottomSheet ->
                 reduce { copy(bottomSheetMode = BottomSheetMode.Hidden, errorMessage = null) }
 
@@ -101,9 +115,9 @@ class HabitsViewModel(
 
                 is Result.Failure -> when (result.error) {
                     HabitError.EmptyHabitName ->
-                        reduce { copy(errorMessage = "Habit name cannot be empty") }
+                        emitEvent(HabitsUiEvent.ShowSnackbar(Res.string.error_name_empty_snackbar))
                     HabitError.NoFrequencyDaySelected ->
-                        reduce { copy(errorMessage = "Please select at least one day") }
+                        emitEvent(HabitsUiEvent.ShowSnackbar(Res.string.error_no_day_selected_snackbar))
                     else ->
                         emitEvent(HabitsUiEvent.ShowSnackbar(Res.string.error_generic))
                 }

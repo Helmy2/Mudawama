@@ -20,6 +20,7 @@ sealed interface HabitsUiAction {
     ) : HabitsUiAction
     data class ToggleCompletion(val habitId: String) : HabitsUiAction
     data class IncrementCount(val habitId: String) : HabitsUiAction
+    data class ResetTodayProgress(val habitId: String) : HabitsUiAction
     data object DismissBottomSheet : HabitsUiAction
     data object DismissError : HabitsUiAction
 }

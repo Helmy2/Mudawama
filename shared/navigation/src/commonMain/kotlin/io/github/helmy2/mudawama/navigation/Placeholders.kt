@@ -8,6 +8,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import io.github.helmy2.mudawama.designsystem.generated.resources.Res
+import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_athkar
+import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_home
+import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_prayers
+import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_quran
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 private fun PlaceholderContent(label: String) {
@@ -25,17 +31,22 @@ private fun PlaceholderContent(label: String) {
 
 @Composable
 fun HomePlaceholderScreen() {
-    PlaceholderContent(label = "Home")
+    PlaceholderContent(label = stringResource(Res.string.nav_tab_home))
 }
 
 @Composable
 fun PrayerPlaceholderScreen() {
-    PlaceholderContent(label = "Prayer")
+    PlaceholderContent(label = stringResource(Res.string.nav_tab_prayers))
+}
+
+@Composable
+fun QuranPlaceholderScreen() {
+    PlaceholderContent(label = stringResource(Res.string.nav_tab_quran))
 }
 
 @Composable
 fun AthkarPlaceholderScreen() {
-    PlaceholderContent(label = "Athkar")
+    PlaceholderContent(label = stringResource(Res.string.nav_tab_athkar))
 }
 
 @Composable
@@ -43,27 +54,9 @@ fun HabitsPlaceholderScreen() {
     PlaceholderContent(label = "Habits")
 }
 
-@Preview
-@Composable
-fun HomePlaceholderScreenPreview() {
-    HomePlaceholderScreen()
-}
-
-@Preview
-@Composable
-fun PrayerPlaceholderScreenPreview() {
-    PrayerPlaceholderScreen()
-}
-
-@Preview
-@Composable
-fun AthkarPlaceholderScreenPreview() {
-    AthkarPlaceholderScreen()
-}
-
-@Preview
-@Composable
-fun HabitsPlaceholderScreenPreview() {
-    HabitsPlaceholderScreen()
-}
+@Preview @Composable fun HomePlaceholderScreenPreview() { HomePlaceholderScreen() }
+@Preview @Composable fun PrayerPlaceholderScreenPreview() { PrayerPlaceholderScreen() }
+@Preview @Composable fun QuranPlaceholderScreenPreview() { QuranPlaceholderScreen() }
+@Preview @Composable fun AthkarPlaceholderScreenPreview() { AthkarPlaceholderScreen() }
+@Preview @Composable fun HabitsPlaceholderScreenPreview() { HabitsPlaceholderScreen() }
 

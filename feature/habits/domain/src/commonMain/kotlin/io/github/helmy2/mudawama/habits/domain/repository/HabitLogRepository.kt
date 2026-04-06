@@ -14,5 +14,6 @@ interface HabitLogRepository {
     fun observeLogsForDateRange(startDate: String, endDate: String): Flow<List<HabitLog>>
     suspend fun upsertLog(log: HabitLog)
     suspend fun getLogForHabitOnDate(habitId: String, date: String): HabitLog?
+    suspend fun deleteLogForHabitOnDate(habitId: String, date: String)
 }
 

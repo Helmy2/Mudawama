@@ -27,5 +27,8 @@ interface HabitLogDao {
 
     @Query("SELECT * FROM habit_logs WHERE date >= :startDate AND date <= :endDate")
     fun getLogsForDateRange(startDate: String, endDate: String): Flow<List<HabitLogEntity>>
+
+    @Query("DELETE FROM habit_logs WHERE habitId = :habitId AND date = :date")
+    suspend fun deleteLogForHabitOnDate(habitId: String, date: String)
 }
 

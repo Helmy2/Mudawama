@@ -21,4 +21,7 @@ internal class HabitLogRepositoryImpl(
 
     override suspend fun getLogForHabitOnDate(habitId: String, date: String): HabitLog? =
         dao.getLogForHabitOnDate(habitId, date)?.toDomain()
+
+    override suspend fun deleteLogForHabitOnDate(habitId: String, date: String) =
+        dao.deleteLogForHabitOnDate(habitId, date)
 }

@@ -1,41 +1,45 @@
 package io.github.helmy2.mudawama.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
+import io.github.helmy2.mudawama.designsystem.generated.resources.Res
+import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_athkar
+import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_home
+import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_prayers
+import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_quran
 import kotlinx.serialization.Serializable
+import org.jetbrains.compose.resources.StringResource
 
 /**
  * Type-safe route hierarchy for shared:navigation.
- * Sealed interface makes `when(route)` in NavDisplay exhaustive at compile time (FR-003, FR-004).
+ * Sealed interface makes `when(route)` in NavDisplay exhaustive at compile time.
  */
 @Serializable
 sealed interface Route : NavKey
 
-@Serializable
-data object HomeRoute : Route
-
-@Serializable
-data object PrayerRoute : Route
-
-@Serializable
-data object AthkarRoute : Route
-
-@Serializable
-data object HabitsRoute : Route
+@Serializable data object HomeRoute   : Route
+@Serializable data object PrayerRoute : Route
+@Serializable data object QuranRoute  : Route
+@Serializable data object AthkarRoute : Route
+@Serializable data object HabitsRoute : Route
 
 /**
- * Enum binding each [Route] to its icon and label string-resource key.
- * [route] is typed as [Route] (not [Any]) for compile-time safety (contract §5).
+ * Enum binding each bottom-nav [Route] to its icon and string resource label.
+ * Labels are [StringResource] — never hardcoded string literals.
  */
-enum class BottomNavItem(val route: Route, val icon: ImageVector, val labelKey: String) {
-    HOME(HomeRoute, Icons.Default.Home, "home"),
-    PRAYER(PrayerRoute, Icons.Default.Star, "prayer"),
-    ATHKAR(AthkarRoute, Icons.Default.FavoriteBorder, "athkar"),
-    HABITS(HabitsRoute, Icons.Default.CheckCircle, "habits"),
+enum class BottomNavItem(
+    val route: Route,
+    val icon: ImageVector,
+    val labelRes: StringResource,
+) {
+    HOME(HomeRoute,     Icons.Default.Home,            Res.string.nav_tab_home),
+    PRAYER(PrayerRoute, Icons.Default.Star,            Res.string.nav_tab_prayers),
+    QURAN(QuranRoute,   Icons.Default.MenuBook,        Res.string.nav_tab_quran),
+    ATHKAR(AthkarRoute, Icons.Default.SelfImprovement, Res.string.nav_tab_athkar),
 }
 

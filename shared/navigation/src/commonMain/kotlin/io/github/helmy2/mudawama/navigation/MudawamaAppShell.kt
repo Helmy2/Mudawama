@@ -32,6 +32,7 @@ fun MudawamaAppShell(
                     polymorphic(NavKey::class) {
                         subclass(HomeRoute::class)
                         subclass(PrayerRoute::class)
+                        subclass(QuranRoute::class)
                         subclass(AthkarRoute::class)
                         subclass(HabitsRoute::class)
                     }
@@ -65,6 +66,10 @@ fun MudawamaAppShell(
 
                     entry<PrayerRoute> {
                         PrayerPlaceholderScreen()
+                    }
+
+                    entry<QuranRoute> {
+                        QuranPlaceholderScreen()
                     }
 
                     entry<AthkarRoute> {

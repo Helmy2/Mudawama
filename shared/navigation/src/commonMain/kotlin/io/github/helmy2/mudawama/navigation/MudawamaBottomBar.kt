@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import org.jetbrains.compose.resources.stringResource
 
 private val BarHorizontalPadding = 16.dp
 private val BarVerticalPadding = 8.dp
@@ -79,8 +80,8 @@ fun MudawamaBottomBar(
                 NavigationBarItem(
                     selected = item == selectedItem,
                     onClick = { onNavigate(item.route) },
-                    icon = { Icon(item.icon, contentDescription = item.labelKey) },
-                    label = { Text(item.labelKey) },
+                    icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
+                    label = { Text(stringResource(item.labelRes)) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = MudawamaTheme.colors.primary,
                         selectedTextColor = MudawamaTheme.colors.primary,
