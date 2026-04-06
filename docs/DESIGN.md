@@ -44,6 +44,24 @@ and accessed via `stringResource(Res.string.<key>)`.
   button labels, placeholder text, motivational copy) MUST each have a
   dedicated string resource key — they must not be embedded in code.
 
+**Single source of truth.** There is exactly one `strings.xml` in the
+project. Feature modules MUST NOT create their own `strings.xml` or
+`composeResources/` directory.
+
+**Correct `Res` import.** The `mudawama.kmp.compose` convention plugin
+derives the generated `Res` class package from the Gradle module path
+(`"mudawama." + gradlePath.trimStart(':').replace(':', '.')`). For
+`shared/designsystem` this is `mudawama.shared.designsystem`. Every
+file that needs a string resource must import:
+
+```kotlin
+import mudawama.shared.designsystem.Res
+```
+
+The package `io.github.helmy2.mudawama.designsystem.generated.resources`
+does **not** exist and will not compile. A `Res as DsRes` alias is
+forbidden — there is only one `Res` in the codebase.
+
 This rule exists to support full Arabic (`ar`) localization, which is a
 core product value, without requiring any Kotlin source changes.
 

@@ -97,7 +97,32 @@ The structural skeleton of the app. Provides a single `MudawamaAppShell` composa
 ### 6. The `shared:designsystem`
 Contains all static resources via JetBrains Compose Resources (`strings.xml`, `.ttf` fonts, `.svg` icons) and the global `MudawamaTheme`. Every feature's `:presentation` module depends on this to ensure visual consistency.
 
-**String resource rule (enforced):** All user-visible strings MUST be declared in `strings.xml` inside this module and accessed via `stringResource(Res.string.*)`. Hardcoded string literals in `@Composable` functions are a build-blocking violation. See `docs/DESIGN.md` section 1 for key naming conventions.
+#### Single source of truth for strings
+
+There is exactly **one** `strings.xml` in the entire project:
+
+```
+shared/designsystem/src/commonMain/composeResources/values/strings.xml
+```
+
+All user-visible strings — nav tab labels, screen titles, section headers, button labels, error messages, content descriptions, format strings — live here. Feature modules MUST NOT create their own `strings.xml` or `composeResources/values/` directory.
+
+#### Correct `Res` import path
+
+The `mudawama.kmp.compose` convention plugin sets `packageOfResClass` to:
+
+```
+"mudawama." + gradlePath.trimStart(':').replace(':', '.')
+```
+
+For `:shared:designsystem` this yields `mudawama.shared.designsystem`. The correct import in every `.kt` file is therefore:
+
+```kotlin
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.<string_key>   // individual key (optional, for IDE auto-import)
+```
+
+The legacy package `io.github.helmy2.mudawama.designsystem.generated.resources.Res` does **not** exist and will fail to compile. A `Res as DsRes` alias is also forbidden — there is only one `Res` in the project, so no alias is needed.
 
 ---
 

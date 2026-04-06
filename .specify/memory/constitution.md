@@ -1,10 +1,13 @@
 <!--
 Sync Impact Report
 
-- Version change: 1.1.0 -> 1.2.0
-- Modified principles: 2026-04-06 amendment
+- Version change: 1.2.0 -> 1.3.0
+- Modified principles: 2026-04-06 amendment (v1.2.0)
   - Added: UI Fidelity & String Resources principle
     (no hardcoded strings; all text via stringResource; UI MUST match docs/ui/ references)
+- Modified principles: 2026-04-06 amendment (v1.3.0)
+  - Added: String Resource Consolidation rule
+    (single strings.xml in shared/designsystem; packageOfResClass convention documented)
 - Runtime docs updated: docs/ARCHITECTURE.md, docs/SDD.md, docs/DESIGN.md
 -->
 
@@ -114,6 +117,36 @@ for layout, labeling, and copy.
 - Icons and drawables MUST be declared as Compose Resources
   (`Res.drawable.*`) — no hardcoded `R.drawable` Android references in
   `commonMain` code.
+
+#### String Resource Consolidation (v1.3.0)
+
+There is exactly **one** `strings.xml` in the entire project:
+`shared/designsystem/src/commonMain/composeResources/values/strings.xml`.
+Feature modules MUST NOT create their own `strings.xml` or
+`composeResources/values/` directory. All strings — navigation labels,
+screen titles, section headers, button labels, error messages, content
+descriptions — belong in this single file.
+
+**Import path rule.** The `mudawama.kmp.compose` convention plugin
+derives the generated resource class package from the Gradle module path:
+
+```
+packageOfResClass = "mudawama." + gradlePath.trimStart(':').replace(':', '.')
+```
+
+For `shared/designsystem` (Gradle path `:shared:designsystem`) this
+produces:
+
+```kotlin
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.<string_key>
+```
+
+This is the **only** `Res` import that should ever appear in any `.kt`
+file that references string resources. The legacy pattern
+`io.github.helmy2.mudawama.designsystem.generated.resources.Res` is
+wrong and will not compile. Using a `as DsRes` alias is also forbidden —
+there is only one `Res`, so no alias is needed.
 
 Reference UI screens (canonical filenames in `docs/ui/`):
 
@@ -225,6 +258,11 @@ design drift and gives reviewers an unambiguous acceptance criterion.
 - Presentation hardcoded-string pattern (applied to commonMain Composables):
 
     - Text\(\s*"[^"R][^"]*"\s*[,)]
+
+- Wrong Res import pattern (applies to all modules):
+
+    - ^import\s+io\.github\.helmy2\.mudawama\..*\.generated\.resources\.
+    - ^import\s+mudawama\.(feature|shared\.(?!designsystem))\S+\.Res
 
 ## CI Script Snippet (suggested `scripts/check_constitution.sh`)
 
@@ -353,6 +391,6 @@ Data - forbidden example
 
 ## Revision information
 
-- CONSTITUTION_VERSION: 1.2.0
+- CONSTITUTION_VERSION: 1.3.0
 - RATIFICATION_DATE: 2026-03-21
 - LAST_AMENDED_DATE: 2026-04-06
