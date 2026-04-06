@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -112,6 +113,7 @@ private fun HabitsScreenContent(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MudawamaTheme.colors.background,
                 ),
+                windowInsets = WindowInsets(0),
             )
         },
     ) { innerPadding ->
@@ -179,6 +181,12 @@ private fun HabitsScreenContent(
                                 habitWithStatus = habitWithStatus,
                                 onToggle = {
                                     onAction(HabitsUiAction.ToggleCompletion(habitWithStatus.habit.id))
+                                },
+                                onIncrement = {
+                                    onAction(HabitsUiAction.IncrementCount(habitWithStatus.habit.id))
+                                },
+                                onDecrement = {
+                                    onAction(HabitsUiAction.DecrementCount(habitWithStatus.habit.id))
                                 },
                                 onMoreClick = {
                                     onAction(HabitsUiAction.HabitLongPressed(habitWithStatus.habit))

@@ -32,6 +32,7 @@
     <string name="cd_mark_complete">Mark complete</string>
     <string name="cd_mark_incomplete">Mark incomplete</string>
     <string name="cd_increment_count">Increment count</string>
+    <string name="cd_decrement_count">Decrement count</string>
     <string name="cd_add_habit">Add habit</string>
 
     <!-- ── Add / Edit habit bottom sheet ─────────────────────────────────── -->

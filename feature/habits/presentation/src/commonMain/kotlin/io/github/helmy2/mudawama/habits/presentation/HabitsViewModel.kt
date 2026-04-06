@@ -6,6 +6,7 @@ import io.github.helmy2.mudawama.habits.domain.error.HabitError
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.usecase.CreateHabitUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.DeleteHabitUseCase
+import io.github.helmy2.mudawama.habits.domain.usecase.DecrementHabitCountUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.IncrementHabitCountUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.ObserveHabitsWithTodayStatusUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.ResetHabitTodayLogUseCase
@@ -28,6 +29,7 @@ class HabitsViewModel(
     private val deleteHabitUseCase: DeleteHabitUseCase,
     private val toggleCompletionUseCase: ToggleHabitCompletionUseCase,
     private val incrementCountUseCase: IncrementHabitCountUseCase,
+    private val decrementCountUseCase: DecrementHabitCountUseCase,
     private val resetTodayLogUseCase: ResetHabitTodayLogUseCase,
 ) : MviViewModel<HabitsUiState, HabitsUiAction, HabitsUiEvent>(HabitsUiState()) {
 
@@ -67,6 +69,11 @@ class HabitsViewModel(
             is HabitsUiAction.IncrementCount ->
                 exclusiveIntent("increment_${action.habitId}") {
                     incrementCountUseCase(action.habitId)
+                }
+
+            is HabitsUiAction.DecrementCount ->
+                exclusiveIntent("decrement_${action.habitId}") {
+                    decrementCountUseCase(action.habitId)
                 }
 
             is HabitsUiAction.ResetTodayProgress ->

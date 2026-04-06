@@ -19,6 +19,7 @@ fun habitsDomainModule() = module {
     factoryOf(::DeleteHabitUseCase)
     factoryOf(::ToggleHabitCompletionUseCase)
     factoryOf(::IncrementHabitCountUseCase)
+    factoryOf(::DecrementHabitCountUseCase)
     factoryOf(::ObserveWeeklyHeatmapUseCase)
     factoryOf(::ResetHabitTodayLogUseCase)
 }
