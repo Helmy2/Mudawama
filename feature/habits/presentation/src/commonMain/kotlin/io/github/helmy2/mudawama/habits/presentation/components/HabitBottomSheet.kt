@@ -67,9 +67,9 @@ import mudawama.feature.habits.presentation.type_checkoff_subtitle
 import mudawama.feature.habits.presentation.type_checkoff_title
 import mudawama.feature.habits.presentation.type_counter_subtitle
 import mudawama.feature.habits.presentation.type_counter_title
-import io.github.helmy2.mudawama.designsystem.generated.resources.Res as DsRes
-import io.github.helmy2.mudawama.designsystem.generated.resources.action_close
-import io.github.helmy2.mudawama.designsystem.generated.resources.action_save
+import mudawama.shared.designsystem.Res as DsRes
+import mudawama.shared.designsystem.action_close
+import mudawama.shared.designsystem.action_save
 import org.jetbrains.compose.resources.stringResource
 
 private val DAYS_ORDERED = listOf(

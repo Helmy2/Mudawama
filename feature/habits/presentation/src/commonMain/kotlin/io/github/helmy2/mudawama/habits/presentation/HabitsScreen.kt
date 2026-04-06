@@ -59,10 +59,10 @@ import mudawama.feature.habits.presentation.action_delete
 import mudawama.feature.habits.presentation.btn_cancel
 import mudawama.feature.habits.presentation.dialog_delete_message
 import mudawama.feature.habits.presentation.dialog_delete_title
-import io.github.helmy2.mudawama.designsystem.generated.resources.Res as DsRes
-import io.github.helmy2.mudawama.designsystem.generated.resources.action_add_new_habit
-import io.github.helmy2.mudawama.designsystem.generated.resources.section_core_rituals
-import io.github.helmy2.mudawama.designsystem.generated.resources.section_personal_habits
+import mudawama.shared.designsystem.Res as DsRes
+import mudawama.shared.designsystem.action_add_new_habit
+import mudawama.shared.designsystem.section_core_rituals
+import mudawama.shared.designsystem.section_personal_habits
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel

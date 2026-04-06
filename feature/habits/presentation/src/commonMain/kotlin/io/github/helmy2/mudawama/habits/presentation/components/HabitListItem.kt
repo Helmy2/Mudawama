@@ -30,9 +30,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
-import io.github.helmy2.mudawama.designsystem.generated.resources.Res as DsRes
-import io.github.helmy2.mudawama.designsystem.generated.resources.habit_progress_count
-import io.github.helmy2.mudawama.designsystem.generated.resources.habit_progress_fraction
+import mudawama.shared.designsystem.Res as DsRes
+import mudawama.shared.designsystem.habit_progress_count
+import mudawama.shared.designsystem.habit_progress_fraction
 import io.github.helmy2.mudawama.habits.domain.model.Habit
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus

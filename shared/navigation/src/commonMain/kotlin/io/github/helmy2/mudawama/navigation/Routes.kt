@@ -7,11 +7,11 @@ import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
-import io.github.helmy2.mudawama.designsystem.generated.resources.Res
-import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_athkar
-import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_home
-import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_prayers
-import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_quran
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.nav_tab_athkar
+import mudawama.shared.designsystem.nav_tab_home
+import mudawama.shared.designsystem.nav_tab_prayers
+import mudawama.shared.designsystem.nav_tab_quran
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.resources.StringResource
 

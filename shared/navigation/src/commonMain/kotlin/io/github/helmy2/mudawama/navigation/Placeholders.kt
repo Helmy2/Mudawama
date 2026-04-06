@@ -8,11 +8,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
-import io.github.helmy2.mudawama.designsystem.generated.resources.Res
-import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_athkar
-import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_home
-import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_prayers
-import io.github.helmy2.mudawama.designsystem.generated.resources.nav_tab_quran
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.nav_tab_athkar
+import mudawama.shared.designsystem.nav_tab_home
+import mudawama.shared.designsystem.nav_tab_prayers
+import mudawama.shared.designsystem.nav_tab_quran
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -59,4 +59,3 @@ fun HabitsPlaceholderScreen() {
 @Preview @Composable fun QuranPlaceholderScreenPreview() { QuranPlaceholderScreen() }
 @Preview @Composable fun AthkarPlaceholderScreenPreview() { AthkarPlaceholderScreen() }
 @Preview @Composable fun HabitsPlaceholderScreenPreview() { HabitsPlaceholderScreen() }
-
