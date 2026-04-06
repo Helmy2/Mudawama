@@ -2,29 +2,32 @@ package io.github.helmy2.mudawama.designsystem
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.ui.unit.dp
 
 // Mudawama color tokens are declared in Colors.kt (same package) and reused here.
 
 /**
  * Common token holders exposed via CompositionLocal for commonMain consumption.
+ *
+ * [surfaceVariant] — slightly elevated surface used for icon chips, secondary containers,
+ * and any element that needs to stand out from [surface] without using [primary].
  */
 data class MudawamaColors(
-    val primary: androidx.compose.ui.graphics.Color,
-    val onPrimary: androidx.compose.ui.graphics.Color,
-    val background: androidx.compose.ui.graphics.Color,
-    val surface: androidx.compose.ui.graphics.Color,
-    val onSurface: androidx.compose.ui.graphics.Color,
-    val error: androidx.compose.ui.graphics.Color
+    val primary: Color,
+    val onPrimary: Color,
+    val background: Color,
+    val surface: Color,
+    val surfaceVariant: Color,
+    val onSurface: Color,
+    val error: Color,
 )
 
 val LightMudawamaColors = MudawamaColors(
@@ -32,17 +35,19 @@ val LightMudawamaColors = MudawamaColors(
     onPrimary = PureWhiteSurface,
     background = OffWhiteBackground,
     surface = PureWhiteSurface,
+    surfaceVariant = OffWhiteBackground,   // same off-white family — chips sit naturally
     onSurface = CharcoalText,
-    error = MutedRedError
+    error = MutedRedError,
 )
 
 val DarkMudawamaColors = MudawamaColors(
-    primary = CalmEmerald, // slightly lighter tint for dark mode
-    onPrimary = PureWhiteSurface,
-    background = androidx.compose.ui.graphics.Color(0xFF0B0E0E),
-    surface = androidx.compose.ui.graphics.Color(0xFF121414),
-    onSurface = OffWhiteBackground,
-    error = MutedRedError
+    primary = EmeraldLight,                // lighter teal — legible on dark surfaces
+    onPrimary = Color(0xFF003828),         // deep teal for text on the bright primary
+    background = DarkBackground,           // 0xFF0F1412 — deepest layer
+    surface = DarkSurface,                 // 0xFF1A2120 — cards & sheets
+    surfaceVariant = DarkSurfaceVariant,   // 0xFF243130 — icon chips, secondary containers
+    onSurface = DarkOnSurface,             // 0xFFE8F0EF — warm off-white text
+    error = DarkError,                     // 0xFFFF6B6B — bright red legible on dark
 )
 
 internal val LocalMudawamaColors = staticCompositionLocalOf { LightMudawamaColors }
@@ -76,14 +81,17 @@ fun MudawamaTheme(
     shapesOverrides: MudawamaShapes? = null,
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
+    val m3Colors = if (darkTheme) {
         darkColorScheme(
             primary = DarkMudawamaColors.primary,
             onPrimary = DarkMudawamaColors.onPrimary,
             background = DarkMudawamaColors.background,
             surface = DarkMudawamaColors.surface,
+            surfaceVariant = DarkMudawamaColors.surfaceVariant,
             onSurface = DarkMudawamaColors.onSurface,
-            error = DarkMudawamaColors.error
+            onSurfaceVariant = DarkMudawamaColors.onSurface,
+            error = DarkMudawamaColors.error,
+            onError = DarkMudawamaColors.onPrimary,
         )
     } else {
         lightColorScheme(
@@ -91,8 +99,11 @@ fun MudawamaTheme(
             onPrimary = LightMudawamaColors.onPrimary,
             background = LightMudawamaColors.background,
             surface = LightMudawamaColors.surface,
+            surfaceVariant = LightMudawamaColors.surfaceVariant,
             onSurface = LightMudawamaColors.onSurface,
-            error = LightMudawamaColors.error
+            onSurfaceVariant = LightMudawamaColors.onSurface,
+            error = LightMudawamaColors.error,
+            onError = LightMudawamaColors.onPrimary,
         )
     }
 
@@ -115,12 +126,11 @@ fun MudawamaTheme(
         LocalMudawamaShapes provides appliedShapes
     ) {
         MaterialTheme(
-            colorScheme = colors,
+            colorScheme = m3Colors,
             typography = Typography(),
             shapes = materialShapes,
             content = content
         )
     }
 }
-
 
