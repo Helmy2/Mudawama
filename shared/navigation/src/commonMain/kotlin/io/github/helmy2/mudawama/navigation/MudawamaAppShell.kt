@@ -61,7 +61,13 @@ fun MudawamaAppShell(
                 modifier = Modifier.padding(innerPadding),
                 entryProvider = entryProvider {
                     entry<HomeRoute> {
-                        HomePlaceholderScreen()
+                        HomePlaceholderScreen(
+                            onNavigateToHabits = {
+                                if (backStack.lastOrNull() != HabitsRoute) {
+                                    backStack.add(HabitsRoute)
+                                }
+                            }
+                        )
                     }
 
                     entry<PrayerRoute> {

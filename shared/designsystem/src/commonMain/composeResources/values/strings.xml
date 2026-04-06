@@ -9,6 +9,8 @@
 
     <!-- ── Screen titles ──────────────────────────────────────────────────── -->
     <string name="habits_screen_title">Daily Habits</string>
+    <string name="home_daily_habits_button">Daily Habits</string>
+    <string name="home_daily_habits_subtitle">View your core rituals and personal habits</string>
 
     <!-- ── Section headings ───────────────────────────────────────────────── -->
     <string name="section_core_rituals">CORE RITUALS</string>
