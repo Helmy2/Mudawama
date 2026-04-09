@@ -31,11 +31,12 @@ import kotlinx.serialization.Serializable
 sealed interface Route : NavKey
 
 // ── Four top-level route objects ─────────────────────────────────────────────
+// Note: HabitsRoute does not exist — HomeRoute renders HabitsScreen directly.
 
-@Serializable data object HomeRoute   : Route
+@Serializable data object HomeRoute   : Route   // Home tab → Daily Habits screen
 @Serializable data object PrayerRoute : Route
 @Serializable data object AthkarRoute : Route
-@Serializable data object HabitsRoute : Route
+@Serializable data object QuranRoute  : Route
 ```
 
 **Validation rules**:
@@ -66,12 +67,13 @@ to type-safe navigation key.
 package io.github.helmy2.mudawama.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
 
+// Tabs: Home, Prayer, Quran, Athkar (no Habits tab — HomeRoute IS the Habits screen)
 enum class BottomNavItem(
     val route: Route,           // typed as Route (not Any) — compile-time verified (FR-004)
     val icon: ImageVector,      // temporary Material3 placeholder; replace with Res.drawable.* icons
@@ -79,8 +81,8 @@ enum class BottomNavItem(
 ) {
     HOME   (HomeRoute,    Icons.Default.Home,          "tab_home"),
     PRAYER (PrayerRoute,  Icons.Default.Star,           "tab_prayer"),
+    QURAN  (QuranRoute,   Icons.Default.Book,           "tab_quran"),
     ATHKAR (AthkarRoute,  Icons.Default.FavoriteBorder, "tab_athkar"),
-    HABITS (HabitsRoute,  Icons.Default.CheckCircle,    "tab_habits"),
 }
 ```
 
@@ -98,7 +100,7 @@ enum class BottomNavItem(
 ## 3. Composable State Flow (Navigation 3)
 
 ```
-MudawamaAppShell
+MudawamaAppShell(habitsScreen, prayerScreen)   ← feature screens injected as lambdas
 │
 ├── MudawamaTheme(darkTheme = isSystemInDarkTheme())              [FR-002]
 │
@@ -111,7 +113,7 @@ MudawamaAppShell
     │                   subclass(HomeRoute::class)
     │                   subclass(PrayerRoute::class)
     │                   subclass(AthkarRoute::class)
-    │                   subclass(HabitsRoute::class)
+    │                   subclass(QuranRoute::class)   // ← QuranRoute, not HabitsRoute
     │               }
     │           }
     │       ),
@@ -139,12 +141,14 @@ MudawamaAppShell
             NavDisplay(
                 backStack = backStack,
                 modifier  = Modifier.padding(innerPadding),
+                transitionSpec    = { fadeIn(150ms) togetherWith fadeOut(150ms) },
+                popTransitionSpec = { fadeIn(150ms) togetherWith fadeOut(150ms) },
             ) { route ->
                 when (route) {                  // exhaustive — sealed interface guarantees it
-                    HomeRoute   -> HomePlaceholderScreen()    [FR-005, FR-006]
-                    PrayerRoute -> PrayerPlaceholderScreen()
+                    HomeRoute   -> habitsScreen()           // ← real HabitsScreen, not placeholder
+                    PrayerRoute -> prayerScreen()           // ← real PrayerScreen, not placeholder
                     AthkarRoute -> AthkarPlaceholderScreen()
-                    HabitsRoute -> HabitsPlaceholderScreen()
+                    QuranRoute  -> QuranPlaceholderScreen()
                 }
             }
         }
@@ -162,25 +166,26 @@ MudawamaAppShell
 
 ---
 
-## 4. `GlassmorphismSurface` (internal helper)
+## 4. `BottomBarTab` (internal helper — replaced GlassmorphismSurface)
 
-Not a public entity. Documented here for completeness of the module's internal design.
+Not a public entity. Documented here for completeness.
 
 ```
-GlassmorphismSurface
+BottomBarTab (active)
 │
-├── outerBox  Modifier.padding(horizontal=16.dp, vertical=8.dp)
-│             .windowInsetsPadding(WindowInsets.navigationBars)   [FR-011]
-│             .fillMaxWidth()
+└── Box with RoundedCornerShape(16dp) background = MudawamaTheme.colors.primary
+    ├── Icon  (tint = MudawamaTheme.colors.onPrimary)
+    └── Text  (color = MudawamaTheme.colors.onPrimary, fontWeight = SemiBold)
+
+BottomBarTab (inactive)
 │
-├── backgroundBox  Modifier.matchParentSize()
-│                  .clip(RoundedCornerShape(28.dp))               [FR-010 — rounded floating shape]
-│                  .background(surface.copy(alpha=0.80f))         [FR-009 — 80% opacity]
-│                  .blur(radius=20.dp)                            [FR-009 — blur effect]
-│
-└── contentSlot  (NavigationBar placed here, above blur layer)
-                 ContainerColor = Color.Transparent               [lets backgroundBox show through]
+└── Box (no background)
+    ├── Icon  (tint = MudawamaTheme.colors.onSurface at 55% opacity)
+    └── Text  (color = MudawamaTheme.colors.onSurface at 55% opacity)
 ```
+
+The previous `GlassmorphismSurface` (80% opacity + 20dp blur) was removed in favour of this
+custom pill design to match the reference UI in `docs/ui/daily_habits.png`.
 
 ---
 
@@ -188,13 +193,13 @@ GlassmorphismSurface
 
 | File | Contents | Public symbols |
 |------|----------|----------------|
-| `Routes.kt` | `Route` sealed interface, `HomeRoute`, `PrayerRoute`, `AthkarRoute`, `HabitsRoute`, `BottomNavItem` | All six |
-| `Placeholders.kt` | `HomePlaceholderScreen`, `PrayerPlaceholderScreen`, `AthkarPlaceholderScreen`, `HabitsPlaceholderScreen` + `@Preview` companions | All four screen composables |
-| `MudawamaBottomBar.kt` | `GlassmorphismSurface` (internal), `MudawamaBottomBar` + `@Preview` | `MudawamaBottomBar` only |
-| `MudawamaAppShell.kt` | `MudawamaAppShell` + `@Preview` | `MudawamaAppShell` only |
+| `Routes.kt` | `Route` sealed interface, `HomeRoute`, `PrayerRoute`, `AthkarRoute`, `QuranRoute`, `BottomNavItem` | All six |
+| `Placeholders.kt` | `QuranPlaceholderScreen`, `AthkarPlaceholderScreen` + `@Preview` companions | Both screen composables |
+| `MudawamaBottomBar.kt` | `BottomBarTab` (internal), `MudawamaBottomBar` + `@Preview` | `MudawamaBottomBar` only |
+| `MudawamaAppShell.kt` | `MudawamaAppShell(habitsScreen, prayerScreen)` + `@Preview` | `MudawamaAppShell` only |
 
-**Total public surface**: 2 composable entry points + 4 placeholder composables + 6 type
-declarations = 12 public symbols across 4 files. Satisfies SC-006 (≤ 10 source files).
+**Total public surface**: 2 composable entry points + 2 placeholder composables + 6 type
+declarations = 10 public symbols across 4 files. Satisfies SC-006 (≤ 10 source files).
 
 ---
 

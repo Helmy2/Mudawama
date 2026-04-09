@@ -11,7 +11,7 @@ fun HabitLogEntity.toDomain(): HabitLog = HabitLog(
     id = id,
     habitId = habitId,
     date = date,
-    status = LogStatus.valueOf(status),
+    status = runCatching { LogStatus.valueOf(status) }.getOrDefault(LogStatus.PENDING),
     completedCount = completedCount,
     loggedAt = loggedAt,
 )

@@ -5,6 +5,7 @@ import io.github.helmy2.mudawama.core.domain.session.SessionStorage
 import io.github.helmy2.mudawama.core.data.networking.HttpClientFactory
 import io.github.helmy2.mudawama.core.data.networking.KermitLogger
 import io.github.helmy2.mudawama.core.domain.MudawamaLogger
+import io.ktor.client.HttpClient
 import org.koin.dsl.module
 
 
@@ -21,5 +22,6 @@ internal val coreDataModule = module {
             baseUrl = "https://api.example.com" // TODO: Replace with actual base URL
         )
     }
+    single<HttpClient> { get<HttpClientFactory>().create() }
     single<MudawamaLogger> { KermitLogger() }
 }

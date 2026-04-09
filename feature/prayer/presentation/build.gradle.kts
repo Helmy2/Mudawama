@@ -8,6 +8,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.feature.prayer.domain)
+            implementation(projects.feature.habits.domain)     // LogStatus, HabitError
+            implementation(projects.shared.core.domain)        // LocationProvider, Coordinates
+            implementation(projects.shared.core.time)          // TimeProvider
             implementation(projects.shared.core.presentation)
             implementation(projects.shared.designsystem)
             implementation(libs.kotlinx.coroutines.core)

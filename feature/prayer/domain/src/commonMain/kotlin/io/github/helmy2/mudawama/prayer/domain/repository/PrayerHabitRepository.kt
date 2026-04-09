@@ -2,6 +2,7 @@ package io.github.helmy2.mudawama.prayer.domain.repository
 
 import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus
+import io.github.helmy2.mudawama.prayer.domain.error.PrayerError
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 
@@ -15,5 +16,5 @@ interface PrayerHabitRepository {
     /**
      * Checks if the 5 prayers exist. If not, inserts them with stable IDs.
      */
-    suspend fun seedPrayerHabitsIfNeeded(): Result<Unit>
+    suspend fun seedPrayerHabitsIfNeeded(): Result<Unit, PrayerError>
 }

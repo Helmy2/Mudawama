@@ -99,13 +99,9 @@ Location: `shared/core/database/src/commonMain/.../entity/`
 
 ### `PrayerTimeCacheEntity`
 ```kotlin
-@Entity(
-    tableName = "prayer_time_cache",
-    indices = [Index(value = ["date"], unique = true)]
-)
+@Entity(tableName = "prayer_time_cache")
 data class PrayerTimeCacheEntity(
-    @PrimaryKey val id: String, // UUID
-    val date: String, // "yyyy-MM-dd"
+    @PrimaryKey val date: String, // "yyyy-MM-dd"
     val fajr: String, // "HH:mm"
     val dhuhr: String,
     val asr: String,
@@ -142,6 +138,7 @@ data class PrayerUiState(
     val prayers: List<PrayerWithStatus>, // 5 items sorted chronologically
     val isLoading: Boolean = false,
     val timesAvailable: Boolean = false, // false = location/network error, display placeholder times
+    val usingFallbackLocation: Boolean = false, // true = permission denied, using Mecca
     val missedSheetPrayer: PrayerWithStatus? = null // non-null means show action sheet
 )
 ```
@@ -159,7 +156,9 @@ sealed interface PrayerUiAction {
 
 ### `PrayerUiEvent`
 ```kotlin
+import org.jetbrains.compose.resources.StringResource
+
 sealed interface PrayerUiEvent {
-    data class ShowSnackbar(val messageResId: String) : PrayerUiEvent // Would map to StringResource
+    data class ShowError(val message: StringResource) : PrayerUiEvent
 }
 ```

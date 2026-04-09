@@ -4,5 +4,7 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Mudawama uses your location to calculate accurate prayer times for your city.</string>
 </dict>
 </plist>

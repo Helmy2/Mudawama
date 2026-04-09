@@ -11,6 +11,11 @@ Location: `shared/core/src/commonMain/.../location/LocationProvider.kt`
 ```kotlin
 interface LocationProvider {
     /**
+     * Checks if the app currently has location permissions.
+     */
+    fun hasPermission(): Boolean
+
+    /**
      * Gets the current location of the device.
      * Returns a `Result` to encapsulate platform-specific errors (e.g. permission denied, disabled GPS).
      */
@@ -68,19 +73,20 @@ Location: `feature/prayer/domain/src/commonMain/.../prayer/domain/usecase/`
 class ObservePrayersForDateUseCase(
     private val prayerHabitRepository: PrayerHabitRepository,
     private val prayerTimesRepository: PrayerTimesRepository,
-    private val locationProvider: LocationProvider,
     private val dispatcher: CoroutineDispatcher
 ) {
     /**
      * Returns a Flow that emits the fully resolved `PrayerWithStatus` list.
      *
-     * Flow logic:
-     * 1. Observe prayer habits + status for the given date.
-     * 2. For the given date, attempt to fetch prayer times.
-     *    - If success, merge times with the habits based on `PrayerName` ordinal.
-     *    - If failure (e.g. network/location), emit the list with time strings as "—" and handle error gracefully.
+     * Flow logic (Implementation Note):
+     * To prevent re-fetching prayer times every time a habit status changes (which would trigger the habits Flow),
+     * the implementation should fetch times *once* per date/coordinates combination (e.g. using a `flow { ... }` builder or `combine` where the times fetch is isolated),
+     * and merge those static times with the continuously observing `observePrayerHabitsWithStatus` Flow.
+     *
+     * - If times fetch succeeds, merge times with the habits based on `PrayerName` ordinal.
+     * - If failure (e.g. network/location), emit the list with time strings as "—" and handle error gracefully.
      */
-    operator fun invoke(date: LocalDate): Flow<Result<List<PrayerWithStatus>>>
+    operator fun invoke(date: LocalDate, coordinates: Coordinates): Flow<Result<List<PrayerWithStatus>>>
 }
 ```
 
@@ -101,7 +107,7 @@ class TogglePrayerStatusUseCase(
 ### `MarkPrayerMissedUseCase`
 ```kotlin
 class MarkPrayerMissedUseCase(
-    private val habitRepository: HabitRepository, // Needs access to log habit
+    private val setHabitLogStatusUseCase: SetHabitLogStatusUseCase, // from feature:habits:domain
     private val dispatcher: CoroutineDispatcher
 ) {
     /**

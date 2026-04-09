@@ -5,6 +5,8 @@ import io.github.helmy2.mudawama.core.data.session.createDataStore
 import io.github.helmy2.mudawama.core.domain.session.Encryptor
 import io.github.helmy2.mudawama.core.data.networking.AndroidConnectivityObserver
 import io.github.helmy2.mudawama.core.domain.ConnectivityObserver
+import io.github.helmy2.mudawama.core.location.AndroidLocationProvider
+import io.github.helmy2.mudawama.core.location.LocationProvider
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -14,4 +16,5 @@ val androidCoreDataModule = module {
     single<Encryptor> { TinkEncryptor(androidContext()) }
     single { createDataStore(androidContext()) }
     single<ConnectivityObserver> { AndroidConnectivityObserver(androidContext()) }
+    single<LocationProvider> { AndroidLocationProvider(androidContext()) }
 }

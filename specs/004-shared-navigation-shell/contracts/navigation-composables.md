@@ -11,13 +11,17 @@
 ## Overview
 
 The `:shared:navigation` module exposes **two public composable entry points**
-(`MudawamaAppShell`, `MudawamaBottomBar`), **four public placeholder screens**, and **six public
-types** (`Route` sealed interface, `HomeRoute`, `PrayerRoute`, `AthkarRoute`, `HabitsRoute`,
+(`MudawamaAppShell`, `MudawamaBottomBar`), **two public placeholder screens**, and **six public
+types** (`Route` sealed interface, `HomeRoute`, `PrayerRoute`, `AthkarRoute`, `QuranRoute`,
 `BottomNavItem`). Everything else is `internal`.
 
 Navigation is powered by **Navigation 3** (`org.jetbrains.androidx.navigation3:navigation3-ui`).
 There is no `NavController`, no `NavHost`, no `currentBackStackEntryAsState`, no
 `NavBackStackEntry`, and no `hasRoute()` anywhere in this module.
+
+> **Design amendment (2026-04-09)**: `HabitsRoute` has been removed. `HomeRoute` renders
+> `HabitsScreen` directly via a lambda parameter to `MudawamaAppShell`. Tabs are
+> **Home, Prayer, Quran, Athkar** — not Home, Prayer, Athkar, Habits.
 
 ---
 
@@ -30,8 +34,8 @@ There is no `NavController`, no `NavHost`, no `currentBackStackEntryAsState`, no
  * Root entry-point composable for the Mudawama application.
  *
  * This is the **only** composable that platform host files should call:
- * - Android [MainActivity.setContent { MudawamaAppShell() }]
- * - iOS [ComposeUIViewController { MudawamaAppShell() }]
+ * - Android [MainActivity.setContent { MudawamaAppShell(habitsScreen = { HabitsScreen() }, prayerScreen = { PrayerScreen() }) }]
+ * - iOS [ComposeUIViewController { MudawamaAppShell(...) }]
  *
  * Responsibilities:
  * - Wraps all content in [MudawamaTheme] with `darkTheme = isSystemInDarkTheme()` (FR-002).
@@ -41,21 +45,26 @@ There is no `NavController`, no `NavHost`, no `currentBackStackEntryAsState`, no
  *   no separate remembered tab-index variable (FR-008).
  * - Renders a [Scaffold] with [MudawamaBottomBar] in the `bottomBar` slot.
  * - Inside the content slot: renders a [NavDisplay] with an exhaustive `when(route)`
- *   covering all four [Route] subtypes (FR-005).
+ *   covering all four [Route] subtypes; [HomeRoute] calls [habitsScreen] and
+ *   [PrayerRoute] calls [prayerScreen] (FR-005).
  *
  * Satisfies: FR-001, FR-002, FR-003, FR-004, FR-005, FR-008.
  */
 @Composable
-fun MudawamaAppShell()
+fun MudawamaAppShell(
+    habitsScreen: @Composable () -> Unit,
+    prayerScreen: @Composable () -> Unit,
+)
 
-// Companion preview — renders inside MudawamaTheme to match production appearance:
+// Companion preview:
 @Preview
 @Composable
 fun MudawamaAppShellPreview()
 ```
 
 **Behaviour contract**:
-- No parameters. The shell bootstraps itself.
+- `habitsScreen` and `prayerScreen` lambdas are injected by the caller (`App.kt` / platform hosts).
+  This keeps `:shared:navigation` free from direct feature module dependencies.
 - `darkTheme` is always derived from `isSystemInDarkTheme()` — never hardcoded.
 - Backstack initial entry is always `HomeRoute` (US-1 scenario 2 — Home selected by default).
 - Bottom bar receives `backStack.lastOrNull(): NavKey?`. No local
@@ -64,10 +73,12 @@ fun MudawamaAppShellPreview()
   not obscured by the bottom bar.
 - Tab-switch navigation: `if (backStack.lastOrNull() != route) { backStack.clear(); backStack.add(route) }`.
   Tapping the current tab is a no-op — backstack depth does not increase (FR-012, SC-007).
+- A 150 ms `fadeIn`/`fadeOut` transition is applied via `transitionSpec` and `popTransitionSpec`
+  on `NavDisplay` to eliminate animation lag on iOS.
 
 **Breaking-change policy**: Changing the signature of `MudawamaAppShell` requires coordinated
-updates to `androidApp/MainActivity.kt` and `iosApp/ContentView.swift`. Announce in the PR
-description.
+updates to `shared/umbrella-ui/src/commonMain/.../App.kt` (and platform hosts if they call it
+directly). Announce in the PR description.
 
 ---
 
@@ -112,18 +123,15 @@ fun MudawamaBottomBarPreview()
 ```
 
 **Behaviour contract**:
-- Renders exactly **four** `NavigationBarItem` composables, one per `BottomNavItem.entries`
-  value, in enum declaration order (HOME, PRAYER, ATHKAR, HABITS).
+- Renders exactly **four** tab composables (`BottomBarTab`), one per `BottomNavItem.entries`
+  value, in enum declaration order (HOME, PRAYER, QURAN, ATHKAR).
 - `selected` state for each item: `item.route == currentRoute` (direct equality). If
   `currentRoute` is `null`, all items render as unselected.
-- Each item renders its `icon` (from `BottomNavItem.icon`) and `label` text (from string resource
-  lookup using `BottomNavItem.labelKey`). No hardcoded label strings.
-- Tapping any item invokes `onNavigate(item.route)`. The caller is expected to apply the
-  single-top guard — the bar itself does not call `backStack.clear()` directly.
-- All color tokens sourced from `MudawamaTheme.colors` (FR-014). `NavigationBar` container
-  color: `Color.Transparent` (background provided by `GlassmorphismSurface`).
-- The bar is wrapped in `GlassmorphismSurface` (internal) which applies the layered opacity +
-  blur + floating shape + inset padding.
+- Each item renders its icon and label text from string resource lookup. No hardcoded strings.
+- Active tab: deep-teal rounded-square pill (16dp corners), `MudawamaTheme.colors.onPrimary` icon + label.
+- Inactive tab: transparent, `MudawamaTheme.colors.onSurface` at 55% opacity.
+- Tapping any item invokes `onNavigate(item.route)`. The caller applies the single-top guard.
+- All color tokens sourced from `MudawamaTheme.colors` (FR-014).
 
 **Non-contract (intentional omissions)**:
 - No animation for tab transitions — the Compose runtime handles implicit recomposition.
@@ -138,26 +146,20 @@ fun MudawamaBottomBarPreview()
 
 ```kotlin
 /**
- * Placeholder screen for the Home destination.
- *
- * Displays the screen name as a centred text label using
- * [MudawamaTheme.typography] and [MudawamaTheme.colors.onSurface].
- * Composes synchronously with zero I/O, zero ViewModels, zero coroutines (FR-006).
- *
- * Satisfies: FR-006.
+ * Placeholder screen for the Quran destination.
+ * Displays the screen name as a centred text label (FR-006).
  */
-@Composable fun HomePlaceholderScreen()
-@Preview @Composable fun HomePlaceholderScreenPreview()
+@Composable fun QuranPlaceholderScreen()
+@Preview @Composable fun QuranPlaceholderScreenPreview()
 
-// Identical pattern for the remaining three screens:
-@Composable fun PrayerPlaceholderScreen()
-@Preview @Composable fun PrayerPlaceholderScreenPreview()
-
+/**
+ * Placeholder screen for the Athkar destination.
+ */
 @Composable fun AthkarPlaceholderScreen()
 @Preview @Composable fun AthkarPlaceholderScreenPreview()
 
-@Composable fun HabitsPlaceholderScreen()
-@Preview @Composable fun HabitsPlaceholderScreenPreview()
+// Note: HomePlaceholderScreen and HabitsPlaceholderScreen have been removed.
+// HomeRoute renders HabitsScreen directly; PrayerRoute renders PrayerScreen directly.
 ```
 
 **Behaviour contract**:
@@ -184,10 +186,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface Route : NavKey
 
-@Serializable data object HomeRoute   : Route
+@Serializable data object HomeRoute   : Route   // Home tab → Daily Habits
 @Serializable data object PrayerRoute : Route
 @Serializable data object AthkarRoute : Route
-@Serializable data object HabitsRoute : Route
+@Serializable data object QuranRoute  : Route
+// Note: HabitsRoute does not exist — removed in navigation restructure.
 ```
 
 **Contract**:
@@ -218,15 +221,11 @@ enum class BottomNavItem(
 ```
 
 **Contract**:
-- `entries` is ordered: HOME, PRAYER, ATHKAR, HABITS. Reordering changes the visual tab order
-  in the bar.
+- `entries` is ordered: HOME, PRAYER, QURAN, ATHKAR. Reordering changes the visual tab order.
 - `route: Route` (not `Any`) — adding a new `Route` subclass without updating this enum produces
   a compile error (intentional coupling for the tab menu).
-- Public for testability (allows consumers to iterate entries in tests without relying on
-  `MudawamaBottomBar` internals).
-- `icon` and `labelKey` are temporary placeholders. They will be updated in a follow-up without
-  a breaking-change: no external code should depend on the specific `ImageVector` values or
-  `labelKey` strings.
+- Public for testability.
+- `icon` and `labelKey` are temporary placeholders pending design-system icon resources.
 
 ---
 
@@ -234,10 +233,9 @@ enum class BottomNavItem(
 
 | Symbol | File | Visibility | Purpose |
 |--------|------|------------|---------|
-| `GlassmorphismSurface` | `MudawamaBottomBar.kt` | `internal` | Layered Box composable implementing 80 % opacity + 20 dp blur + rounded shape + inset padding |
+| `BottomBarTab` | `MudawamaBottomBar.kt` | `internal` | Single tab composable: active = teal pill, inactive = transparent 55% opacity |
 
-`GlassmorphismSurface` is `internal` because its implementation may change (e.g.,
-platform-specific blur enhancement) without affecting public consumers.
+`GlassmorphismSurface` has been removed and replaced by `BottomBarTab`.
 
 ---
 

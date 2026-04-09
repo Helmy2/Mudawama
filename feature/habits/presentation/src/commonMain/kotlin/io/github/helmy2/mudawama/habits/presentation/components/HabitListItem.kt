@@ -87,7 +87,13 @@ fun HabitCoreRitualItem(
         HabitType.NUMERIC -> stringResource(Res.string.habit_progress_fraction, numericProgress, goal)
     }
 
+    val onClick: () -> Unit = when (habit.type) {
+        HabitType.BOOLEAN -> onToggle
+        HabitType.NUMERIC -> onIncrement
+    }
+
     Card(
+        onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MudawamaTheme.colors.surface),

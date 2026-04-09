@@ -1,24 +1,18 @@
 package io.github.helmy2.mudawama.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
@@ -30,6 +24,9 @@ private val BarVerticalPadding = 8.dp
 private val BarCornerRadius = 28.dp
 private val GlassBlurRadius = 20.dp
 private const val GlassAlpha = 0.80f
+
+// Active pill shape: rounded-square (12dp corners) matching the reference
+private val ActivePillShape = RoundedCornerShape(16.dp)
 
 /**
  * Layered Box implementing the glassmorphism floating bar background (FR-009, FR-010).
@@ -52,10 +49,12 @@ internal fun GlassmorphismSurface(modifier: Modifier, content: @Composable BoxSc
 /**
  * Floating glassmorphism bottom navigation bar.
  *
+ * Active tab renders as a deep-teal rounded-square pill with white icon + label,
+ * matching the design reference (home_dashboard.png, daily_prayer_tracker.png).
+ *
  * // FR-008: selectedItem is always derived by direct equality from currentRoute. No remember { mutableStateOf } anywhere in this file.
  *
- * @param currentRoute The currently active [NavKey] from the backstack — drives tab selection via
- *   direct equality; pass `null` to render all tabs as unselected (graceful fallback).
+ * @param currentRoute The currently active [NavKey] from the backstack.
  * @param onNavigate Callback invoked when the user taps a tab item.
  */
 @Composable
@@ -72,25 +71,82 @@ fun MudawamaBottomBar(
             .padding(horizontal = BarHorizontalPadding, vertical = BarVerticalPadding)
             .windowInsetsPadding(WindowInsets.navigationBars)
     ) {
-        NavigationBar(
-            containerColor = Color.Transparent,
-            contentColor = MudawamaTheme.colors.onSurface,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceAround,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             BottomNavItem.entries.forEach { item ->
-                NavigationBarItem(
-                    selected = item == selectedItem,
+                val isSelected = item == selectedItem
+                BottomBarTab(
+                    item = item,
+                    isSelected = isSelected,
                     onClick = { onNavigate(item.route) },
-                    icon = { Icon(item.icon, contentDescription = stringResource(item.labelRes)) },
-                    label = { Text(stringResource(item.labelRes)) },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = MudawamaTheme.colors.primary,
-                        selectedTextColor = MudawamaTheme.colors.primary,
-                        unselectedIconColor = MudawamaTheme.colors.onSurface,
-                        unselectedTextColor = MudawamaTheme.colors.onSurface,
-                        indicatorColor = MudawamaTheme.colors.primary.copy(alpha = 0.12f),
-                    ),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.BottomBarTab(
+    item: BottomNavItem,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val label = stringResource(item.labelRes)
+    val primary = MudawamaTheme.colors.primary
+    val onPrimary = MudawamaTheme.colors.onPrimary
+    val onSurface = MudawamaTheme.colors.onSurface
+
+    if (isSelected) {
+        // Active: teal rounded-square pill
+        Column(
+            modifier = Modifier
+                .clip(ActivePillShape)
+                .background(primary)
+                .clickable(onClick = onClick)
+                .padding(horizontal = 20.dp, vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = label,
+                tint = onPrimary,
+                modifier = Modifier.size(22.dp),
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = onPrimary,
+                ),
+            )
+        }
+    } else {
+        // Inactive: transparent, muted icon + label
+        Column(
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Icon(
+                imageVector = item.icon,
+                contentDescription = label,
+                tint = onSurface.copy(alpha = 0.55f),
+                modifier = Modifier.size(22.dp),
+            )
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    color = onSurface.copy(alpha = 0.55f),
+                ),
+            )
         }
     }
 }
@@ -102,4 +158,3 @@ fun MudawamaBottomBarPreview() {
         MudawamaBottomBar(currentRoute = HomeRoute, onNavigate = {})
     }
 }
-

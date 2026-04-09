@@ -49,20 +49,6 @@ All actual product value lives here. Every new feature is physically sliced into
 * **`:data` (The Implementation):** Depends on `:domain`. Handles Room SQLite, APIs, and maps external exceptions into pure `DataError` objects via a `safeCall` wrapper.
 * **`:presentation` (The Screens):** Depends on `:domain`. Contains Orbit-style MVI ViewModels and Jetpack Compose screens.
 
-#### `feature/habits` use cases
-
-| Use Case | Action |
-|---|---|
-| `ObserveHabitsWithTodayStatusUseCase` | Flow of all habits with today's log |
-| `CreateHabitUseCase` | Insert a new habit |
-| `UpdateHabitUseCase` | Edit an existing habit |
-| `DeleteHabitUseCase` | Delete a habit (blocks core habits) |
-| `ToggleHabitCompletionUseCase` | Toggle BOOLEAN habit completed/pending |
-| `IncrementHabitCountUseCase` | Add 1 to a NUMERIC habit's today count |
-| `DecrementHabitCountUseCase` | Subtract 1 from a NUMERIC habit's today count, clamped at 0; reverts `LogStatus` to `PENDING` if count drops to 0 |
-| `ResetHabitTodayLogUseCase` | Delete today's log entry for a habit |
-| `ObserveWeeklyHeatmapUseCase` | Flow of 7-day completion history |
-
 ### 2. The `shared:core` Split
 To prevent feature modules from importing heavy libraries they don't need, the core infrastructure is aggressively split:
 * A `:feature:x:domain` module only needs `Result` classes, so it depends purely on `shared:core:domain`.
@@ -96,36 +82,21 @@ The structural skeleton of the app. Provides a single `MudawamaAppShell` composa
 | Route | Screen | `docs/ui/` reference |
 |---|---|---|
 | `OnboardingRoute` | Welcome / Onboarding | `welcome_to_mudawama.png` |
-| `HomeRoute` | Home Dashboard | `home_dashboard.png` |
+| `HomeRoute` | Daily Habits (Home tab renders `HabitsScreen` directly) | `daily_habits.png` |
 | `PrayerRoute` | Today's Prayers | `daily_prayer_tracker.png` |
 | `QuranRoute` | Quran Reading Tracker | `quran_daily_reading_tracker.png` |
 | `AthkarRoute` | Daily Athkar | `daily_athkar_tracker.png` |
-| `HabitsRoute` | Daily Habits | `daily_habits.png` |
 | `TasbeehRoute` | Tasbeeh Counter | `tasbeeh_counter.png` |
 | `InsightsRoute` | Insights / Progress | `insights_progress.png` |
 | `SettingsRoute` | Settings | `settings.png` |
+
+> **Note**: There is no separate `HabitsRoute`. `HomeRoute` is the Home tab and its `NavDisplay` branch renders `HabitsScreen` directly — the bottom nav "Home" tab IS the Daily Habits screen. The former `HomePlaceholderScreen` and `HabitsPlaceholderScreen` have been removed from `Placeholders.kt`.
 
 * 100% `commonMain` code — no `androidMain` or `iosMain` source sets.
 * Depends on `shared:designsystem` via `api(…)` so consumers inherit `MudawamaTheme` tokens transitively.
 
 ### 6. The `shared:designsystem`
 Contains all static resources via JetBrains Compose Resources (`strings.xml`, `.ttf` fonts, `.svg` icons) and the global `MudawamaTheme`. Every feature's `:presentation` module depends on this to ensure visual consistency.
-
-#### `MudawamaColors` token slots
-
-The `MudawamaColors` data class is the single contract for all color usage. Components access tokens exclusively via `MudawamaTheme.colors.*`:
-
-| Token | Purpose |
-|---|---|
-| `primary` | CTAs, progress rings, active icons, check toggles |
-| `onPrimary` | Text/icons placed directly on a `primary`-colored surface |
-| `background` | Page-level fill — the deepest layer |
-| `surface` | Cards and sheets — one step above `background` |
-| `surfaceVariant` | Icon chips, secondary containers — two steps above `background`. Never use `surface` for icon chip backgrounds; they would be invisible on dark `surface` cards. |
-| `onSurface` | Body text, secondary icons, dimmed states |
-| `error` | Destructive actions, validation errors |
-
-Both `LightMudawamaColors` and `DarkMudawamaColors` implement every slot. Dark-mode values are defined as named constants in `Colors.kt` (`EmeraldLight`, `DarkBackground`, `DarkSurface`, `DarkSurfaceVariant`, `DarkOnSurface`, `DarkError`) — inline `Color(0xFF…)` literals inside `Theme.kt` are forbidden for dark values.
 
 #### Single source of truth for strings
 

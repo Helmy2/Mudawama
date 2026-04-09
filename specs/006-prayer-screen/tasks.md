@@ -9,15 +9,15 @@
 
 **Purpose**: Project initialization, database changes, and basic structure
 
-- [ ] T001 Update `LogStatus` enum with `MISSED` in `feature/habits/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/habits/domain/model/LogStatus.kt`
-- [ ] T002 Update exhaustive `when` statements for `LogStatus.MISSED` in existing habits domain/presentation and mappers
-- [ ] T003 Create `PrayerTimeCacheEntity` in `shared/core/database/src/commonMain/kotlin/io/github/helmy2/mudawama/core/database/entity/PrayerTimeCacheEntity.kt`
-- [ ] T004 Create `PrayerTimeCacheDao` in `shared/core/database/src/commonMain/kotlin/io/github/helmy2/mudawama/core/database/dao/PrayerTimeCacheDao.kt`
-- [ ] T005 Update `MudawamaDatabase` to version 2 and add AutoMigration in `shared/core/database/src/commonMain/kotlin/io/github/helmy2/mudawama/core/database/MudawamaDatabase.kt`
-- [ ] T006 Create new modules and include them in `settings.gradle.kts`
-- [ ] T007 Configure `feature/prayer/domain/build.gradle.kts` based on plan
-- [ ] T008 Configure `feature/prayer/data/build.gradle.kts` based on plan
-- [ ] T009 Configure `feature/prayer/presentation/build.gradle.kts` based on plan
+- [x] T001 Update `LogStatus` enum with `MISSED` in `feature/habits/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/habits/domain/model/LogStatus.kt`
+- [x] T002 Update exhaustive `when` statements for `LogStatus.MISSED` in existing habits domain/presentation and mappers
+- [x] T003 Create `PrayerTimeCacheEntity` in `shared/core/database/src/commonMain/kotlin/io/github/helmy2/mudawama/core/database/entity/PrayerTimeCacheEntity.kt`
+- [x] T004 Create `PrayerTimeCacheDao` in `shared/core/database/src/commonMain/kotlin/io/github/helmy2/mudawama/core/database/dao/PrayerTimeCacheDao.kt`
+- [x] T005 Update `MudawamaDatabase` to version 2 and add AutoMigration in `shared/core/database/src/commonMain/kotlin/io/github/helmy2/mudawama/core/database/MudawamaDatabase.kt`
+- [x] T006 Create new modules and include them in `settings.gradle.kts`
+- [x] T007 Configure `feature/prayer/domain/build.gradle.kts` based on plan
+- [x] T008 Configure `feature/prayer/data/build.gradle.kts` based on plan
+- [x] T009 Configure `feature/prayer/presentation/build.gradle.kts` based on plan
 
 ---
 
@@ -27,18 +27,20 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T010 [P] Create `Coordinates` in `shared/core/src/commonMain/kotlin/io/github/helmy2/mudawama/core/location/Coordinates.kt`
-- [ ] T011 Create `LocationProvider` interface in `shared/core/src/commonMain/kotlin/io/github/helmy2/mudawama/core/location/LocationProvider.kt`
-- [ ] T012 [P] Implement `AndroidLocationProvider` in `shared/core/src/androidMain/kotlin/io/github/helmy2/mudawama/core/location/AndroidLocationProvider.kt`
-- [ ] T013 [P] Implement `IosLocationProvider` in `shared/core/src/iosMain/kotlin/io/github/helmy2/mudawama/core/location/IosLocationProvider.kt`
-- [ ] T014 [P] Create `PrayerName`, `PrayerTime`, `PrayerWithStatus` models in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/model/`
-- [ ] T015 [P] Create `AladhanTimingsDto` and DTOs in `feature/prayer/data/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/data/dto/AladhanTimingsDto.kt`
-- [ ] T016 Create `AladhanMapper.kt` in `feature/prayer/data/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/data/mapper/AladhanMapper.kt`
-- [ ] T017 Define `PrayerTimesRepository` and `PrayerHabitRepository` interfaces in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/repository/`
-- [ ] T018 Implement `PrayerHabitRepositoryImpl` in `feature/prayer/data/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/data/repository/PrayerHabitRepositoryImpl.kt`
-- [ ] T019 Implement `PrayerTimesRepositoryImpl` in `feature/prayer/data/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/data/repository/PrayerTimesRepositoryImpl.kt`
-- [ ] T020 Create `SeedPrayerHabitsUseCase` in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/usecase/SeedPrayerHabitsUseCase.kt`
-- [ ] T021 Create DI modules `PrayerDomainModule.kt` and `PrayerDataModule.kt` in their respective `di/` packages
+- [x] T010 [P] Create `Coordinates` in `shared/core/src/commonMain/kotlin/io/github/helmy2/mudawama/core/location/Coordinates.kt`
+- [x] T011 Create `LocationProvider` interface in `shared/core/src/commonMain/kotlin/io/github/helmy2/mudawama/core/location/LocationProvider.kt`
+- [x] T012 [P] Implement `AndroidLocationProvider` in `shared/core/src/androidMain/kotlin/io/github/helmy2/mudawama/core/location/AndroidLocationProvider.kt`
+- [x] T013 [P] Implement `IosLocationProvider` in `shared/core/src/iosMain/kotlin/io/github/helmy2/mudawama/core/location/IosLocationProvider.kt`
+- [x] T014 [P] Create `PrayerName`, `PrayerTime`, `PrayerWithStatus` models in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/model/`
+- [x] T015 [P] Create `AladhanTimingsDto` and DTOs in `feature/prayer/data/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/data/dto/AladhanTimingsDto.kt`
+- [x] T016 Create `AladhanMapper.kt` in `feature/prayer/data/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/data/mapper/AladhanMapper.kt`
+- [x] T017 Define `PrayerTimesRepository` and `PrayerHabitRepository` interfaces in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/repository/`
+- [x] T018 Implement `PrayerHabitRepositoryImpl` in `feature/prayer/data/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/data/repository/PrayerHabitRepositoryImpl.kt`
+- [x] T019 Implement `PrayerTimesRepositoryImpl` in `feature/prayer/data/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/data/repository/PrayerTimesRepositoryImpl.kt`
+- [x] T020 [P] Create `PrayerHabitIds` object in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/model/PrayerHabitIds.kt` with 5 stable hardcoded habit ID constants
+- [x] T021 Create `SeedPrayerHabitsUseCase` in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/usecase/SeedPrayerHabitsUseCase.kt`
+- [x] T022 Wire `SeedPrayerHabitsUseCase` inside Android/iOS startup path or Koin `createdAtStart`
+- [x] T023 Create DI modules `PrayerDomainModule.kt` and `PrayerDataModule.kt` in their respective `di/` packages
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -52,16 +54,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T022 [P] [US1] Create `ObservePrayersForDateUseCase` in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/usecase/ObservePrayersForDateUseCase.kt`
-- [ ] T023 [P] [US1] Create `TogglePrayerStatusUseCase` in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/usecase/TogglePrayerStatusUseCase.kt`
-- [ ] T024 [P] [US1] Create UI models `PrayerUiState`, `PrayerUiAction`, `PrayerUiEvent` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/model/PrayerUiState.kt`
-- [ ] T025 [US1] Implement `PrayerViewModel` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/PrayerViewModel.kt`
-- [ ] T026 [P] [US1] Implement `PrayerCompletionHero.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/components/PrayerCompletionHero.kt`
-- [ ] T027 [P] [US1] Implement `PrayerRowItem.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/components/PrayerRowItem.kt`
-- [ ] T028 [US1] Implement `PrayerScreen.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/PrayerScreen.kt`
-- [ ] T029 [US1] Add localized strings to `shared/designsystem/src/commonMain/composeResources/values/strings.xml`
-- [ ] T030 [US1] Create `PrayerPresentationModule.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/di/PrayerPresentationModule.kt`
-- [ ] T031 [US1] Wire `PrayerScreen` into the navigation in `shared/navigation/src/commonMain/kotlin/io/github/helmy2/mudawama/navigation/MudawamaAppShell.kt`
+- [x] T024 [P] [US1] Create `ObservePrayersForDateUseCase` in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/usecase/ObservePrayersForDateUseCase.kt`
+- [x] T025 [P] [US1] Create `TogglePrayerStatusUseCase` in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/usecase/TogglePrayerStatusUseCase.kt`
+- [x] T026 [P] [US1] Create UI models `PrayerUiState`, `PrayerUiAction`, `PrayerUiEvent` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/model/PrayerUiState.kt`
+- [x] T027 [US1] Implement `PrayerViewModel` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/PrayerViewModel.kt`
+- [x] T028 [P] [US1] Implement `PrayerCompletionHero.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/components/PrayerCompletionHero.kt`
+- [x] T029 [P] [US1] Implement `PrayerRowItem.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/components/PrayerRowItem.kt`
+- [x] T030 [US1] Implement `PrayerScreen.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/PrayerScreen.kt`
+- [x] T031 [US1] Add localized strings to `shared/designsystem/src/commonMain/composeResources/values/strings.xml`
+- [x] T032 [US1] Create `PrayerPresentationModule.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/di/PrayerPresentationModule.kt`
+- [x] T033 [US1] Wire `PrayerScreen` into the navigation in `shared/navigation/src/commonMain/kotlin/io/github/helmy2/mudawama/navigation/MudawamaAppShell.kt`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -75,10 +77,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T032 [P] [US2] Create `SetHabitLogStatusUseCase` in `feature/habits/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/habits/domain/usecase/SetHabitLogStatusUseCase.kt`
-- [ ] T033 [US2] Create `MarkPrayerMissedUseCase` in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/usecase/MarkPrayerMissedUseCase.kt`
-- [ ] T034 [P] [US2] Implement `MarkMissedBottomSheet.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/components/MarkMissedBottomSheet.kt`
-- [ ] T035 [US2] Update `PrayerViewModel.kt` and `PrayerScreen.kt` to handle the `MarkMissedRequested` action and show the bottom sheet
+- [x] T034 [P] [US2] Create `SetHabitLogStatusUseCase` in `feature/habits/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/habits/domain/usecase/SetHabitLogStatusUseCase.kt`
+- [x] T035 [US2] Create `MarkPrayerMissedUseCase` in `feature/prayer/domain/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/domain/usecase/MarkPrayerMissedUseCase.kt`
+- [x] T036 [P] [US2] Implement `MarkMissedBottomSheet.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/components/MarkMissedBottomSheet.kt`
+- [x] T037 [US2] Update `PrayerViewModel.kt` and `PrayerScreen.kt` to handle the `MarkMissedRequested` action and show the bottom sheet
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -92,10 +94,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T036 [P] [US3] Implement `PrayerDateStrip.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/components/PrayerDateStrip.kt`
-- [ ] T037 [US3] Update `PrayerScreen.kt` to include `PrayerDateStrip` and pass the selected date
-- [ ] T038 [US3] Update `PrayerViewModel.kt` to enforce read-only status for non-today dates
-- [ ] T039 [US3] Update `PrayerRowItem.kt` to disable toggles if the screen is in read-only mode
+- [x] T038 [P] [US3] Implement `PrayerDateStrip.kt` in `feature/prayer/presentation/src/commonMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/components/PrayerDateStrip.kt`
+- [x] T039 [US3] Update `PrayerScreen.kt` to include `PrayerDateStrip` and pass the selected date
+- [x] T040 [US3] Update `PrayerViewModel.kt` to enforce read-only status for non-today dates
+- [x] T041 [US3] Update `PrayerRowItem.kt` to disable toggles if the screen is in read-only mode
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -109,9 +111,10 @@
 
 ### Implementation for User Story 4
 
-- [ ] T040 [US4] Update `PrayerTimesRepositoryImpl.kt` to gracefully catch network/location errors and fallback to cached data or return null
-- [ ] T041 [US4] Update `PrayerViewModel.kt` to set `timesAvailable = false` and `usingFallbackLocation = true` based on repository responses
-- [ ] T042 [US4] Update `PrayerRowItem.kt` to display placeholder times (e.g., "—") if `timesAvailable` is false
+- [x] T042 [US4] Update `PrayerTimesRepositoryImpl.kt` to gracefully catch network/location errors and fallback to cached data or return null
+- [x] T043 [US4] Update `PrayerViewModel.kt` to set `timesAvailable = false` when `PrayerTimesRepository` returns an error and no cache row exists for today
+- [x] T044 [US4] Update `PrayerViewModel.kt` to set `usingFallbackLocation = true` when `LocationProvider` returns permission-denied, and silently use Mecca fallback coordinates
+- [x] T045 [US4] Update `PrayerRowItem.kt` to display placeholder times (e.g., "—") if `timesAvailable` is false
 
 ---
 
@@ -119,8 +122,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T043 Wire `SeedPrayerHabitsUseCase` inside Android/iOS startup path or Koin `createdAtStart`
-- [ ] T044 Update/create preview functions in `feature/prayer/presentation/src/androidMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/PrayerScreenPreviews.kt`
+- [x] T046 Update/create preview functions in `feature/prayer/presentation/src/androidMain/kotlin/io/github/helmy2/mudawama/prayer/presentation/PrayerScreenPreview.kt`
 
 ---
 

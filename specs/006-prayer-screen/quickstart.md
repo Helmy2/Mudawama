@@ -32,6 +32,7 @@ This document provides a step-by-step implementation guide for building the Pray
 2. **Build Scripts**: Add `build.gradle.kts` to each module using the sketches in `plan.md`.
 3. **Settings**: Include the new modules in `settings.gradle.kts`.
 4. **Sync**: Run a Gradle sync to ensure the build is successful.
+5. **Dependencies**: Add `play-services-location` to `gradle/libs.versions.toml` and the Android app module dependencies if not already present.
 
 ## Step 3: Domain Layer (`feature:prayer:domain`)
 
@@ -75,4 +76,5 @@ This document provides a step-by-step implementation guide for building the Pray
 3. Verify the date strip works and changes the displayed times.
 4. Verify tapping a prayer toggles its status.
 5. Verify long-pressing a prayer allows marking it as MISSED.
-6. Verify the times update if location changes (and cache logic works).
+6. Verify that with no network connection, prayer times still display from cache (offline-first test).
+7. Deny location permission → verify the "Using default location" notice appears and Mecca coordinates are used silently.

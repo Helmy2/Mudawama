@@ -1,6 +1,7 @@
 package io.github.helmy2.mudawama.core.common.location
 
 import io.github.helmy2.mudawama.core.domain.Result
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import platform.CoreLocation.CLLocationManager
 import platform.CoreLocation.kCLAuthorizationStatusAuthorizedAlways
@@ -12,28 +13,25 @@ class IosLocationProvider : LocationProvider {
 
     override fun hasPermission(): Boolean {
         val status = locationManager.authorizationStatus
-        return status == kCLAuthorizationStatusAuthorizedAlways || 
+        return status == kCLAuthorizationStatusAuthorizedAlways ||
                status == kCLAuthorizationStatusAuthorizedWhenInUse
     }
 
-    override suspend fun getCurrentLocation(): Result<Coordinates> {
+    @OptIn(ExperimentalForeignApi::class)
+    override suspend fun getCurrentLocation(): Result<Coordinates, LocationProvider.LocationError> {
         if (!hasPermission()) {
-            return Result.Failure(LocationError.PermissionDenied)
+            return Result.Failure(LocationProvider.LocationError.PermissionDenied)
         }
 
-        // Simplistic implementation for now, in a real app this would use a delegate
+        // Simplistic implementation — in a real app this would use a delegate
         // to wait for the location update asynchronously.
         val location = locationManager.location
         return if (location != null) {
-            Result.Success(Coordinates(location.coordinate.useContents { latitude }, location.coordinate.useContents { longitude }))
+            val lat = location.coordinate.useContents { latitude }
+            val lon = location.coordinate.useContents { longitude }
+            Result.Success(Coordinates(lat, lon))
         } else {
-            Result.Failure(LocationError.LocationUnavailable)
+            Result.Failure(LocationProvider.LocationError.LocationUnavailable)
         }
-    }
-
-    sealed interface LocationError : Error {
-        data object PermissionDenied : LocationError
-        data object LocationUnavailable : LocationError
-        data class UnknownError(val message: String) : LocationError
     }
 }

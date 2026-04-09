@@ -26,7 +26,6 @@ sealed interface Route : NavKey
 @Serializable data object PrayerRoute : Route
 @Serializable data object QuranRoute  : Route
 @Serializable data object AthkarRoute : Route
-@Serializable data object HabitsRoute : Route
 
 /**
  * Enum binding each bottom-nav [Route] to its icon and string resource label.

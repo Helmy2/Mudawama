@@ -4,10 +4,11 @@ import io.github.helmy2.mudawama.core.database.dao.HabitDao
 import io.github.helmy2.mudawama.core.database.dao.HabitLogDao
 import io.github.helmy2.mudawama.core.database.entity.HabitEntity
 import io.github.helmy2.mudawama.core.domain.Result
+import io.github.helmy2.mudawama.core.time.TimeProvider
 import io.github.helmy2.mudawama.core.time.toIsoDateString
 import io.github.helmy2.mudawama.habits.data.mapper.toDomain
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus
-import io.github.helmy2.mudawama.habits.domain.model.HabitType
+import io.github.helmy2.mudawama.prayer.domain.error.PrayerError
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerHabitIds
 import io.github.helmy2.mudawama.prayer.domain.repository.PrayerHabitRepository
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +18,8 @@ import kotlinx.datetime.LocalDate
 
 internal class PrayerHabitRepositoryImpl(
     private val habitDao: HabitDao,
-    private val habitLogDao: HabitLogDao
+    private val habitLogDao: HabitLogDao,
+    private val timeProvider: TimeProvider
 ) : PrayerHabitRepository {
 
     override fun observePrayerHabitsWithStatus(date: LocalDate): Flow<List<HabitWithStatus>> {
@@ -37,28 +39,28 @@ internal class PrayerHabitRepositoryImpl(
         }
     }
 
-    override suspend fun seedPrayerHabitsIfNeeded(): Result<Unit> {
+    override suspend fun seedPrayerHabitsIfNeeded(): Result<Unit, PrayerError> {
         return try {
             val existing = habitDao.getHabitsByCategory("prayer").firstOrNull()
             if (existing != null && existing.size >= 5) {
                 return Result.Success(Unit)
             }
 
-            val now = io.github.helmy2.mudawama.core.time.TimeProvider().nowInstant().toEpochMilliseconds()
+            val now = timeProvider.nowInstant().toEpochMilliseconds()
             val allDays = "1,2,3,4,5,6,7"
 
             val prayers = listOf(
-                HabitEntity(PrayerHabitIds.FAJR, "Fajr", "mosque", HabitType.BOOLEAN.name, "prayer", allDays, true, null, now),
-                HabitEntity(PrayerHabitIds.DHUHR, "Dhuhr", "mosque", HabitType.BOOLEAN.name, "prayer", allDays, true, null, now),
-                HabitEntity(PrayerHabitIds.ASR, "Asr", "mosque", HabitType.BOOLEAN.name, "prayer", allDays, true, null, now),
-                HabitEntity(PrayerHabitIds.MAGHRIB, "Maghrib", "mosque", HabitType.BOOLEAN.name, "prayer", allDays, true, null, now),
-                HabitEntity(PrayerHabitIds.ISHA, "Isha", "mosque", HabitType.BOOLEAN.name, "prayer", allDays, true, null, now),
+                HabitEntity(PrayerHabitIds.FAJR, "Fajr", "mosque", "BOOLEAN", "prayer", allDays, true, null, now),
+                HabitEntity(PrayerHabitIds.DHUHR, "Dhuhr", "mosque", "BOOLEAN", "prayer", allDays, true, null, now),
+                HabitEntity(PrayerHabitIds.ASR, "Asr", "mosque", "BOOLEAN", "prayer", allDays, true, null, now),
+                HabitEntity(PrayerHabitIds.MAGHRIB, "Maghrib", "mosque", "BOOLEAN", "prayer", allDays, true, null, now),
+                HabitEntity(PrayerHabitIds.ISHA, "Isha", "mosque", "BOOLEAN", "prayer", allDays, true, null, now),
             )
 
             prayers.forEach { habitDao.insertHabit(it) }
             Result.Success(Unit)
         } catch (e: Exception) {
-            Result.Failure(io.github.helmy2.mudawama.core.domain.error.Error.Generic)
+            Result.Failure(PrayerError.DatabaseError)
         }
     }
 }

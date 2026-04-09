@@ -1,13 +1,13 @@
 package io.github.helmy2.mudawama.prayer.data.repository
 
-import io.github.helmy2.mudawama.core.database.dao.PrayerTimeCacheDao
-import io.github.helmy2.mudawama.core.database.entity.PrayerTimeCacheEntity
-import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.core.location.Coordinates
+import io.github.helmy2.mudawama.core.database.dao.PrayerTimeCacheDao
+import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.core.time.TimeProvider
 import io.github.helmy2.mudawama.core.time.toIsoDateString
 import io.github.helmy2.mudawama.prayer.data.mapper.toDomainList
 import io.github.helmy2.mudawama.prayer.data.mapper.toEntity
+import io.github.helmy2.mudawama.prayer.domain.error.PrayerError
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerTime
 import io.github.helmy2.mudawama.prayer.domain.repository.PrayerTimesRepository
 import io.ktor.client.HttpClient
@@ -21,14 +21,14 @@ internal class PrayerTimesRepositoryImpl(
     private val timeProvider: TimeProvider
 ) : PrayerTimesRepository {
 
-    override suspend fun getPrayerTimes(date: LocalDate, coordinates: Coordinates): Result<List<PrayerTime>> {
+    override suspend fun getPrayerTimes(date: LocalDate, coordinates: Coordinates): Result<List<PrayerTime>, PrayerError> {
         val cached = getCachedPrayerTimes(date)
         if (cached != null) return Result.Success(cached)
 
         return try {
             val dateString = toIsoDateString(date)
             // Aladhan API expects DD-MM-YYYY
-            val formattedDate = "${date.dayOfMonth.toString().padStart(2, '0')}-${date.monthNumber.toString().padStart(2, '0')}-${date.year}"
+            val formattedDate = "${date.day.toString().padStart(2, '0')}-${(date.month.ordinal + 1).toString().padStart(2, '0')}-${date.year}"
             
             val response: io.github.helmy2.mudawama.prayer.data.dto.AladhanResponseDto = httpClient.get("https://api.aladhan.com/v1/timings/$formattedDate") {
                 url {
@@ -43,7 +43,7 @@ internal class PrayerTimesRepositoryImpl(
             
             Result.Success(entity.toDomainList())
         } catch (e: Exception) {
-            Result.Failure(io.github.helmy2.mudawama.core.domain.error.Error.Generic)
+            Result.Failure(PrayerError.NetworkError)
         }
     }
 

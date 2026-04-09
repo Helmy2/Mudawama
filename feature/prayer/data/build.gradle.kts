@@ -10,9 +10,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.feature.prayer.domain)
+            implementation(projects.feature.habits.domain)     // HabitWithStatus, HabitLog
+            implementation(projects.feature.habits.data)       // HabitMapper, HabitLogMapper
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.time)
-            implementation(projects.shared.core)        // LocationProvider
+            implementation(projects.shared.core.domain)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.bundles.ktor)

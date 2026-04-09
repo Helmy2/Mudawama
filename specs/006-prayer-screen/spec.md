@@ -59,7 +59,7 @@ A user wants to check whether they prayed yesterday. They tap a previous date on
 **Acceptance Scenarios**:
 
 1. **Given** the date strip shows a 7-day window centred on today, **When** the user taps a past date, **Then** the prayer list and completion hero update to that date's data.
-2. **Given** a past date is selected, **Then** the check/missed actions are disabled (past logs are read-only).
+2. **Given** any non-today date is selected (past or future), **Then** all check and missed actions are disabled — the list is read-only.
 3. **Given** today is selected, **When** any prayer is toggled, **Then** the change persists and is immediately visible.
 
 ---
@@ -85,7 +85,7 @@ A user opens the app with no internet connection. Prayer times for today are alr
 - What if the device location/timezone cannot be determined? → Use a saved last-known location or a user-selectable city as fallback; never crash.
 - What if the remote prayer-times API returns an error? → Serve cached times silently; show a subtle retry indicator only if no cache exists for today.
 - What if the user crosses midnight while the app is open? → The date strip and prayer list must update to the new day without requiring a restart.
-- What if the user's timezone changes (travel)? → Treat the new timezone as authoritative; mark the existing cache for the new date as stale and re-fetch.
+- What if the user's timezone changes (travel)? → The cache is keyed by calendar date only. After midnight in the new timezone, the next screen load triggers a fresh fetch using the current location. No mid-day cache busting on location change (post-MVP).
 - What happens if all 5 prayers are marked COMPLETED? → The completion hero shows "5 / 5" and the ring is fully filled.
 - What if a prayer time is in the past when the screen first loads? → Its row is still shown in order; no automatic status change happens.
 
@@ -96,16 +96,19 @@ A user opens the app with no internet connection. Prayer times for today are alr
 ### Functional Requirements
 
 - **FR-001**: The system MUST seed the 5 obligatory prayers (Fajr, Dhuhr, Asr, Maghrib, Isha) into the existing habits table as core habits (`isCore = true`) on first launch if not already present, so they appear on the Prayer screen and the Habits screen.
-- **FR-002**: The `LogStatus` enum MUST be extended to include a `MISSED` value alongside the existing `PENDING` and `COMPLETED` values; all existing code that exhausts this enum MUST be updated.
+- **FR-002**: The `LogStatus` enum MUST be extended to include a `MISSED` value alongside the existing `PENDING` and `COMPLETED` values, with the following constraints to prevent breaking changes:
+  - Every `when(status)` expression that exhausts `LogStatus` across `feature:habits` and `feature:prayer` MUST add an explicit `MISSED` branch; no `else` shortcut is permitted.
+  - The primary check-button toggle cycle is strictly `PENDING → COMPLETED → PENDING`. `MISSED` is never entered via the tap toggle; it is only reachable via the long-press action sheet (FR-010). Tapping the check button on a MISSED prayer sets it to COMPLETED (recovery), not PENDING.
+  - Because `LogStatus` is stored as a plain `String` in `HabitLogEntity`, adding `MISSED` requires no database schema migration — existing rows with `"PENDING"` or `"COMPLETED"` continue to deserialise correctly. Any row with an unrecognised status value MUST be treated as `PENDING` at the mapper layer.
 - **FR-003**: The system MUST fetch daily prayer times from the Aladhan public API using the device's current location (latitude, longitude) and timezone.
 - **FR-004**: Fetched prayer times MUST be cached locally (keyed by date and location) so that subsequent loads within the same day do not require a network call.
-- **FR-005**: Cached prayer times MUST be considered stale after 24 hours or when the device location changes significantly (more than ~10 km), triggering a background refresh.
+- **FR-005**: Cached prayer times are valid for the calendar day they were fetched. When a new calendar day begins (midnight crossing detected via `TimeProvider`), the cache for that day is considered absent and a fresh fetch is triggered on the next screen load. Location-drift-based invalidation is deferred to a post-MVP iteration.
 - **FR-006**: The Prayer screen MUST display all 5 prayers in chronological order, each showing: prayer name, scheduled time in 12-hour format, icon, and current status (PENDING / COMPLETED / MISSED).
 - **FR-007**: The Prayer screen MUST show a daily completion hero card displaying the count of COMPLETED prayers out of 5, with a circular progress ring.
 - **FR-008**: The Prayer screen MUST include a horizontal 7-day date strip; the current day is highlighted; tapping a past date updates the list to show that day's logged statuses.
 - **FR-009**: Users MUST be able to tap a prayer row to cycle its status: PENDING → COMPLETED (primary action via check button).
 - **FR-010**: Users MUST be able to mark a prayer as MISSED via a long-press context action or secondary action sheet on a prayer row.
-- **FR-011**: Past days (any date other than today) displayed via the date strip MUST be read-only; status changes are not permitted for past logs.
+- **FR-011**: Any date other than today displayed via the date strip is read-only. This includes both past days and future days — users cannot pre-mark a prayer as completed or missed before its calendar date arrives. Status-change controls (check button, long-press sheet) are visually disabled and non-interactive for non-today dates.
 - **FR-012**: The Prayer screen MUST replace the existing `PrayerPlaceholderScreen` and be reachable via the Prayers tab in the bottom navigation bar.
 
 ### Key Entities
@@ -113,7 +116,7 @@ A user opens the app with no internet connection. Prayer times for today are alr
 - **Prayer**: A fixed, named obligatory prayer (one of 5). Represented as a core habit in the existing habits table. Attributes: name (Fajr / Dhuhr / Asr / Maghrib / Isha), icon key, fixed daily frequency (all 7 days), type BOOLEAN, `isCore = true`.
 - **PrayerTime**: The scheduled time for a specific prayer on a specific calendar date at a specific location. Fetched remotely, cached locally. Attributes: prayer name, date, time (HH:mm), location key (lat/lon or city).
 - **PrayerLog**: A daily record of a prayer's completion state. Reuses the existing `HabitLog` structure. Status is one of: PENDING, COMPLETED, MISSED.
-- **PrayerTimesCache**: Local store of fetched prayer times. Keyed by date + location. Invalidated after 24 hours or on location change.
+- **PrayerTimesCache**: Local store of fetched prayer times. Keyed by calendar date. One cache entry covers all 5 prayer times for that date. Considered absent (triggers re-fetch) when a new calendar day begins.
 
 ---
 
@@ -134,11 +137,11 @@ A user opens the app with no internet connection. Prayer times for today are alr
 ## Assumptions
 
 - The Aladhan API endpoint `https://api.aladhan.com/v1/timings` is used; it accepts latitude, longitude, and date as parameters and returns times in 24-hour format. The `method` parameter defaults to 2 (ISNA) and is not user-configurable in this iteration.
-- Device location permission is assumed to already be requested by the app before the Prayer screen loads. If denied, the app falls back to a hardcoded default location (Mecca) and shows a subtle notice.
+- Device location permission is assumed to already be requested by the app before the Prayer screen loads. If denied, the app falls back to a hardcoded default location (Mecca) and shows a subtle notice. A new `LocationProvider` interface will be added to `shared:core`, with platform-specific implementations (Android: FusedLocationProviderClient; iOS: CLLocationManager) wired via `expect`/`actual`. This interface exposes a single suspend function returning the last-known latitude and longitude.
 - Prayer times are fetched per calendar day. One API call covers all 5 prayers for that day.
 - The existing `HabitLog` / `HabitLogEntity` structures are reused directly for prayer logs, with the addition of the `MISSED` status. No separate prayer log table is introduced.
 - Prayer habit seeds are inserted via a database migration or app-startup check; they are never re-inserted if already present (idempotent seeding).
-- The 7-day date strip is anchored to today and always shows 3 past days + today + 3 future days (or as many future days as are within the cached window). Future days show times but status interaction is disabled.
+- The 7-day date strip shows 3 past days + today + 3 future days. All non-today dates (both past and future) are read-only — prayer status cannot be changed for any date other than today.
 - Calculation method selection and Qibla direction are out of scope for this feature.
 
 ---
@@ -148,5 +151,5 @@ A user opens the app with no internet connection. Prayer times for today are alr
 - `shared:core:database` — `HabitEntity`, `HabitLogEntity`, `HabitDao`, `HabitLogDao` (existing).
 - `LogStatus` enum in `feature:habits:domain` — must be extended with `MISSED`; this is a shared enum affecting both the habits and prayer features.
 - `feature:prayer:data` — new module; adds Ktor Client dependency for Aladhan API calls.
-- Device location API (platform-specific, accessed via `expect`/`actual` in `shared:core`) — required for lat/lon.
+- `LocationProvider` — new interface in `shared:core`; provides last-known latitude and longitude via platform-specific implementations (Android: FusedLocationProviderClient; iOS: CLLocationManager).
 - `TimeProvider` from `shared:core:time` — for logical date and midnight-crossing detection.

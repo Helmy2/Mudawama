@@ -1,5 +1,9 @@
 package io.github.helmy2.mudawama.navigation
 
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -19,11 +23,13 @@ import kotlinx.serialization.modules.subclass
 /**
  * Root application shell — single public entry point for platform hosts (FR-001).
  *
+ * HomeRoute is wired directly to [habitsScreen]. There is no separate HabitsRoute.
  * // FR-002: MudawamaTheme wraps all content; darkTheme derived from isSystemInDarkTheme() — never hardcoded
  */
 @Composable
 fun MudawamaAppShell(
-    habitsScreen: @Composable () -> Unit
+    habitsScreen: @Composable () -> Unit,
+    prayerScreen: @Composable () -> Unit,
 ) {
     MudawamaTheme(darkTheme = isSystemInDarkTheme()) {
         val backStack = rememberNavBackStack(
@@ -34,7 +40,6 @@ fun MudawamaAppShell(
                         subclass(PrayerRoute::class)
                         subclass(QuranRoute::class)
                         subclass(AthkarRoute::class)
-                        subclass(HabitsRoute::class)
                     }
                 }
             },
@@ -47,7 +52,7 @@ fun MudawamaAppShell(
                     // FR-008: backStack.lastOrNull() is the ONLY source of truth — no local var
                     currentRoute = backStack.lastOrNull(),
                     onNavigate = { route ->
-                        // FR-012 / SC-007: single-top guard — tapping the active tab is a no-op at the backstack level
+                        // FR-012 / SC-007: single-top guard — tapping the active tab is a no-op
                         if (backStack.lastOrNull() != route) {
                             backStack.clear()
                             backStack.add(route)
@@ -59,19 +64,25 @@ fun MudawamaAppShell(
             NavDisplay(
                 backStack = backStack,
                 modifier = Modifier.padding(innerPadding),
+                transitionSpec = {
+                    ContentTransform(
+                        targetContentEnter = fadeIn(animationSpec = tween(150)),
+                        initialContentExit = fadeOut(animationSpec = tween(150)),
+                    )
+                },
+                popTransitionSpec = {
+                    ContentTransform(
+                        targetContentEnter = fadeIn(animationSpec = tween(150)),
+                        initialContentExit = fadeOut(animationSpec = tween(150)),
+                    )
+                },
                 entryProvider = entryProvider {
                     entry<HomeRoute> {
-                        HomePlaceholderScreen(
-                            onNavigateToHabits = {
-                                if (backStack.lastOrNull() != HabitsRoute) {
-                                    backStack.add(HabitsRoute)
-                                }
-                            }
-                        )
+                        habitsScreen()
                     }
 
                     entry<PrayerRoute> {
-                        PrayerPlaceholderScreen()
+                        prayerScreen()
                     }
 
                     entry<QuranRoute> {
@@ -80,10 +91,6 @@ fun MudawamaAppShell(
 
                     entry<AthkarRoute> {
                         AthkarPlaceholderScreen()
-                    }
-
-                    entry<HabitsRoute> {
-                        habitsScreen()
                     }
                 }
             )
@@ -94,6 +101,5 @@ fun MudawamaAppShell(
 @Preview
 @Composable
 fun MudawamaAppShellPreview() {
-    MudawamaAppShell({})
+    MudawamaAppShell({}, {})
 }
-
