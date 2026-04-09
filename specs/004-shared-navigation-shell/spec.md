@@ -15,7 +15,7 @@
 - Provide a single `MudawamaAppShell` composable that the platform entry points (`androidApp`, `iosApp`) call to launch the app.
 - Define a type-safe routing graph using Navigation 3 with serialisable route objects.
 - Implement the custom floating bottom navigation bar from the Design System specification with automatic active-state tracking.
-- Supply four placeholder screen composables (Home, Prayer, Athkar, Habits) so the graph and navigation bar can be exercised end-to-end immediately.
+- Supply placeholder screen composables (Prayer, Athkar, Quran) so the graph and navigation bar can be exercised end-to-end immediately; the Home tab renders `HabitsScreen` directly (no placeholder).
 
 **Scope**: `shared/navigation/` — 100% `commonMain` code. No platform-specific source sets. No business logic; UI shell only.
 
@@ -33,7 +33,7 @@ A developer runs the app on Android or iOS immediately after this module is wire
 
 **Acceptance Scenarios**:
 
-1. **Given** the app is freshly launched, **When** the main composable renders, **Then** the bottom navigation bar is visible with four items: Home, Prayer, Athkar, and Habits.
+1. **Given** the app is freshly launched, **When** the main composable renders, **Then** the bottom navigation bar is visible with four items: Home, Prayer, Quran, and Athkar.
 2. **Given** the bottom bar is displayed, **When** no tab has been tapped yet, **Then** the Home tab is in the selected visual state and the other three are unselected.
 3. **Given** the bottom bar is displayed, **When** a user looks at the bar, **Then** the bar appears "floating" — it does not span edge-to-edge but has visible spacing around it, and has a translucent glassmorphism appearance.
 
@@ -105,10 +105,10 @@ Any screen rendered inside `MudawamaAppShell` automatically inherits the Mudawam
 - **FR-001**: The module MUST expose a `MudawamaAppShell` composable that is the single entry point called by platform host composables (Android `MainActivity`, iOS `ContentView`).
 - **FR-002**: `MudawamaAppShell` MUST wrap all content inside `MudawamaTheme` from `shared:designsystem`, passing `darkTheme` derived from `isSystemInDarkTheme()`.
 - **FR-003**: The routing graph MUST use the KMP port of Google Navigation 3 (`androidx.navigation3` / `org.jetbrains.compose.navigation:navigation-compose`) with type-safe routes defined as `@Serializable` Kotlin objects or data classes via `kotlinx-serialization`.
-- **FR-004**: The module MUST define exactly four top-level route objects: `HomeRoute`, `PrayerRoute`, `AthkarRoute`, and `HabitsRoute`.
-- **FR-005**: The routing graph MUST include a `NavHost` with one entry per top-level route, each rendering the corresponding placeholder composable.
-- **FR-006**: The module MUST provide four placeholder screen composables (`HomePlaceholderScreen`, `PrayerPlaceholderScreen`, `AthkarPlaceholderScreen`, `HabitsPlaceholderScreen`). Each MUST display at minimum the screen's name as a centred text label, rendered using `MudawamaTheme` typography and color tokens.
-- **FR-007**: The module MUST implement a `MudawamaBottomBar` composable that renders four navigation items, each with an icon and a label.
+- **FR-004**: The module MUST define exactly four top-level route objects: `HomeRoute`, `PrayerRoute`, `AthkarRoute`, and `QuranRoute`. There is no `HabitsRoute` — Daily Habits is served by `HomeRoute`.
+- **FR-005**: The routing graph MUST include a `NavDisplay` with one entry per top-level route. The `HomeRoute` branch MUST render the real `HabitsScreen` composable (passed in as a lambda parameter); other unimplemented routes render placeholder composables.
+- **FR-006**: The module MUST provide placeholder screen composables (`QuranPlaceholderScreen`, `AthkarPlaceholderScreen`) for routes whose real screens are not yet implemented. Each MUST display at minimum the screen's name as a centred text label, rendered using `MudawamaTheme` typography and color tokens. `HomePlaceholderScreen` and `HabitsPlaceholderScreen` have been removed — they are no longer needed.
+- **FR-007**: The module MUST implement a `MudawamaBottomBar` composable that renders four navigation items (Home, Prayer, Quran, Athkar), each with an icon and a label.
 - **FR-008**: `MudawamaBottomBar` MUST derive the selected tab solely from the current `NavBackStackEntry` (or equivalent Navigation 3 backstack state) — no separate remembered local variable for the active tab index.
 - **FR-009**: `MudawamaBottomBar` MUST apply glassmorphism styling: the bar surface MUST render at 80% opacity (α = 0.80) with a visible background-blur effect where platform APIs permit, following DESIGN.md §2 "Floating Navigation".
 - **FR-010**: `MudawamaBottomBar` MUST appear "floating" — it MUST have horizontal padding and a rounded shape so it does not span edge-to-edge; its outer edges must not touch the screen sides.
@@ -120,10 +120,10 @@ Any screen rendered inside `MudawamaAppShell` automatically inherits the Mudawam
 
 ### Key Entities
 
-- **Route**: A `@Serializable` Kotlin object or data class that uniquely identifies a navigation destination. There are four top-level routes. Routes carry no mutable state.
-- **MudawamaAppShell**: The root composable that owns the `NavHost` and `Scaffold`, wraps children in `MudawamaTheme`, and passes the bottom bar as the `bottomBar` slot.
-- **MudawamaBottomBar**: A stateless composable that receives the current destination and a navigate callback; it renders the four tab items with glassmorphism styling and highlights the active tab.
-- **Placeholder Screen**: A trivial composable that renders a centred text label. Exists solely to verify the routing graph before real feature screens are connected.
+- **Route**: A `@Serializable` Kotlin object or data class that uniquely identifies a navigation destination. There are four top-level routes (`HomeRoute`, `PrayerRoute`, `QuranRoute`, `AthkarRoute`). Routes carry no mutable state.
+- **MudawamaAppShell**: The root composable that owns the `NavDisplay` and `Scaffold`, wraps children in `MudawamaTheme`, and passes the bottom bar as the `bottomBar` slot. It accepts `habitsScreen` and `prayerScreen` composable lambdas so real feature screens can be injected without creating a direct dependency on feature modules.
+- **MudawamaBottomBar**: A stateless composable that receives the current destination and a navigate callback; it renders the four tab items with active-state tracking and highlights the active tab.
+- **Placeholder Screen**: A trivial composable that renders a centred text label. Exists solely to verify the routing graph before real feature screens are connected. Only `QuranPlaceholderScreen` and `AthkarPlaceholderScreen` remain; Home and Prayer are served by real screens.
 
 ---
 
@@ -131,7 +131,7 @@ Any screen rendered inside `MudawamaAppShell` automatically inherits the Mudawam
 
 ### Measurable Outcomes
 
-- **SC-001**: All four tabs are tappable and navigate to distinct placeholder screens within a single run of the app on both Android and iOS — verified by manual smoke test.
+- **SC-001**: All four tabs are tappable and navigate to distinct screens within a single run of the app on both Android and iOS — verified by manual smoke test. Home tab shows Daily Habits; Prayer tab shows Today's Prayers; Quran and Athkar show placeholders.
 - **SC-002**: The selected tab in the bottom bar always reflects the current navigation destination; no visible desync is observed during tap tests covering all four tabs in every order.
 - **SC-003**: The bottom bar is visually "floating" — its horizontal edges have at least 16 dp of clear space from the screen boundary on both Android and iOS; confirmed by visual inspection.
 - **SC-004**: The glassmorphism surface renders at the specified 80% opacity; confirmed by capturing the composable in a screenshot preview and inspecting its alpha value.

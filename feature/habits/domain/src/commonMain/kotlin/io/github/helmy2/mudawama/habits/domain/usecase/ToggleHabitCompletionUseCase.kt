@@ -37,10 +37,9 @@ class ToggleHabitCompletionUseCase(
                 loggedAt = now,
             )
         } else {
-            val newStatus = if (existing.status == LogStatus.COMPLETED) {
-                LogStatus.PENDING
-            } else {
-                LogStatus.COMPLETED
+            val newStatus = when (existing.status) {
+                LogStatus.COMPLETED -> LogStatus.PENDING
+                LogStatus.PENDING, LogStatus.MISSED -> LogStatus.COMPLETED
             }
             existing.copy(status = newStatus, loggedAt = now)
         }

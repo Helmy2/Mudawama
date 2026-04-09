@@ -3,11 +3,9 @@ package io.github.helmy2.mudawama.habits.presentation
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,22 +16,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,8 +43,8 @@ import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus
 import io.github.helmy2.mudawama.habits.presentation.components.HabitBottomSheet
 import io.github.helmy2.mudawama.habits.presentation.components.HabitCoreRitualItem
-import io.github.helmy2.mudawama.habits.presentation.components.HabitPersonalItem
 import io.github.helmy2.mudawama.habits.presentation.components.HabitOptionsSheet
+import io.github.helmy2.mudawama.habits.presentation.components.HabitPersonalItem
 import io.github.helmy2.mudawama.habits.presentation.model.BottomSheetMode
 import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiAction
 import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiEvent
@@ -61,7 +57,6 @@ import mudawama.shared.designsystem.action_delete
 import mudawama.shared.designsystem.btn_cancel
 import mudawama.shared.designsystem.dialog_delete_message
 import mudawama.shared.designsystem.dialog_delete_title
-import mudawama.shared.designsystem.habits_screen_title
 import mudawama.shared.designsystem.section_core_rituals
 import mudawama.shared.designsystem.section_personal_habits
 import org.jetbrains.compose.resources.getString
@@ -101,21 +96,6 @@ private fun HabitsScreenContent(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MudawamaTheme.colors.background,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(Res.string.habits_screen_title),
-                        style = MudawamaTheme.typography.h2,
-                        color = MudawamaTheme.colors.onSurface,
-                    )
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MudawamaTheme.colors.background,
-                ),
-                windowInsets = WindowInsets(0),
-            )
-        },
     ) { innerPadding ->
         when {
             state.isLoading -> {

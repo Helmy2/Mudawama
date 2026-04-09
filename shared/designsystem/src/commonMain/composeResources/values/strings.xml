@@ -96,5 +96,18 @@
     <string name="type_counter_subtitle">Numeric targets</string>
     <string name="label_daily_reminder">Daily Reminder</string>
     <string name="label_daily_reminder_subtitle">Nudge me to stay on track</string>
+    <!-- ── Prayer Screen ────────────────────────────────────────────────── -->
+    <string name="prayer_screen_title">Today\'s Prayers</string>
+    <string name="prayer_daily_completion_label">DAILY COMPLETION</string>
+    <string name="prayer_completion_fraction">%1$d / %2$d</string>
+    <string name="prayer_completion_summary">%1$d / %2$d Prayers Completed</string>
+    <string name="prayer_location_fallback">Location permission is required to fetch prayer times. Using Mecca as default location.</string>
+    <string name="error_location_denied">Location unavailable</string>
+    <string name="error_times_unavailable">Could not fetch prayer times.</string>
+    <string name="prayer_mark_missed_title">Mark as Missed</string>
+    <string name="prayer_mark_missed_action">Mark as Missed</string>
+    <string name="prayer_mark_pending_action">Undo / Mark Pending</string>
+    <string name="prayer_location_service_disabled">Location is turned off. Tap to enable it.</string>
+    <string name="prayer_missed_indicator">Missed</string>
 
 </resources>

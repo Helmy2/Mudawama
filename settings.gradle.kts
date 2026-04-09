@@ -34,7 +34,7 @@ plugins {
 }
 
 include(":androidApp")
-include(":shared:core")
+include(":shared:core:common")
 include(":shared:core:domain")
 include(":shared:core:data")
 include(":shared:core:database")
@@ -47,4 +47,7 @@ include(":shared:navigation")
 include(":feature:habits:domain")
 include(":feature:habits:data")
 include(":feature:habits:presentation")
+include(":feature:prayer:domain")
+include(":feature:prayer:data")
+include(":feature:prayer:presentation")
 

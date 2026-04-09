@@ -5,7 +5,11 @@ import MudawamaUI
 struct iOSApp: App {
     init() {
         let swiftEncryptor = IosEncryptor()
-        KoinInitializerKt.initializeKoin(iosEncryptor: swiftEncryptor)
+        let swiftLocationProvider = IosLocationProvider()
+        KoinInitializerKt.initializeKoin(
+            iosEncryptor: swiftEncryptor,
+            iosLocationProvider: swiftLocationProvider
+        )
     }
 
     var body: some Scene {

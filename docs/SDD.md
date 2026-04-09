@@ -147,15 +147,16 @@ The following screens are defined in the reference UI (`docs/ui/`) and MUST each
 
 | Route | Screen | Bottom-sheet children |
 |---|---|---|
-| `HomeRoute` | Home Dashboard | — |
+| `HomeRoute` | Daily Habits — `HabitsScreen` is rendered directly in the `HomeRoute` branch (no separate Home Dashboard) | `NewHabitSheet`, `ManageHabitSheet` |
 | `PrayerRoute` | Today's Prayers | — |
 | `QuranRoute` | Quran Reading Tracker | `LogReadingSheet`, `QuranGoalSheet`, `UpdatePositionSheet` |
 | `AthkarRoute` | Daily Athkar | `MorningAthkarSession`, `PostPrayerAthkar` |
-| `HabitsRoute` | Daily Habits | `NewHabitSheet`, `ManageHabitSheet` |
 | `TasbeehRoute` | Tasbeeh Counter | `TasbeehGoalSheet` |
 | `InsightsRoute` | Insights / Progress | — |
 | `SettingsRoute` | Settings | — |
 | `OnboardingRoute` | Welcome / Onboarding | — |
+
+> **Navigation design note**: There is no `HabitsRoute`. The Home tab in the bottom bar maps to `HomeRoute`, and the `NavDisplay` branch for `HomeRoute` renders `HabitsScreen` (the Daily Habits feature screen) directly. The former `HomePlaceholderScreen` and `HabitsPlaceholderScreen` have been removed; only `QuranPlaceholderScreen` and `AthkarPlaceholderScreen` remain as scaffolding for not-yet-implemented features.
 
 Bottom sheets are NOT top-level routes; they are launched as `ModalBottomSheet` from within the screen composable that owns them.
 
@@ -167,9 +168,11 @@ if (backStack.lastOrNull() != route) { backStack.clear(); backStack.add(route) }
 No `NavController`, `NavOptions`, or `launchSingleTop` are used. The `SavedStateConfiguration` with a polymorphic `SerializersModule` enables Compose's saved-state mechanism to survive process death.
 
 #### 3.10.4 Floating Bottom Navigation Bar
-`MudawamaBottomBar` has **4 tabs**: Home, Prayers, Quran, Athkar. It derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack. Active tab renders as a rounded-square deep teal container with white icon + label; inactive tabs show icon + label in `on-surface-variant`.
+`MudawamaBottomBar` has **4 tabs**: Home, Prayers, Quran, Athkar. It derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack. Active tab renders as a custom rounded-square deep teal pill with white icon + SemiBold label; inactive tabs show icon + label at 55% opacity.
 
-Glassmorphism implementation: a layered `Box` where the background sub-layer applies `.background(surface.copy(alpha = 0.80f)).blur(20.dp)` and the foreground `NavigationBar` renders with `containerColor = Transparent`. The bar is "floating" via `padding(horizontal = 16.dp)` + `clip(RoundedCornerShape(28.dp))` and inset-safe via `windowInsetsPadding(WindowInsets.navigationBars)`.
+The **Home tab** maps to `HomeRoute`, which renders `HabitsScreen` (Daily Habits) directly — there is no intermediate home dashboard. This means tapping "Home" in the bottom bar shows the Daily Habits screen immediately.
+
+The bar is "floating" via `padding(horizontal = 16.dp)` and inset-safe via `windowInsetsPadding(WindowInsets.navigationBars)`.
 
 #### 3.10.5 DI
 No Koin module — `shared:navigation` is purely a UI shell with no injected services. DI is handled by the modules that own real feature ViewModels.

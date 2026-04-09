@@ -9,12 +9,16 @@
 
 Add `shared:navigation` — a 100 % `commonMain` Kotlin Multiplatform module that provides the
 root `MudawamaAppShell` composable, a type-safe routing graph using **Navigation 3** (`NavKey`
-sealed interface routes + `rememberNavBackStack` + `NavDisplay`), four placeholder screens, and a
-floating glassmorphism `MudawamaBottomBar` that derives its active-tab state **directly from
-`backStack.lastOrNull()`** via plain equality comparison — no `NavBackStackEntry`, no `hasRoute()`,
-no separate remembered index variable is ever created. The bottom bar renders at 80 % opacity
-(`surface.copy(alpha = 0.80f)`) with a 20 dp blur (`Modifier.blur`) per DESIGN.md §2 "Floating
-Navigation".
+sealed interface routes + `rememberNavBackStack` + `NavDisplay`), placeholder screens for
+not-yet-implemented features, and a floating `MudawamaBottomBar` that derives its active-tab
+state **directly from `backStack.lastOrNull()`** via plain equality comparison — no
+`NavBackStackEntry`, no `hasRoute()`, no separate remembered index variable is ever created.
+
+**Navigation design**: `HomeRoute` renders `HabitsScreen` (Daily Habits) directly. There is no
+`HabitsRoute` and no `HomePlaceholderScreen`. `MudawamaAppShell` accepts `habitsScreen` and
+`prayerScreen` as composable lambda parameters so feature screens are injected without creating a
+direct module dependency. `Placeholders.kt` retains only `QuranPlaceholderScreen` and
+`AthkarPlaceholderScreen`.
 
 ---
 
@@ -86,8 +90,8 @@ shared/navigation/
     └── commonMain/
         └── kotlin/io/github/helmy2/mudawama/navigation/
             ├── Routes.kt               # Route sealed interface + @Serializable data objects + BottomNavItem enum
-            ├── Placeholders.kt         # Four placeholder screen composables + @Preview functions
-            ├── MudawamaBottomBar.kt    # Glassmorphism floating bar + GlassmorphismSurface + @Preview
+            ├── Placeholders.kt         # QuranPlaceholderScreen + AthkarPlaceholderScreen + @Preview functions
+            ├── MudawamaBottomBar.kt    # Custom floating tab bar + BottomBarTab + @Preview
             └── MudawamaAppShell.kt     # Root shell: MudawamaTheme + rememberNavBackStack + NavDisplay + @Preview
 ```
 
@@ -160,27 +164,31 @@ Contains:
 One file for all route-related types keeps imports minimal in consuming files.
 
 #### `Placeholders.kt`
-Contains all four placeholder composables. Each is a `Box` with a centred `Text` reading the
-screen name from `MudawamaTheme.typography.titleLarge` style and `MudawamaTheme.colors.onSurface`
-colour (FR-006, FR-014). Each has a `@Preview` companion.
+Contains only `QuranPlaceholderScreen` and `AthkarPlaceholderScreen` (for routes whose real
+screens are not yet implemented). `HomePlaceholderScreen` and `HabitsPlaceholderScreen` have been
+removed — `HomeRoute` renders `HabitsScreen` directly via a lambda parameter. Each remaining
+placeholder is a `Box` with a centred `Text` reading the screen name from
+`MudawamaTheme.typography.titleLarge` style and `MudawamaTheme.colors.onSurface` colour
+(FR-006, FR-014). Each has a `@Preview` companion.
 
 #### `MudawamaBottomBar.kt`
 Contains:
-- `GlassmorphismSurface` (internal) — layered Box composable implementing 80 % opacity + blur
+- `BottomBarTab` (internal) — single tab composable rendering the active pill (deep teal,
+  16dp rounded-square) or transparent inactive state
 - `MudawamaBottomBar` (public) — receives `currentRoute: NavKey?` and `onNavigate: (Route) -> Unit`;
   derives `selectedItem` via `BottomNavItem.entries.find { it.route == currentRoute }` (direct
-  equality, no local state); applies floating shape, inset padding, and renders `NavigationBar`
-  with four `NavigationBarItem` children
+  equality, no local state); applies floating shape, inset padding, and renders four `BottomBarTab`
+  children in a `Row`
 - `@Preview` companion for `MudawamaBottomBar`
 
 #### `MudawamaAppShell.kt`
 Contains:
-- `MudawamaAppShell()` — the single public entry point for platform hosts
+- `MudawamaAppShell(habitsScreen: @Composable () -> Unit, prayerScreen: @Composable () -> Unit)` — the single public entry point for platform hosts
   - Wraps in `MudawamaTheme(darkTheme = isSystemInDarkTheme())` (FR-002)
   - Creates the backstack via `rememberNavBackStack(SavedStateConfiguration(...), HomeRoute)`
   - Renders `Scaffold(bottomBar = { MudawamaBottomBar(backStack.lastOrNull(), onNavigate) })`
-  - Inside content slot: `NavDisplay(backStack) { route -> when(route) { ... } }` with four
-    branches for all `Route` subtypes (FR-005)
+  - Inside content slot: `NavDisplay(backStack) { route -> when(route) { HomeRoute -> habitsScreen(); PrayerRoute -> prayerScreen(); AthkarRoute -> AthkarPlaceholderScreen(); QuranRoute -> QuranPlaceholderScreen() } }` with branches for all `Route` subtypes (FR-005)
+  - `SerializersModule` registers `HomeRoute`, `PrayerRoute`, `AthkarRoute`, `QuranRoute` — **not** `HabitsRoute`
 - `@Preview` companion
 
 ### 3. Backstack Observation — The FR-008 Guarantee

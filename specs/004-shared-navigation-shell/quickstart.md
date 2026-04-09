@@ -101,7 +101,7 @@ Create exactly **four** files in this order (dependencies flow downward):
 package io.github.helmy2.mudawama.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
@@ -110,40 +110,40 @@ import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
 // ── Route sealed interface ────────────────────────────────────────────────────
-// NavKey is Navigation 3's route marker interface.
-// The sealed hierarchy makes when(route) in NavDisplay exhaustive at compile time.
 
 @Serializable
 sealed interface Route : NavKey
 
 // ── Top-level route objects ───────────────────────────────────────────────────
+// Note: HabitsRoute does not exist. HomeRoute renders HabitsScreen directly.
 
-@Serializable data object HomeRoute   : Route
+@Serializable data object HomeRoute   : Route   // Home tab → Daily Habits screen
 @Serializable data object PrayerRoute : Route
 @Serializable data object AthkarRoute : Route
-@Serializable data object HabitsRoute : Route
+@Serializable data object QuranRoute  : Route
 
 // ── Bottom nav item metadata ──────────────────────────────────────────────────
+// Tabs: Home, Prayer, Quran, Athkar (no Habits tab)
 
 enum class BottomNavItem(
-    val route: Route,          // typed as Route (not Any) — compile-time verified (FR-004)
+    val route: Route,
     val icon: ImageVector,
-    val labelKey: String,      // key for stringResource(Res.string.<labelKey>)
+    val labelKey: String,
 ) {
     HOME   (HomeRoute,    Icons.Default.Home,          "tab_home"),
     PRAYER (PrayerRoute,  Icons.Default.Star,           "tab_prayer"),
+    QURAN  (QuranRoute,   Icons.Default.Book,           "tab_quran"),
     ATHKAR (AthkarRoute,  Icons.Default.FavoriteBorder, "tab_athkar"),
-    HABITS (HabitsRoute,  Icons.Default.CheckCircle,    "tab_habits"),
 }
 ```
-
-> ⚠️ **Icon note**: `Icons.Default.FavoriteBorder` and `Icons.Default.CheckCircle` may require
-> `compose.material.icons.extended` in some CMP setups. If missing, add
-> `implementation(compose.materialIconsExtended)` to `commonMain.dependencies` and verify compile.
 
 ---
 
 ## Step 6 — Implement `Placeholders.kt`
+
+Only two placeholder screens remain (`QuranPlaceholderScreen`, `AthkarPlaceholderScreen`).
+`HomePlaceholderScreen` and `HabitsPlaceholderScreen` have been removed — `HomeRoute` renders
+`HabitsScreen` directly and `PrayerRoute` renders `PrayerScreen` directly.
 
 ```kotlin
 package io.github.helmy2.mudawama.navigation
@@ -157,29 +157,15 @@ import androidx.compose.ui.Modifier
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-// Each screen follows the same trivial pattern: centred label with theme tokens.
-
 @Composable
-fun HomePlaceholderScreen() {
-    PlaceholderContent(label = "Home")     // TODO: replace with stringResource(Res.string.screen_home)
-}
-
-@Composable
-fun PrayerPlaceholderScreen() {
-    PlaceholderContent(label = "Prayer")
+fun QuranPlaceholderScreen() {
+    PlaceholderContent(label = "Quran")
 }
 
 @Composable
 fun AthkarPlaceholderScreen() {
     PlaceholderContent(label = "Athkar")
 }
-
-@Composable
-fun HabitsPlaceholderScreen() {
-    PlaceholderContent(label = "Habits")
-}
-
-// ── Internal helper ────────────────────────────────────────────────────────────
 
 @Composable
 private fun PlaceholderContent(label: String) {
@@ -195,23 +181,21 @@ private fun PlaceholderContent(label: String) {
     }
 }
 
-// ── Previews ──────────────────────────────────────────────────────────────────
-
-@Preview @Composable fun HomePlaceholderScreenPreview()    { HomePlaceholderScreen() }
-@Preview @Composable fun PrayerPlaceholderScreenPreview()  { PrayerPlaceholderScreen() }
-@Preview @Composable fun AthkarPlaceholderScreenPreview()  { AthkarPlaceholderScreen() }
-@Preview @Composable fun HabitsPlaceholderScreenPreview()  { HabitsPlaceholderScreen() }
+@Preview @Composable fun QuranPlaceholderScreenPreview()  { QuranPlaceholderScreen() }
+@Preview @Composable fun AthkarPlaceholderScreenPreview() { AthkarPlaceholderScreen() }
 ```
 
 ---
 
 ## Step 7 — Implement `MudawamaBottomBar.kt`
 
-Key design decisions encoded here (see `research.md` R-002, R-003):
+The bar uses a custom `Row` of `BottomBarTab` composables instead of `NavigationBar`/`NavigationBarItem`.
+Active tab: deep-teal rounded-square pill (16dp corners). Inactive: transparent, 55% opacity.
 
-- `currentRoute: NavKey?` replaces the old `NavBackStackEntry?` parameter.
-- Tab selection is `item.route == currentRoute` (direct equality) — no `hasRoute()`, no
-  reflection.
+Key design decisions:
+- `currentRoute: NavKey?` is the only selection source (FR-008) — no local state variable.
+- Tab selection: `BottomNavItem.entries.find { it.route == currentRoute }` (direct equality).
+- All colors from `MudawamaTheme.colors` — no hex literals (FR-014).
 
 ```kotlin
 package io.github.helmy2.mudawama.navigation
@@ -344,6 +328,12 @@ fun MudawamaBottomBarPreview() {
 
 ## Step 8 — Implement `MudawamaAppShell.kt`
 
+Key changes from the original spec:
+- Signature: `fun MudawamaAppShell(habitsScreen: @Composable () -> Unit, prayerScreen: @Composable () -> Unit)`
+- `SerializersModule` registers `QuranRoute` (not `HabitsRoute`)
+- `HomeRoute` branch calls `habitsScreen()`, `PrayerRoute` calls `prayerScreen()`
+- 150 ms `fadeIn`/`fadeOut` applied to `NavDisplay` for smooth iOS transitions
+
 ```kotlin
 package io.github.helmy2.mudawama.navigation
 
@@ -364,21 +354,13 @@ import kotlinx.serialization.modules.subclass
 import kotlinx.serialization.PolymorphicSerializer
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-/**
- * Root entry-point composable. Called by Android [MainActivity] and iOS [ContentView].
- * Wraps everything in [MudawamaTheme], owns the Navigation 3 backstack, and composes
- * [MudawamaBottomBar] + [NavDisplay] inside a [Scaffold].
- *
- * There is no NavController, no NavHost, and no currentBackStackEntryAsState here.
- * The backstack is a plain [SnapshotStateList<NavKey>] — [backStack.lastOrNull()] is the
- * single source of truth for the current destination.
- */
 @Composable
-fun MudawamaAppShell() {
-    MudawamaTheme(darkTheme = isSystemInDarkTheme()) {   // FR-002
+fun MudawamaAppShell(
+    habitsScreen: @Composable () -> Unit,
+    prayerScreen: @Composable () -> Unit,
+) {
+    MudawamaTheme(darkTheme = isSystemInDarkTheme()) {
 
-        // Navigation 3 backstack — Compose-observable SnapshotStateList<NavKey>
-        // SavedStateConfiguration enables process-death recovery via polymorphic serialization
         val backStack = rememberNavBackStack(
             SavedStateConfiguration(
                 serializer = ListSerializer(PolymorphicSerializer(NavKey::class)),
@@ -387,11 +369,11 @@ fun MudawamaAppShell() {
                         subclass(HomeRoute::class)
                         subclass(PrayerRoute::class)
                         subclass(AthkarRoute::class)
-                        subclass(HabitsRoute::class)
+                        subclass(QuranRoute::class)   // ← QuranRoute, not HabitsRoute
                     }
                 }
             ),
-            HomeRoute   // US-1 scenario 2 — Home selected by default
+            HomeRoute
         )
 
         Scaffold(
@@ -400,7 +382,7 @@ fun MudawamaAppShell() {
                     // FR-008: backStack.lastOrNull() is the ONLY source of truth — no local var
                     currentRoute = backStack.lastOrNull(),
                     onNavigate = { route ->
-                        // FR-012 / SC-007: single-top guard — no NavOptions builder needed
+                        // FR-012 / SC-007: single-top guard
                         if (backStack.lastOrNull() != route) {
                             backStack.clear()
                             backStack.add(route)
@@ -409,29 +391,31 @@ fun MudawamaAppShell() {
                 )
             },
         ) { innerPadding ->
-            // NavDisplay renders the screen for the current top-of-stack NavKey.
-            // when(route) is exhaustive because Route is a sealed interface.
             NavDisplay(
                 backStack = backStack,
                 modifier  = Modifier.padding(innerPadding),
+                // 150ms fade eliminates iOS animation lag
+                transitionSpec    = { fadeIn(150) togetherWith fadeOut(150) },
+                popTransitionSpec = { fadeIn(150) togetherWith fadeOut(150) },
             ) { route ->
                 when (route) {
-                    HomeRoute   -> HomePlaceholderScreen()    // FR-005, FR-006
-                    PrayerRoute -> PrayerPlaceholderScreen()
+                    HomeRoute   -> habitsScreen()               // real HabitsScreen
+                    PrayerRoute -> prayerScreen()               // real PrayerScreen
                     AthkarRoute -> AthkarPlaceholderScreen()
-                    HabitsRoute -> HabitsPlaceholderScreen()
+                    QuranRoute  -> QuranPlaceholderScreen()
                 }
             }
         }
     }
 }
 
-// ── Preview ───────────────────────────────────────────────────────────────────
-
 @Preview
 @Composable
 fun MudawamaAppShellPreview() {
-    MudawamaAppShell()
+    MudawamaAppShell(
+        habitsScreen = {},
+        prayerScreen = {},
+    )
 }
 ```
 
@@ -486,16 +470,16 @@ struct ContentView: View {
 
 - [ ] `./gradlew :shared:navigation:compileKotlinAndroid` — zero errors
 - [ ] `./gradlew :shared:navigation:compileKotlinIosSimulatorArm64` — zero errors
-- [ ] All four `@Preview` composables render without exceptions in Android Studio
-- [ ] Running on Android: bottom bar visible with four tabs; Home tab selected by default (SC-001)
+- [ ] All `@Preview` composables render without exceptions in Android Studio
+- [ ] Running on Android: bottom bar visible with four tabs **Home, Prayer, Quran, Athkar**; Home tab selected by default (SC-001)
+- [ ] Home tab shows Daily Habits screen (HabitsScreen), not a placeholder
 - [ ] Tapping each tab switches content and updates selected indicator; only one tab selected at a time (SC-001, SC-002)
 - [ ] Tapping the already-active tab does not increase backstack depth (SC-007)
 - [ ] Bottom bar has ≥ 16 dp horizontal clearance from screen edges (SC-003)
-- [ ] Bottom bar background renders with visible transparency / frosted appearance (SC-004)
 - [ ] Bottom bar is not obscured by system navigation bar on Android gesture-nav devices (FR-011)
 - [ ] Running on iOS (simulator): same behavioral checks pass (SC-001–SC-005)
 - [ ] Source file count in `commonMain/kotlin/` = 4 (SC-006)
-- [ ] No `NavController`, `NavHost`, `currentBackStackEntryAsState`, `NavBackStackEntry`, or `hasRoute` anywhere in the module
+- [ ] No `NavController`, `NavHost`, `currentBackStackEntryAsState`, `NavBackStackEntry`, `hasRoute`, or `HabitsRoute` anywhere in the module
 
 ---
 

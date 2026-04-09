@@ -24,6 +24,11 @@ kotlin {
                 implementation(projects.feature.habits.domain)
                 implementation(projects.feature.habits.data)
                 implementation(projects.feature.habits.presentation)
+
+                implementation(projects.feature.prayer.domain)
+                implementation(projects.feature.prayer.data)
+                implementation(projects.feature.prayer.presentation)
+
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.bundles.compose)
                 implementation(libs.bundles.lifecycle)
