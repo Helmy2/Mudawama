@@ -110,4 +110,51 @@
     <string name="prayer_location_service_disabled">Location is turned off. Tap to enable it.</string>
     <string name="prayer_missed_indicator">Missed</string>
 
+    <!-- ── Quran Reading Tracker ─────────────────────────────────────────── -->
+    <string name="quran_screen_title">Quran Reading</string>
+    <string name="quran_daily_progress_label">Daily Progress</string>
+    <string name="quran_daily_progress_subtitle_in_progress">Almost there, stay focused.</string>
+    <string name="quran_daily_progress_subtitle_complete">Goal reached! MashaAllah.</string>
+    <string name="quran_of_pages_format">%1$d OF %2$d PAGES</string>
+    <string name="quran_goal_card_badge">ACTIVE GOAL</string>
+    <string name="quran_goal_card_title_format">Goal: %1$d Pages</string>
+    <string name="quran_goal_card_subtitle">Establish a consistent connection with the Word of Allah today.</string>
+    <string name="quran_log_reading_button">Log Reading</string>
+    <string name="quran_resume_reading_label">RESUME READING</string>
+    <string name="quran_resume_reading_no_position">Tap to set your reading position</string>
+    <string name="quran_resume_reading_ayah_format">Ayah %1$d</string>
+    <string name="quran_recent_logs_title">Recent Logs</string>
+    <string name="quran_recent_logs_view_all">VIEW ALL</string>
+    <string name="quran_log_status_over_goal">OVER GOAL</string>
+    <string name="quran_log_status_under_goal">UNDER GOAL</string>
+    <string name="quran_log_status_hit_goal">HIT GOAL</string>
+    <string name="quran_streak_label">Reading Streak</string>
+    <string name="quran_streak_days_format">%1$d days</string>
+    <string name="quran_log_reading_sheet_title">Log Reading</string>
+    <string name="quran_log_reading_session_label">PAGES READ THIS SESSION</string>
+    <string name="quran_log_reading_done_button">Done</string>
+    <string name="quran_log_reading_chip_one_page">+1 Page</string>
+    <string name="quran_log_reading_chip_five_pages">+5 Pages</string>
+    <string name="quran_log_reading_chip_one_juz">1 Juz</string>
+    <string name="quran_log_reading_current_position_label">CURRENT POSITION</string>
+    <string name="quran_goal_sheet_title">Daily Quran Goal</string>
+    <string name="quran_goal_sheet_pages_per_day">PAGES PER DAY</string>
+    <string name="quran_goal_sheet_hint">Setting a sustainable goal helps build a lifelong habit with the Quran. Most people start with 5 pages.</string>
+    <string name="quran_goal_sheet_popular_goals">POPULAR GOALS</string>
+    <string name="quran_goal_sheet_one_page">1 Page</string>
+    <string name="quran_goal_sheet_five_pages">5 Pages</string>
+    <string name="quran_goal_sheet_ten_pages">10 Pages</string>
+    <string name="quran_goal_sheet_one_juz">1 Juz</string>
+    <string name="quran_goal_sheet_save_button">Save</string>
+    <string name="quran_position_sheet_title">Update Position</string>
+    <string name="quran_position_sheet_done_button">Done</string>
+    <string name="quran_position_sheet_search_hint">Search Surah</string>
+    <string name="quran_position_sheet_verse_label">VERSE (AYAH)</string>
+    <string name="quran_position_of_ayah_format">of %1$d</string>
+    <string name="quran_error_invalid_pages">Invalid page count. Must be between 1 and 604.</string>
+    <string name="quran_error_invalid_goal">Invalid goal. Must be between 1 and 60 pages.</string>
+    <string name="quran_error_invalid_surah">Invalid Surah number.</string>
+    <string name="quran_error_invalid_ayah">Invalid Ayah number for this Surah.</string>
+    <string name="quran_error_generic">Something went wrong. Please try again.</string>
+
 </resources>

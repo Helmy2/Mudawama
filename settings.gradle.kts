@@ -50,4 +50,7 @@ include(":feature:habits:presentation")
 include(":feature:prayer:domain")
 include(":feature:prayer:data")
 include(":feature:prayer:presentation")
+include(":feature:quran:domain")
+include(":feature:quran:data")
+include(":feature:quran:presentation")
 

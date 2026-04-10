@@ -14,9 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.github.helmy2.mudawama.designsystem.components.MudawamaDateStrip
 import io.github.helmy2.mudawama.prayer.presentation.components.MarkMissedBottomSheet
 import io.github.helmy2.mudawama.prayer.presentation.components.PrayerCompletionHero
-import io.github.helmy2.mudawama.prayer.presentation.components.PrayerDateStrip
 import io.github.helmy2.mudawama.prayer.presentation.components.PrayerRowItem
 import io.github.helmy2.mudawama.prayer.presentation.model.PrayerUiAction
 import io.github.helmy2.mudawama.prayer.presentation.model.PrayerUiState
@@ -65,7 +65,7 @@ internal fun PrayerScreenContent(
             .background(MaterialTheme.colorScheme.background),
     ) {
         // 7-day date strip
-        PrayerDateStrip(
+        MudawamaDateStrip(
             dates = state.dateStrip,
             selectedDate = state.selectedDate,
             today = state.today,

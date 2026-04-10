@@ -11,6 +11,9 @@ import io.github.helmy2.mudawama.habits.presentation.di.habitsPresentationModule
 import io.github.helmy2.mudawama.prayer.data.di.PrayerDataModule
 import io.github.helmy2.mudawama.prayer.domain.di.PrayerDomainModule
 import io.github.helmy2.mudawama.prayer.presentation.di.prayerPresentationModule
+import io.github.helmy2.mudawama.quran.data.di.quranDataModule
+import io.github.helmy2.mudawama.quran.domain.di.quranDomainModule
+import io.github.helmy2.mudawama.quran.presentation.di.quranPresentationModule
 import org.koin.core.context.startKoin
 
 fun initializeKoin(iosEncryptor: Encryptor, iosLocationProvider: LocationProvider) {
@@ -25,6 +28,9 @@ fun initializeKoin(iosEncryptor: Encryptor, iosLocationProvider: LocationProvide
             PrayerDomainModule,
             PrayerDataModule,
             prayerPresentationModule(),
+            quranDomainModule,
+            quranDataModule(),
+            quranPresentationModule(),
         )
     }
 }

@@ -30,6 +30,7 @@ import kotlinx.serialization.modules.subclass
 fun MudawamaAppShell(
     habitsScreen: @Composable () -> Unit,
     prayerScreen: @Composable () -> Unit,
+    quranScreen: @Composable () -> Unit = {},
 ) {
     MudawamaTheme(darkTheme = isSystemInDarkTheme()) {
         val backStack = rememberNavBackStack(
@@ -86,7 +87,7 @@ fun MudawamaAppShell(
                     }
 
                     entry<QuranRoute> {
-                        QuranPlaceholderScreen()
+                        quranScreen()
                     }
 
                     entry<AthkarRoute> {

@@ -5,11 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "quran_bookmarks")
 data class QuranBookmarkEntity(
-    @PrimaryKey val id: Int = 1,
-    val surah: Int,
-    val ayah: Int,
-    val dailyGoalPages: Int,
-    val pagesReadToday: Int,
-    val lastUpdated: Long
+    @PrimaryKey val id: Int = 1,   // singleton row — always id=1
+    val surah: Int,                // 1..114
+    val ayah: Int,                 // 1..surah.ayahCount
+    val lastUpdated: Long,         // epoch millis
 )
-

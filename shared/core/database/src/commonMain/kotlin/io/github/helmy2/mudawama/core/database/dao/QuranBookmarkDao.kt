@@ -8,13 +8,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface QuranBookmarkDao {
+
     @Upsert
     suspend fun upsertBookmark(bookmark: QuranBookmarkEntity)
 
     @Query("SELECT * FROM quran_bookmarks WHERE id = 1")
     fun getBookmark(): Flow<QuranBookmarkEntity?>
-
-    @Query("UPDATE quran_bookmarks SET pagesReadToday = 0 WHERE id = 1")
-    suspend fun resetDailyPages()
 }
-
