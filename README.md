@@ -10,7 +10,7 @@ Built entirely with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (
 
 ## ✨ Features (MVP)
 * **Prayer Tracking:** Log your 5 daily obligatory prayers with local times fetched via API.
-* **Quran Connection:** Set daily reading goals, log your progress, and save your bookmark (Surah & Ayah).
+* **Quran Tracking:** Set daily reading goals, log pages read, auto-advance your bookmark (Surah & Ayah) via the alquran.cloud API, view your reading streak, and browse recent daily logs with a 7-day date strip.
 * **Athkar & Tasbeeh:** Dedicated checklists for Morning, Evening, and Post-Prayer remembrances, alongside a digital tap counter.
 * **Custom Habits:** Add personal spiritual goals (e.g., "Fasting Mondays", "Daily Sadaqah").
 * **Offline-First:** All your data stays on your device via Room SQLite. No account required. No ads. No tracking.
@@ -59,7 +59,7 @@ The project follows a modular "Packaging by Feature" strategy to ensure scalabil
 ```mermaid
 graph TD
     App[androidApp / iosApp] --> Umbrella[shared:umbrella-ui]
-    Umbrella --> Feature[feature:habits / feature:prayer]
+    Umbrella --> Feature[feature:habits / feature:prayer / feature:quran]
     Umbrella --> CoreDB[shared:core:database]
     Feature --> Core[shared:core:presentation / data / domain]
     Feature --> CoreDB

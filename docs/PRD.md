@@ -2,7 +2,7 @@
 
 **Platform:** Android & iOS (via Kotlin Multiplatform + Compose Multiplatform)  
 **Phase:** MVP (Minimum Viable Product)  
-**Status:** In Development
+**Status:** MVP Shipped (Prayer + Habits + Quran Tracking)
 
 ---
 
@@ -42,11 +42,17 @@ The MVP strictly limits scope to foundational habits to ensure high execution qu
         
 - **Quran Reading Tracker:**
     
-    - Allow users to set a daily reading goal (e.g., pages per day).
+    - Allow users to set a daily reading goal (pages per day) via a dedicated Goal sheet.
         
-    - Feature a "Log Reading" bottom sheet to quickly log pages read.
+    - Feature a "Log Reading" bottom sheet to quickly log pages read; each log is stored as a `QuranDailyLogEntity` keyed by logical date.
         
-    - Save the current bookmark (Surah and Ayah).
+    - Auto-advance the reading bookmark (Surah + Ayah) on log confirmation using the `alquran.cloud` API; falls back gracefully when offline.
+        
+    - Display current reading streak and recent 7-day log history on the Quran screen.
+        
+    - 7-day date strip for navigating to past days in read-only mode.
+        
+    - Save the current bookmark (Surah and Ayah) manually via an "Update Position" sheet.
         
 - **Athkar & Tasbeeh:**
     
@@ -61,7 +67,7 @@ The MVP strictly limits scope to foundational habits to ensure high execution qu
 
 - Allow users to create custom habits (e.g., "Fasting Mondays", "Daily Sadaqah").
     
-- Users can define a custom habit by name, icon, frequency, and type (Check-off vs. Numeric counter).
+- Users can define a custom habit by name, icon, frequency, and type (Check-off vs. Numeric counter). For Numeric habits, users set a daily goal count (`goalCount`).
     
 
 ### 3.3 Insights & Progress

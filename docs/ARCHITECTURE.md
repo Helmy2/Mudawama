@@ -33,10 +33,15 @@ mudawama/
     │   ├── data/               # DAOs via shared:core:database, API Calls
     │   └── presentation/       # Jetpack Compose UI, ViewModels
     │
-    └── prayer/
-        ├── domain/
-        ├── data/
-        └── presentation/
+    ├── prayer/
+    │   ├── domain/
+    │   ├── data/               # Aladhan API via named Ktor HttpClient
+    │   └── presentation/
+    │
+    └── quran/
+        ├── domain/             # ReadingStreak, LogReading, AdvanceBookmark UseCases, etc.
+        ├── data/               # alquran.cloud API via named Ktor HttpClient, Room DAOs
+        └── presentation/       # QuranScreen, Log/Goal/Position bottom sheets
 ```
 
 ---
@@ -57,9 +62,10 @@ To prevent feature modules from importing heavy libraries they don't need, the c
 
 ### 3. The `shared:core:database`
 The offline-first persistence layer for the entire app. Built with **Room for KMP** (`androidx.room`), it provides:
-* Three Room entities: `HabitEntity`, `HabitLogEntity`, `QuranBookmarkEntity`
-* Three DAOs: `HabitDao`, `HabitLogDao`, `QuranBookmarkDao`
-* A single `MudawamaDatabase` with an `expect/actual` constructor pattern so Room KSP generates platform bridges automatically
+* Five Room entities: `HabitEntity`, `HabitLogEntity`, `QuranBookmarkEntity`, `QuranDailyLogEntity`, `QuranGoalEntity`
+* Five DAOs: `HabitDao`, `HabitLogDao`, `QuranBookmarkDao`, `QuranDailyLogDao`, `QuranGoalDao`
+* A single `MudawamaDatabase` (current schema version **3**) with an `expect/actual` constructor pattern so Room KSP generates platform bridges automatically
+* AutoMigration 2→3: removes `dailyGoalPages` and `pagesReadToday` from `quran_bookmarks`; adds `quran_daily_logs` and `quran_goals` tables
 * Platform-specific `getDatabaseBuilder()` functions (Android uses `Context`, iOS uses `NSHomeDirectory`)
 * A Koin module per platform: `androidCoreDatabaseModule` / `iosCoreDatabaseModule()`
 
@@ -97,6 +103,18 @@ The structural skeleton of the app. Provides a single `MudawamaAppShell` composa
 
 ### 6. The `shared:designsystem`
 Contains all static resources via JetBrains Compose Resources (`strings.xml`, `.ttf` fonts, `.svg` icons) and the global `MudawamaTheme`. Every feature's `:presentation` module depends on this to ensure visual consistency.
+
+#### Shared UI Components
+
+Reusable Composables that live in `shared/designsystem/src/commonMain/kotlin/.../designsystem/components/` and are shared across feature modules:
+
+| Component | File | Notes |
+|---|---|---|
+| `MudawamaSurfaceCard` | `SurfaceCard.kt` | Layout-agnostic card surface. `color = MaterialTheme.colorScheme.surface`, `shadowElevation = 1.dp`, `tonalElevation = 0.dp`. Accepts `shape` param (default `RoundedCornerShape(16.dp)`) and optional `onClick`. No forced inner padding. |
+| `MudawamaBottomSheet` | `BottomSheet.kt` | App-wide bottom sheet wrapper. `containerColor = MudawamaTheme.colors.background`, `shape = RoundedCornerShape(topStart/End = 24.dp)`, `dragHandle = null`, `skipPartiallyExpanded = true`, 20dp top padding applied to content. Use for all feature bottom sheets. |
+| `DateStrip` | `DateStrip.kt` | Horizontal 7-day date chip row. Shared across Prayer and Quran screens. |
+| `PrimaryButton` | `PrimaryButton.kt` | Full-width primary CTA button. |
+| `GhostButton` | `GhostButton.kt` | Outlined secondary button. |
 
 #### Single source of truth for strings
 
@@ -185,7 +203,7 @@ Our Koin architecture follows the **Composition Root** pattern, ensuring that de
 ### The Flow
 1. **Module Composition:** Each layer provides its own Koin definitions. Platform-specific implementations are provided via platform-specific modules:
    - `androidCoreDataModule` / `iosCoreDataModule(iosEncryptor)` — Ktor, DataStore, Encryptor, ConnectivityObserver
-   - `androidCoreDatabaseModule` / `iosCoreDatabaseModule()` — `MudawamaDatabase` + all three DAOs
+   - `androidCoreDatabaseModule` / `iosCoreDatabaseModule()` — `MudawamaDatabase` + all five DAOs
    - `timeModule(rolloverPolicy)` — `TimeProvider` singleton (platform-agnostic; `commonMain` only)
 2. **Umbrella Initialization:** The `umbrella-ui` module is the KMP composition root. It aggregates all module DI registrations and boots Koin.
 3. **Native Launch:**

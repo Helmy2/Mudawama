@@ -2,7 +2,8 @@
 
 **Input**: Design documents from `/specs/007-quran-tracking/`  
 **Branch**: `007-quran-tracking`  
-**Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅, contracts/ui-contracts.md ✅
+**Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅, contracts/ui-contracts.md ✅  
+**Status**: All phases shipped — commit `761c827`
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -14,11 +15,128 @@
 
 ---
 
-## Phase 1: Setup (Gradle Modules & Navigation Wiring)
+## Phase 1: Setup (Gradle Modules & Navigation Wiring) ✅
 
-**Purpose**: Register all new modules, add string resources, and wire navigation so the project compiles cleanly before any feature logic is written.
+- [x] T001 Add `:feature:quran:domain`, `:feature:quran:data`, `:feature:quran:presentation` to `settings.gradle.kts`
+- [x] T002 Create `feature/quran/domain/build.gradle.kts`
+- [x] T003 [P] Create `feature/quran/data/build.gradle.kts`
+- [x] T004 [P] Create `feature/quran/presentation/build.gradle.kts`
+- [x] T005 Add all `quran_*` string keys to `shared/designsystem/src/commonMain/composeResources/values/strings.xml`
 
-- [ ] T001 Add `:feature:quran:domain`, `:feature:quran:data`, `:feature:quran:presentation` to `settings.gradle.kts`
+---
+
+## Phase 2: Foundational — Database ✅
+
+- [x] T006 Create `QuranDailyLogEntity.kt`
+- [x] T007 [P] Create `QuranGoalEntity.kt`
+- [x] T008 [P] Modify `QuranBookmarkEntity.kt` — removed `dailyGoalPages` / `pagesReadToday`
+- [x] T009 Create `QuranDailyLogDao.kt`
+- [x] T010 [P] Create `QuranGoalDao.kt`
+- [x] T011 [P] Modify `QuranBookmarkDao.kt` — removed `resetDailyPages()`
+- [x] T012 Bump `MudawamaDatabase` to version 3 with AutoMigration 2→3
+- [x] T013 Register new DAOs in `DatabaseModule.kt`
+
+---
+
+## Phase 3: User Story 1 — Log Today's Quran Reading ✅
+
+- [x] T014 Create `QuranError.kt`
+- [x] T015 [P] Create `QuranDailyLog.kt`
+- [x] T016 [P] Create `QuranGoal.kt`
+- [x] T017 Create `QuranDailyLogRepository.kt`
+- [x] T018 Create `LogReadingUseCase.kt`
+- [x] T019 Create `QuranDailyLogMapper.kt`
+- [x] T020 Create `QuranDailyLogRepositoryImpl.kt`
+- [x] T021 Create `QuranUiState.kt`
+- [x] T022 Create `QuranProgressRing.kt`
+- [x] T023 Create `LogReadingSheet.kt`
+- [x] T024 Create `QuranViewModel.kt`
+- [x] T025 Create `QuranScreen.kt`
+- [x] T026 Create `QuranDomainModule.kt`
+- [x] T027 Create `QuranDataModule.kt`
+- [x] T028 Create `QuranPresentationModule.kt`
+- [x] T029 Wire Koin in Android + iOS entry points
+- [x] T030 Wire `QuranScreen` in navigation shell
+
+---
+
+## Phase 4: User Story 2 — View Daily Progress & Goal ✅
+
+- [x] T031 Create `QuranGoalRepository.kt`
+- [x] T032 Create `QuranBookmark.kt`
+- [x] T033 Create `QuranScreenState.kt`
+- [x] T034 Create `QuranBookmarkRepository.kt`
+- [x] T035 Create `ObserveQuranStateUseCase.kt`
+- [x] T036 Create `SetGoalUseCase.kt`
+- [x] T037 [P] Create `QuranGoalMapper.kt`
+- [x] T038 [P] Create `QuranBookmarkMapper.kt`
+- [x] T039 Create `QuranGoalRepositoryImpl.kt`
+- [x] T040 [P] Create `QuranBookmarkRepositoryImpl.kt`
+- [x] T041 Create `QuranGoalCard.kt`
+- [x] T042 Create `SetGoalSheet.kt`
+- [x] T043 Wire `ObserveQuranStateUseCase` + `ConfirmSetGoal` in `QuranViewModel`
+- [x] T044 Wire `SetGoalSheet` in `QuranScreen`
+- [x] T045 Update `QuranDomainModule.kt`
+- [x] T046 Update `QuranDataModule.kt`
+
+---
+
+## Phase 5: User Story 3 — Update Reading Position / Bookmark ✅
+
+- [x] T047 Create `SurahMetadata.kt` with all 114 entries + `surahForPage()` helper
+- [x] T048 Create `UpdateBookmarkUseCase.kt`
+- [x] T048b Create `AdvanceBookmarkUseCase.kt` — uses `alquran.cloud` API for accurate Surah+Ayah; falls back to ayah 1 on network error
+- [x] T049 Create `QuranResumeReadingCard.kt`
+- [x] T050 Create `UpdatePositionSheet.kt`
+- [x] T051 Wire `ConfirmUpdatePosition` in `QuranViewModel`
+- [x] T052 Wire `UpdatePositionSheet` in `QuranScreen`
+- [x] T053 Register `UpdateBookmarkUseCase` + `AdvanceBookmarkUseCase` in `QuranDomainModule`
+
+---
+
+## Phase 6: User Story 4 — Reading Streak & Recent Logs ✅
+
+- [x] T054 Create `ComputeStreakUseCase.kt`
+- [x] T055 Create `QuranRecentLogsList.kt`
+- [x] T056 Wire `recomputeStreak()` in `QuranViewModel`
+- [x] T057 Wire `QuranRecentLogsList` + streak in `QuranScreen`
+- [x] T058 Register `ComputeStreakUseCase` in `QuranDomainModule`
+
+---
+
+## Phase 7: User Story 5 — Navigate Past Days (Read-Only) ✅
+
+- [x] T059 Create `DateStrip.kt` (moved to `shared/designsystem` for reuse)
+- [x] T060 Wire date strip + read-only mode in `QuranScreen`
+
+---
+
+## Phase 8: Polish & Shared Components ✅
+
+- [x] T061 Zero-state rendering verified (no logs, no goal, no bookmark)
+- [x] T062 [P] String resource compliance — all user-visible text uses `stringResource(Res.string.quran_*)`
+- [x] T063 [P] Domain layer has no Android/Ktor/Compose imports
+- [x] T064 [P] Presentation layer does not reference `:feature:quran:data` or `:shared:core:database`
+- [x] T065–T069 Stepper bounds, AutoMigration, streak boundary verified
+
+---
+
+## Post-Ship Additions
+
+These tasks were completed after the initial implementation in response to review and design feedback:
+
+- [x] **T070** Add `QuranPageRepository` interface to domain layer — `suspend fun getFirstAyahOnPage(page: Int): Result<QuranBookmark, QuranError>`
+- [x] **T071** Add `NetworkError` to `QuranError`
+- [x] **T072** Create `dto/QuranPageDto.kt` in data layer — `@Serializable` models for `alquran.cloud` `/v1/page/{page}/quran-uthmani` response
+- [x] **T073** Create `QuranPageRepositoryImpl.kt` — Ktor `GET` call, maps first ayah to `QuranBookmark`, catches all exceptions → `NetworkError`
+- [x] **T074** Update `QuranDataModule.kt` — add `named("quran")` `HttpClient` (lenient JSON + header logging), register `QuranPageRepository` singleton
+- [x] **T075** Update `feature/quran/data/build.gradle.kts` — add `kotlinxSerialization` plugin, `bundles.ktor` to commonMain, `ktor-client-okhttp` to androidMain, `ktor-client-darwin` to iosMain
+- [x] **T076** Update `AdvanceBookmarkUseCase` — inject `QuranPageRepository`; call `getFirstAyahOnPage(targetPage)`; on success use exact Surah+Ayah; on failure fall back to `ayah = 1` of resolved surah
+- [x] **T077** Rewrite `MudawamaSurfaceCard` — layout-agnostic `Surface` slot; `color = MaterialTheme.colorScheme.surface`, `shadowElevation = 1.dp`, `tonalElevation = 0.dp`, `shape` param (default 16dp)
+- [x] **T078** Refactor `QuranGoalCard`, `QuranResumeReadingCard`, `QuranRecentLogsList` to use `MudawamaSurfaceCard`
+- [x] **T079** Create `MudawamaBottomSheet` in `shared/designsystem` — `containerColor = MudawamaTheme.colors.background`, `shape = RoundedCornerShape(topStart/End = 24.dp)`, `dragHandle = null`, 20dp top padding
+- [x] **T080** Migrate `LogReadingSheet`, `SetGoalSheet`, `UpdatePositionSheet` to `MudawamaBottomSheet`
+- [x] **T081** Add `goalCount` `TextField` to `HabitBottomSheet` for `NUMERIC` habit type — digit-only input, pre-filled in edit mode, clears on type switch to `BOOLEAN`, passed as `goalCount` in `SaveHabit`
 - [ ] T002 Create `feature/quran/domain/build.gradle.kts` with plugins `mudawama.kmp` + `mudawama.kmp.koin`; deps: `shared.core.domain` (api), `shared.core.time`, `kotlinx.coroutines.core`, `kotlinx.datetime`
 - [ ] T003 [P] Create `feature/quran/data/build.gradle.kts` with plugins `mudawama.kmp` + `mudawama.kmp.koin`; deps: `feature.quran.domain`, `shared.core.database`, `shared.core.time`, `shared.core.domain`, `kotlinx.datetime`, `kotlinx.coroutines.core`
 - [ ] T004 [P] Create `feature/quran/presentation/build.gradle.kts` with plugin `mudawama.kmp.compose`; deps: `feature.quran.domain`, `shared.core.presentation`, `shared.designsystem`, `bundles.compose`, `bundles.lifecycle`, `koin.compose.viewmodel`, `kotlinx.datetime`, `material.icons.extended`; androidMain: `activity.compose`, `ui.tooling`, `koin.android`

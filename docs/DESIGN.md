@@ -135,6 +135,7 @@ If a border is required for accessibility (e.g., an unselected habit state), use
 ### Cards & Habit Lists
 - **No Dividers:** Forbid the use of divider lines. Separate list items using `spacing-4` (1.4rem) or subtle background shifts between cards.
 - **Roundedness:** Use `xl` (1.5rem / 24px) for habit cards to create a soft, organic feel. Use `full` (9999px) for progress bars and chips.
+- **`MudawamaSurfaceCard`** — the standard card surface from `shared/designsystem`. `color = MaterialTheme.colorScheme.surface`, `shadowElevation = 1.dp`, `tonalElevation = 0.dp`. Layout-agnostic slot (no forced inner padding). Accepts `shape` (default `RoundedCornerShape(16.dp)`) and optional `onClick`. All feature cards MUST use this component.
 - **Core Rituals row** (`daily_habits.png`): circular progress ring (green stroke) + title + subtitle. Uses `surface-container-lowest` card on `surface-container-low` background.
 - **Personal Habits row** (`daily_habits.png`): icon chip + habit name + three-dot overflow menu. No progress ring.
 - **Prayer list row** (`daily_prayer_tracker.png`): circular icon (color-coded per prayer) + name + time + circular checkbox toggle.
@@ -151,10 +152,13 @@ If a border is required for accessibility (e.g., an unselected habit state), use
 - **Interaction:** On completion, trigger haptic pulse and soft glow expansion (4% opacity secondary color).
 
 ### Bottom Sheets
-All bottom sheets follow a consistent structure (see reference images):
-- Drag handle pill at top center.
-- Header row: close `×` icon (left), title (center), primary action button or text link (right).
-- Content body with appropriate input controls.
+All bottom sheets use the shared `MudawamaBottomSheet` wrapper from `shared/designsystem`:
+- **No drag handle** (`dragHandle = null`).
+- `containerColor = MudawamaTheme.colors.background` (matches app background, not surface).
+- `shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)`.
+- `skipPartiallyExpanded = true` — always expands fully.
+- 20dp top padding is applied inside the content slot by the wrapper.
+- Header row inside the content: close `×` icon (left), title (center), primary action button or text link (right).
 - Sheets: New Habit, Manage Habit, Log Reading, Daily Quran Goal, Update Position, Daily Tasbeeh Goal.
 
 ### Buttons (The "Thumb-First" Action)
@@ -171,6 +175,7 @@ All bottom sheets follow a consistent structure (see reference images):
 
 ### Input Fields
 - **Style:** Minimalist. `surface-container-low` background, `full` roundedness, no visible border box. Placeholder text in `on-surface-variant`. Used in New Habit name field and Search Surah field.
+- **Numeric Goal Count (New/Edit Habit sheet):** When the user selects **Numeric** as the habit type, a digit-only `TextField` for the daily goal count (`goalCount`) appears below the Goal Type selector cards. It is pre-filled from `existingHabit?.goalCount` in edit mode and cleared when switching back to Boolean. The field is hidden entirely for Boolean habits.
 
 ### Tasbeeh Counter
 (`tasbeeh_counter.png`): Large neumorphic circle with count + dhikr label. Outer arc progress ring. Three action controls below: Reset (icon button), TAP SCREEN (primary wide button), Goal (icon button). Stats row at bottom showing "TODAY'S TOTAL" and "CURRENT SESSION".

@@ -2,7 +2,7 @@
 
 **Feature Branch**: `007-quran-tracking`  
 **Created**: 2026-04-10  
-**Status**: Draft  
+**Status**: Shipped (commit `761c827`)  
 **Input**: User description: "Quran Tracking screen — log daily reading (pages or Surah/Ayah range), reading streak and weekly consistency, daily goal (pages/day), navigate past days read-only like the prayer screen"
 
 ---
@@ -130,7 +130,7 @@ A user wants to review what they read on a previous day. A horizontal date strip
 - **FR-013**: The system MUST track a reading streak: the count of consecutive calendar days on which at least one page was logged. The streak is broken only when a past calendar day (yesterday or earlier) has zero pages logged. Today's zero-page state does not break the streak until midnight closes the current day.
 - **FR-014**: The system MUST display a horizontal date strip allowing navigation across at least the past 7 days, consistent with the prayer screen pattern.
 - **FR-015**: When a past date is selected in the date strip, the screen MUST enter read-only mode: the Log Reading button is hidden/disabled and no data modifications are permitted for that day.
-- **FR-016**: When the user taps "Done" in the Log Reading sheet with a page count ≥ 1, the system MUST automatically advance the reading bookmark by the number of pages logged. The new bookmark is set to ayah 1 of the surah whose `startPage` (Madinah Mushaf) is the highest value ≤ (current surah `startPage` + pages logged), clamped to page 604. This advance happens silently — no additional sheet is opened. If no bookmark exists, page 1 (Al-Fatihah) is used as the starting page.
+- **FR-016**: When the user taps "Done" in the Log Reading sheet with a page count ≥ 1, the system MUST automatically advance the reading bookmark by the number of pages logged. The target page is computed as `(currentSurahStartPage + pagesLogged).coerceAtMost(604)`. The system calls the `alquran.cloud` API (`GET /v1/page/{page}/quran-uthmani`) to resolve the exact Surah + Ayah at that page. On API success the bookmark is set to the returned surah + ayah. On API failure (network error / timeout) the bookmark falls back to ayah 1 of the resolved surah (page-level approximation). This advance happens silently — no additional sheet is opened. If no bookmark exists, page 1 (Al-Fatihah) is used as the starting page.
 - **FR-017**: The page count stepper in the Log Reading sheet MUST NOT allow values below 0 or above 604.
 - **FR-018**: All user-visible strings MUST be declared in the shared design system `strings.xml` and accessed via string resources, following the project's string resource naming convention (`quran_<element>_<type>`).
 
@@ -169,4 +169,12 @@ A user wants to review what they read on a previous day. A horizontal date strip
 - **A-007**: The weekly heatmap (7-day cell grid, consistent with feature:habits) is deferred to the Insights screen. The Quran screen itself shows only a streak count and a recent-logs list.
 - **A-008**: QuranGoal is stored as a single-row entity in the shared Room database (`shared:core:database`). If no row exists, the default of 5 pages is applied in the repository layer. DataStore is not used.
 - **A-009**: Both QuranBookmark and QuranGoal use an INSERT OR REPLACE strategy with a hardcoded `id = 1`, ensuring only one row ever exists for each. The DAO upserts on every write; there is no separate INSERT vs. UPDATE path.
-- **A-010**: The auto-advance bookmark is a page-level approximation. Because no ayah-to-page table exists, the bookmark always lands on **ayah 1** of the resolved surah. Users who need precise mid-surah positioning can tap the "Resume Reading" card to open the Update Position sheet and set any Surah/Ayah manually.
+- **A-010**: The auto-advance bookmark calls the `alquran.cloud` API (`GET /v1/page/{page}/quran-uthmani`) to resolve the exact Surah + Ayah at the target page. This is the primary path. If the network call fails, the bookmark falls back to ayah 1 of the surah resolved from the embedded `SurahMetadata.startPage` table (page-level approximation). Users who need to correct the position can tap the "Resume Reading" card to open the Update Position sheet and set any Surah/Ayah manually.
+
+## Shared Design System Changes
+
+The following shared components were added or updated as part of this feature:
+
+- **`MudawamaBottomSheet`** (`shared/designsystem/.../components/BottomSheet.kt`): App-wide bottom sheet wrapper. Sets `containerColor = MudawamaTheme.colors.background`, `shape = RoundedCornerShape(topStart/End = 24.dp)`, `dragHandle = null`, `skipPartiallyExpanded = true`, and 20dp top padding — matching the Habit sheet style. All Quran sheets use this component.
+- **`MudawamaSurfaceCard`** (`shared/designsystem/.../components/SurfaceCard.kt`): Rewritten as a layout-agnostic `Surface` slot. Uses `color = MaterialTheme.colorScheme.surface`, `shadowElevation = 1.dp`, `tonalElevation = 0.dp`. Accepts a `shape` parameter (default `RoundedCornerShape(16.dp)`) and optional `onClick`. No forced inner padding or column.
+- **`DateStrip`** (`shared/designsystem/.../components/DateStrip.kt`): Moved from `feature/prayer/presentation` to `shared/designsystem` to enable reuse across features.

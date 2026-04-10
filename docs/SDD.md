@@ -31,7 +31,7 @@ The repository uses a **"Packaging by Feature"** strategy to ensure horizontal s
 
 - **`build-logic`:** Houses custom Gradle convention plugins (`mudawama.kmp`, `mudawama.kmp.compose`, `mudawama.kmp.koin`) to centralize build configuration. Plugins only apply/configure Gradle toolchain and compiler plugins — all library dependencies are declared explicitly in each module's own `build.gradle.kts`. The sole exception is `mudawama.kmp.koin`, a dependency-shorthand plugin that injects the three Koin declarations that always travel together.
 - **`shared/core`:** Contains the base `Result` classes, Error interfaces, Ktor client engines, and the `UiMessageManager` messaging queue.
-- **`shared/feature/x`:** Each feature (e.g., `habits`, `prayer`) is split into independent `domain`, `data`, and `presentation` sub-modules.
+- **`shared/feature/x`:** Each feature (e.g., `habits`, `prayer`, `quran`) is split into independent `domain`, `data`, and `presentation` sub-modules.
 - **`shared/umbrella-core`:** Aggregates all `domain` and `data` modules for iOS export (no UI). Used for future SwiftUI migration.
 - **`shared/umbrella-ui`:** Aggregates all `presentation` modules and the design system for iOS export with Compose UI.
 - **`androidApp` / `iosApp`:** Thin native shells hosting the application entry points.
@@ -40,7 +40,7 @@ The repository uses a **"Packaging by Feature"** strategy to ensure horizontal s
 
 ## 3. Data Design (Room KMP, Ktor, & DataStore)
 
-The application operates entirely offline using **Room for KMP** (`androidx.room` 2.7+). The schema normalises the definition of a habit (the rule) from its daily completion log (the action), and stores the user's Quran reading position as a singleton bookmark.
+The application operates entirely offline using **Room for KMP** (`androidx.room` 2.7+). The schema normalises the definition of a habit (the rule) from its daily completion log (the action), stores the user's Quran reading position as a singleton bookmark, records per-day reading logs, and stores the user's reading goal as a singleton row.
 
 ### 3.1 Entity: `HabitEntity` — `habits` table
 | Column | Type | Notes |
@@ -72,41 +72,61 @@ Singleton row (`id = 1` always).
 |---|---|---|
 | `id` | `Int` | Always 1 |
 | `surah` | `Int` | 1–114 |
-| `ayah` | `Int` | Ayah number within the surah |
-| `dailyGoalPages` | `Int` | User's daily reading goal |
-| `pagesReadToday` | `Int` | Resets each day via `resetDailyPages()` |
+| `ayah` | `Int` | Ayah number within the surah; resolved via `alquran.cloud` API on auto-advance |
 | `lastUpdated` | `Long` | Unix timestamp millis |
 
-### 3.4 Database: `MudawamaDatabase`
+> **DB v3 change:** `dailyGoalPages` and `pagesReadToday` columns were removed from this table in AutoMigration 2→3. Goal and daily progress are now tracked in `QuranGoalEntity` and `QuranDailyLogEntity` respectively.
+
+### 3.4 Entity: `QuranDailyLogEntity` — `quran_daily_logs` table
+One row per calendar day of reading activity.
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `String` (UUID) | Primary Key |
+| `date` | `String` | ISO date `"yyyy-MM-dd"` |
+| `pagesRead` | `Int` | Pages logged for this day |
+| `loggedAt` | `Long` | Unix timestamp millis of last update |
+
+### 3.5 Entity: `QuranGoalEntity` — `quran_goals` table
+Singleton row (`id = 1` always).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `Int` | Always 1 |
+| `pagesPerDay` | `Int` | User's daily reading goal |
+| `updatedAt` | `Long` | Unix timestamp millis |
+
+### 3.6 Database: `MudawamaDatabase`
 - Single `RoomDatabase` class with `@ConstructedBy(MudawamaDatabaseConstructor::class)`
+- Current schema version: **3** (AutoMigration 2→3 removes `dailyGoalPages` + `pagesReadToday` from `quran_bookmarks`; adds `quran_daily_logs` and `quran_goals` tables)
 - Room KSP auto-generates the `actual object MudawamaDatabaseConstructor` for each platform
 - Android builder uses `getDatabaseBuilder(Context)` with `getDatabasePath("mudawama.db")`
 - iOS builder uses `getDatabaseBuilder()` with `NSHomeDirectory() + "/mudawama.db"`
 - All DAOs use `suspend` functions and `Flow<>` for reactive reads
 
-### 3.5 Data Flow & Caching Strategy
+### 3.7 Data Flow & Caching Strategy
 The Data Repository acts as the single source of truth. When a feature module's Use Case requests data, its repository queries the relevant DAO from `MudawamaDatabase`. If the data requires network enrichment (e.g. prayer times), the repository utilises the Ktor client to fetch from the remote API, persists the result locally, and returns it.
 
-### 3.6 DataStore Preferences (`shared/core/data/session`)
+### 3.8 DataStore Preferences (`shared/core/data/session`)
 - `theme_preference` (String) — LIGHT, DARK, SYSTEM
 - `language_preference` (String) — EN, AR
 - `calculation_method_id` (Int) — API-specific ID
 - `daily_reset_preference` (String) — MIDNIGHT, MAGHRIB
 
-### 3.7 Session & Cryptography (`shared/core/data/session`)
+### 3.9 Session & Cryptography (`shared/core/data/session`)
 - Authentication tokens and sensitive user session data are stored securely using platform-specific cryptography. 
 - **Android:** Leverages Google's Tink library (`TinkEncryptor`) coupled with Android Keystore (`AES256_GCM`) to encrypt data before persistence.
 - **iOS:** Uses a custom `IosEncryptor` to encrypt data securely across the Swift/Kotlin boundary.
 
-### 3.8 Network Connectivity Monitoring
+### 3.10 Network Connectivity Monitoring
 - The `ConnectivityObserver` domain interface provides a `Flow<ConnectivityStatus>` to monitor network availability.
 - **Android:** Uses `AndroidConnectivityObserver` powered by `ConnectivityManager.NetworkCallback`.
 - **iOS:** Uses `IosConnectivityObserver` powered by Darwin's `NWPathMonitor`.
 
-### 3.9 Time Provider & Logical Date (`shared/core/time`)
+### 3.11 Time Provider & Logical Date (`shared/core/time`)
 All date and time operations are centralized in this module. **No feature or data module may call `Clock.System.now()` directly** (SC-002 — enforced by a CI grep check). All time reads flow through the injected `TimeProvider`.
 
-#### 3.9.1 `TimeProvider` Interface
+#### 3.11.1 `TimeProvider` Interface
 ```kotlin
 interface TimeProvider {
     fun nowInstant(): Instant
@@ -116,7 +136,7 @@ interface TimeProvider {
 - `SystemTimeProvider` — the sole production `Clock.System` call site.
 - `FakeTimeProvider(fixedInstant)` — ships in `commonMain`; any test can freeze time deterministically without platform setup.
 
-#### 3.9.2 `RolloverPolicy`
+#### 3.11.2 `RolloverPolicy`
 Encodes when the *logical day* resets, satisfying FR-5.1 (configurable Islamic day boundary):
 
 | `offsetHour` | Behaviour |
@@ -127,21 +147,21 @@ Encodes when the *logical day* resets, satisfying FR-5.1 (configurable Islamic d
 
 The `computeLogicalDate(calendarDate, hour, policy)` internal function implements the branching algorithm. The default policy is `RolloverPolicy.Standard`; callers can supply `RolloverPolicy.fixed(18)` for an 18:00 Maghrib rollover.
 
-#### 3.9.3 `DateFormatters`
+#### 3.11.3 `DateFormatters`
 Top-level helpers used whenever an `Instant` or `LocalDate` is serialized to the database:
 - `Instant.toIsoDateString(timeZone): String` → `"yyyy-MM-dd"`
 - `LocalDate.toIsoString(): String` → `"yyyy-MM-dd"`
 
-#### 3.9.4 DI
+#### 3.11.4 DI
 `timeModule(rolloverPolicy: RolloverPolicy = RolloverPolicy.Standard): Module` — registered at the composition root in `umbrella-ui`'s `KoinInitializer`. It is 100% `commonMain`; no platform-specific source sets are needed.
 
-### 3.10 Navigation Shell (`shared/navigation`)
+### 3.12 Navigation Shell (`shared/navigation`)
 The single structural entry point for the entire application UI. Platform shells (`androidApp` → `MainActivity`, `iosApp` → `ContentView`) call exactly one composable: `MudawamaAppShell()`.
 
-#### 3.10.1 Routing Model
+#### 3.12.1 Routing Model
 Routes are defined as `@Serializable data object` instances implementing `sealed interface Route : NavKey` from JetBrains Navigation 3 (`navigation3-ui:1.0.0-alpha06`). The sealed hierarchy makes every `when(route)` in the rendering block exhaustive at compile time — adding a new route without handling it is a compiler error, not a runtime crash.
 
-#### 3.10.2 Screen & Route Inventory
+#### 3.12.2 Screen & Route Inventory
 
 The following screens are defined in the reference UI (`docs/ui/`) and MUST each have a corresponding `@Serializable data object` route:
 
@@ -156,25 +176,25 @@ The following screens are defined in the reference UI (`docs/ui/`) and MUST each
 | `SettingsRoute` | Settings | — |
 | `OnboardingRoute` | Welcome / Onboarding | — |
 
-> **Navigation design note**: There is no `HabitsRoute`. The Home tab in the bottom bar maps to `HomeRoute`, and the `NavDisplay` branch for `HomeRoute` renders `HabitsScreen` (the Daily Habits feature screen) directly. The former `HomePlaceholderScreen` and `HabitsPlaceholderScreen` have been removed; only `QuranPlaceholderScreen` and `AthkarPlaceholderScreen` remain as scaffolding for not-yet-implemented features.
+> **Navigation design note**: There is no `HabitsRoute`. The Home tab in the bottom bar maps to `HomeRoute`, and the `NavDisplay` branch for `HomeRoute` renders `HabitsScreen` (the Daily Habits feature screen) directly. `QuranRoute` is now fully implemented — the former `QuranPlaceholderScreen` has been replaced by the full `QuranScreen`. Only `AthkarPlaceholderScreen` remains as scaffolding for a not-yet-implemented feature.
 
 Bottom sheets are NOT top-level routes; they are launched as `ModalBottomSheet` from within the screen composable that owns them.
 
-#### 3.10.3 Backstack Management
+#### 3.12.3 Backstack Management
 Navigation 3 `rememberNavBackStack` owns a `SnapshotStateList<NavKey>`. Tab switching uses a single-top guard:
 ```kotlin
 if (backStack.lastOrNull() != route) { backStack.clear(); backStack.add(route) }
 ```
 No `NavController`, `NavOptions`, or `launchSingleTop` are used. The `SavedStateConfiguration` with a polymorphic `SerializersModule` enables Compose's saved-state mechanism to survive process death.
 
-#### 3.10.4 Floating Bottom Navigation Bar
+#### 3.12.4 Floating Bottom Navigation Bar
 `MudawamaBottomBar` has **4 tabs**: Home, Prayers, Quran, Athkar. It derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack. Active tab renders as a custom rounded-square deep teal pill with white icon + SemiBold label; inactive tabs show icon + label at 55% opacity.
 
 The **Home tab** maps to `HomeRoute`, which renders `HabitsScreen` (Daily Habits) directly — there is no intermediate home dashboard. This means tapping "Home" in the bottom bar shows the Daily Habits screen immediately.
 
 The bar is "floating" via `padding(horizontal = 16.dp)` and inset-safe via `windowInsetsPadding(WindowInsets.navigationBars)`.
 
-#### 3.10.5 DI
+#### 3.12.5 DI
 No Koin module — `shared:navigation` is purely a UI shell with no injected services. DI is handled by the modules that own real feature ViewModels.
 
 ---
@@ -211,4 +231,8 @@ Error messaging is decoupled from individual ViewModels via a Chain of Responsib
 
 ## 5. Security & Privacy Design
 - **Local Sandboxing:** Room database files (`mudawama.db`) and DataStore preferences are stored in the platform-specific secure app sandbox (`Context.filesDir` on Android, `NSDocumentDirectory` on iOS).
-- **Network Scoping:** Network requests are strictly limited to the Aladhan API domain for prayer times. No analytic SDKs or third-party trackers are integrated, physically preventing data exfiltration and guaranteeing privacy.
+- **Network Scoping:** Network requests are strictly limited to two approved API domains:
+  - **Aladhan API** (`api.aladhan.com`) — prayer times based on device coordinates/settings.
+  - **alquran.cloud API** (`api.alquran.cloud`) — resolves the first Surah+Ayah on a given Madinah Mushaf page number (used by `AdvanceBookmarkUseCase` when auto-advancing the reading position). Falls back to `ayah = 1` on network failure.
+
+  No analytic SDKs or third-party trackers are integrated, physically preventing data exfiltration and guaranteeing privacy.

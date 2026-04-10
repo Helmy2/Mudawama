@@ -34,9 +34,13 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 - **FR-1.3:** The system shall fetch and display prayer times based on a 3rd-party Prayer Times API (e.g., Aladhan API) and cache them locally.
 
 ### FR-2: Quran Reading Tracker
-- **FR-2.1:** The system shall allow the user to set a daily reading goal (numeric value, e.g., 5 pages).
-- **FR-2.2:** The system shall provide a "Log Reading" mechanism (via Bottom Sheet) to increment the pages read for the current day.
-- **FR-2.3:** The system shall allow the user to save a bookmark consisting of a specific Surah (1-114) and Ayah number.
+- **FR-2.1:** The system shall allow the user to set a daily reading goal (pages per day) via a dedicated Goal bottom sheet. The goal persists in `QuranGoalEntity`.
+- **FR-2.2:** The system shall provide a "Log Reading" bottom sheet to log pages read for the current day. Each log creates or updates a `QuranDailyLogEntity` row keyed by the logical date.
+- **FR-2.3:** The system shall allow the user to manually update their bookmark (Surah 1–114 + Ayah) via an "Update Position" bottom sheet.
+- **FR-2.4:** Upon confirming a reading log, the system shall automatically advance the bookmark to the next page. The new Surah+Ayah shall be resolved via the `alquran.cloud` API; the system shall fall back to `ayah = 1` on network failure.
+- **FR-2.5:** The system shall display recent reading logs (up to the last 7 days) as a scrollable list on the Quran screen.
+- **FR-2.6:** The system shall display a 7-day date strip on the Quran screen. Tapping a past day switches the view to read-only mode showing that day's logged pages; the current day is always editable.
+- **FR-2.7:** The system shall calculate and display the user's current consecutive reading-day streak.
 
 ### FR-3: Athkar & Tasbeeh
 - **FR-3.1:** The system shall provide static checklists for "Morning Athkar", "Evening Athkar", and "Post-Prayer Athkar".
@@ -45,8 +49,9 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 
 ### FR-4: Custom Habit Management
 - **FR-4.1:** The system shall allow users to create custom habits specifying: Name, Icon, Frequency (Days of week), and Type (Boolean Check-off vs. Numeric Counter).
-- **FR-4.2:** The system shall display custom habits alongside core rituals on the Home/Habits screen.
-- **FR-4.3:** The system shall allow users to Edit and Delete custom habits via a bottom sheet interface. Core rituals (Prayers, Quran) cannot be deleted.
+- **FR-4.2:** When creating or editing a habit of type **Numeric**, the system shall display a goal count input field (`goalCount`) so the user can set the daily target repetitions.
+- **FR-4.3:** The system shall display custom habits alongside core rituals on the Home/Habits screen.
+- **FR-4.4:** The system shall allow users to Edit and Delete custom habits via a bottom sheet interface. Core rituals (Prayers, Quran) cannot be deleted.
 
 ### FR-5: Daily Logs and Insights
 - **FR-5.1:** The system shall generate a new daily log for all active habits automatically at the start of a new day (Islamic or standard midnight, configurable).
@@ -62,7 +67,8 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 - **Navigation:** Shallow navigation relying on a Bottom Navigation Bar and context-preserving Modal Bottom Sheets (e.g., Log Reading, Add Habit).
 
 ### 4.2 Application Programming Interfaces (APIs)
-- **Prayer Times API:** The app shall integrate with a public REST API (such as Aladhan API) via Ktor Client to fetch prayer times based on device coordinates/timezone.
+- **Prayer Times API:** The app shall integrate with the Aladhan API (`api.aladhan.com`) via Ktor Client to fetch prayer times based on device coordinates/timezone.
+- **Quran Page API:** The app shall integrate with the alquran.cloud API (`api.alquran.cloud`) via Ktor Client to resolve the first Surah+Ayah on a given Madinah Mushaf page number (used when auto-advancing the reading bookmark).
 
 ---
 
@@ -70,7 +76,7 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 
 ### 5.1 Performance & Offline Capability
 - The application must be **offline-first**. All habit creation, tracking, logging, and insight generation must occur locally on the device with zero network dependency.
-- Network calls are restricted to fetching prayer times, which must be cached.
+- Network calls are restricted to fetching prayer times (Aladhan API) and resolving Quran page positions (alquran.cloud API); both must degrade gracefully when offline.
 
 ### 5.2 Architecture & Code Quality
 - **Separation of Concerns:** The project must use a clean architecture with Base ViewModels. Domain logic must be 100% shared in the `commonMain` module.
@@ -78,8 +84,10 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 - **AI Specification:** Code generation and architectural bootstrapping will be guided by specification files via Spec Kit.
 
 ### 5.3 Data Storage (Database)
-- The system shall utilize **Room for Kotlin Multiplatform** to persist data.
+- The system shall utilize **Room for Kotlin Multiplatform** to persist data. Current schema version: **3**.
 - Data schema must include:
     - `HabitEntity`: Stores metadata for both Core Rituals and Custom Habits.
     - `HabitLogEntity`: Stores daily completion instances linked to dates and specific habits.
-    - `QuranBookmarkEntity`: Stores the singleton state of the user's reading position.
+    - `QuranBookmarkEntity`: Stores the singleton state of the user's current reading position (Surah + Ayah). Does **not** store goal or daily progress.
+    - `QuranDailyLogEntity`: Stores per-day reading log entries (pages read per calendar date).
+    - `QuranGoalEntity`: Stores the singleton daily reading goal (pages per day).

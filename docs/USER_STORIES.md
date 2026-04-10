@@ -16,9 +16,17 @@
 - **US-2.3: Quran Reading Progress**
     - _As a_ user, _I want_ to see my daily Quran reading goal alongside a progress ring, _so that_ I know how many pages I still need to read today.
 - **US-2.4: Log Quran Reading (Bottom Sheet)**
-    - _As a_ user, _I want_ to open a quick bottom sheet, adjust a numeric counter to log how many pages I just read, and tap "Save", _so that_ tracking my reading is fast and frictionless.
-- **US-2.5: Update Quran Bookmark**
-    - _As a_ user, _I want_ to select a specific Surah from a list (1-114) and type in an Ayah number, _so that_ I can easily resume reading from the exact spot later.
+    - _As a_ user, _I want_ to open a quick bottom sheet, adjust a numeric counter to log how many pages I just read, and tap "Done", _so that_ tracking my reading is fast and frictionless.
+- **US-2.5: Auto-Advance Bookmark on Log**
+    - _As a_ user, _I want_ my bookmark to automatically advance to the correct Surah and Ayah after I confirm a reading log, _so that_ I never have to manually update my position after a normal reading session.
+- **US-2.6: Update Quran Bookmark Manually**
+    - _As a_ user, _I want_ to select a specific Surah from a list (1–114) and type in an Ayah number in the "Update Position" sheet, _so that_ I can correct my bookmark if I skipped around or started from a different place.
+- **US-2.7: View Reading Streak**
+    - _As a_ user, _I want_ to see my current consecutive Quran reading day streak on the Quran screen, _so that_ I feel motivated to maintain my daily consistency.
+- **US-2.8: View Recent Reading Logs**
+    - _As a_ user, _I want_ to see a list of my recent daily reading logs (pages read per day for the last 7 days) on the Quran screen, _so that_ I can see my reading history at a glance.
+- **US-2.9: Navigate Past Days (Read-Only)**
+    - _As a_ user, _I want_ to tap a day chip in the 7-day date strip to view that past day's reading pages in read-only mode, _so that_ I can review my history without accidentally editing it.
 
 ## Epic 3: Athkar & Supplications
 - **US-3.1: Morning and Evening Athkar Checklists**
@@ -31,6 +39,8 @@
 ## Epic 4: Custom Personal Habits
 - **US-4.1: Create a Custom Habit**
     - _As a_ user, _I want_ to tap an "Add Habit" button, enter a name (e.g., "Fasting Mondays"), pick an icon, and choose how often it repeats, _so that_ I can track spiritual goals beyond the core rituals.
+- **US-4.1b: Set Goal Count for Numeric Habit**
+    - _As a_ user, _I want_ to enter a daily goal count when creating or editing a Numeric habit, _so that_ the app knows my target repetitions for that habit.
 - **US-4.2: Track Custom Habits**
     - _As a_ user, _I want_ to see my custom habits on my Home Dashboard and tap to mark them as completed for the day, _so that_ everything I track is in one unified list.
 - **US-4.3: Edit or Delete Habit**
@@ -47,3 +57,5 @@
     - _As the_ system, _I need_ to connect to the Aladhan API (via Ktor) to fetch prayer times for the user's location and cache them locally in the Room database, _so that_ the app works offline after the initial sync.
 - **TC-6.2: Daily Log Generation**
     - _As the_ system, _I need_ to generate fresh, empty `HabitLogEntity` rows in the database for all active habits when the clock strikes midnight, _so that_ the user has a clean slate for the new day without losing yesterday's data.
+- **TC-6.3: Resolve Quran Page Position via API**
+    - _As the_ system, _I need_ to call the `alquran.cloud` API with the current Madinah Mushaf page number after a reading log is confirmed, _so that_ the bookmark is automatically advanced to the correct Surah and Ayah. The system must fall back to `ayah = 1` if the network call fails.
