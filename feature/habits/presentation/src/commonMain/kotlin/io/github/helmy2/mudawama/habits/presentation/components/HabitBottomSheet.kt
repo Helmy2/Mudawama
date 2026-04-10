@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -44,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
@@ -56,6 +58,7 @@ import kotlinx.datetime.DayOfWeek
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.action_close
 import mudawama.shared.designsystem.action_save
+import mudawama.shared.designsystem.hint_daily_goal
 import mudawama.shared.designsystem.hint_habit_name_placeholder
 import mudawama.shared.designsystem.label_daily_reminder
 import mudawama.shared.designsystem.label_daily_reminder_subtitle
@@ -107,6 +110,9 @@ fun HabitBottomSheet(
         mutableStateOf(existingHabit?.frequencyDays ?: emptySet<DayOfWeek>())
     }
     var habitType by remember { mutableStateOf(existingHabit?.type ?: HabitType.BOOLEAN) }
+    var goalCountInput by remember {
+        mutableStateOf(existingHabit?.goalCount?.toString() ?: "")
+    }
     var reminderEnabled by remember { mutableStateOf(false) }
 
     // Inline validation state
@@ -159,7 +165,8 @@ fun HabitBottomSheet(
                                     iconKey = iconKey,
                                     frequencyDays = selectedDays,
                                     type = habitType,
-                                    goalCount = null,
+                                    goalCount = if (habitType == HabitType.NUMERIC)
+                                        goalCountInput.toIntOrNull() else null,
                                 )
                             )
                         }
@@ -313,7 +320,7 @@ fun HabitBottomSheet(
                             )
                         }
                     },
-                    onClick = { habitType = HabitType.BOOLEAN },
+                    onClick = { habitType = HabitType.BOOLEAN; goalCountInput = "" },
                     modifier = Modifier.weight(1f),
                 )
                 GoalTypeCard(
@@ -338,6 +345,37 @@ fun HabitBottomSheet(
                     },
                     onClick = { habitType = HabitType.NUMERIC },
                     modifier = Modifier.weight(1f),
+                )
+            }
+
+            // ── DAILY GOAL (Counter only) ──────────────────────────────────────
+            if (habitType == HabitType.NUMERIC) {
+                TextField(
+                    value = goalCountInput,
+                    onValueChange = { new ->
+                        // Allow only digits, strip leading zeros
+                        if (new.all { it.isDigit() }) goalCountInput = new
+                    },
+                    placeholder = {
+                        Text(
+                            text = stringResource(Res.string.hint_daily_goal),
+                            style = MudawamaTheme.typography.body1,
+                            color = MudawamaTheme.colors.onSurface.copy(alpha = 0.35f),
+                        )
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MudawamaTheme.colors.surface,
+                        unfocusedContainerColor = MudawamaTheme.colors.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        errorIndicatorColor = Color.Transparent,
+                        focusedTextColor = MudawamaTheme.colors.onSurface,
+                        unfocusedTextColor = MudawamaTheme.colors.onSurface,
+                    ),
                 )
             }
 

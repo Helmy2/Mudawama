@@ -1,8 +1,17 @@
-package io.github.helmy2.mudawama.prayer.presentation.components
+package io.github.helmy2.mudawama.designsystem.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,16 +29,18 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
 /**
- * 7-day horizontal date strip centred on today (matches daily_prayer_tracker.png).
+ * Shared horizontal date-strip used across features (Prayer, Quran, …).
  *
  * Each pill shows:
- *   - Day abbreviation (SAT, SUN …) in labelSmall, letter-spaced
- *   - Day number in bodyLarge bold
- * Active day: deep-teal fill + white text + small white dot below.
- * Inactive day: surfaceVariant fill + onSurfaceVariant text.
+ *   - Day abbreviation (MON, TUE …) in labelSmall, letter-spaced
+ *   - Day-of-month number in bodyLarge bold
+ *   - A small indicator dot below today's chip
+ *
+ * Selected chip: primary fill + onPrimary text.
+ * Unselected chip: surfaceVariant fill + onSurfaceVariant text.
  */
 @Composable
-fun PrayerDateStrip(
+fun MudawamaDateStrip(
     dates: List<LocalDate>,
     selectedDate: LocalDate,
     today: LocalDate,
@@ -111,7 +122,7 @@ private fun DateChip(
                     .background(
                         if (isSelected) MaterialTheme.colorScheme.onPrimary
                         else MaterialTheme.colorScheme.primary
-                    )
+                    ),
             )
         }
     }

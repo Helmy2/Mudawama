@@ -29,6 +29,10 @@ kotlin {
                 implementation(projects.feature.prayer.data)
                 implementation(projects.feature.prayer.presentation)
 
+                implementation(projects.feature.quran.domain)
+                implementation(projects.feature.quran.data)
+                implementation(projects.feature.quran.presentation)
+
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.bundles.compose)
                 implementation(libs.bundles.lifecycle)
