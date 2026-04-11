@@ -17,6 +17,10 @@ Auto-generated from all feature plans. Last updated: 2026-04-11
 
 ```text
 feature/
+  home/
+    presentation/         ← NEW (009-home-dashboard): HomeScreen, HomeViewModel,
+                            NextPrayerCard, AthkarSummaryCard, QuranProgressCard,
+                            TasbeehSummaryCard, HabitsSummarySection, SkeletonBlock
   athkar/
     domain/   presentation/   data/
   habits/
@@ -29,11 +33,12 @@ shared/
   core/
     database/   domain/   data/   time/   presentation/   location/
   designsystem/
-  navigation/
+  navigation/             ← androidMain/ + iosMain/ added for AppBackHandler expect/actual
   umbrella-ui/
 specs/
   007-quran-tracking/
   008-athkar-tasbeeh/
+  009-home-dashboard/
 ```
 
 ## Architecture Rules (non-negotiable)
@@ -49,6 +54,9 @@ specs/
 - `Res` import: `mudawama.shared.designsystem.Res`
 - `@Preview` import in `commonMain`: `androidx.compose.ui.tooling.preview.Preview`
 - **Notification strings** must be resolved in the UI layer (Composable) and passed as action parameters to the ViewModel — never resolved inside the ViewModel itself (KMP limitation)
+- **`feature:home:presentation` navigation rule**: this module has **no dependency on `shared:navigation`**. Navigation is done via plain `() -> Unit` callbacks passed from `MudawamaAppShell`. `HomeUiEvent` uses a nested `sealed interface Navigate` with typed objects (`ToPrayer`, `ToAthkar`, `ToQuran`, `ToSettings`, `ToHabits`, `ToTasbeeh`) — no `Route` types in the home module.
+- **`AppBackHandler` pattern**: every non-Home `entryProvider` branch in `MudawamaAppShell` wraps content in `AppBackHandler { goHome() }`. `goHome()` clears the back-stack and adds `HomeRoute`. `AppBackHandler` is an `expect/actual` composable in `shared:navigation` — Android actual wraps `BackHandler`; iOS actual is a no-op.
+- **Bottom bar visibility**: only shown on top-level routes (`HomeRoute`, `PrayerRoute`, `QuranRoute`, `AthkarRoute`). Hidden on push destinations (`HabitsRoute`, `TasbeehRoute`, `SettingsRoute`).
 
 ## Shared Design System Components
 
@@ -68,6 +76,16 @@ All in `shared/designsystem/src/commonMain/kotlin/.../designsystem/components/`:
 - Current version: **4** (AutoMigration 3→4 adds `athkar_daily_logs`, `tasbeeh_goals`, `tasbeeh_daily_totals`)
 - Schema JSON files: `schemas/2.json`, `3.json`, `4.json`
 - All entities in v4: `HabitEntity`, `HabitLogEntity`, `PrayerStatusEntity`, `QuranBookmarkEntity`, `QuranDailyLogEntity`, `QuranGoalEntity`, `AthkarDailyLogEntity`, `TasbeehGoalEntity`, `TasbeehDailyTotalEntity`
+
+## Navigation (as built — 009-home-dashboard)
+
+- **4-tab bottom bar**: Home, Prayers, Quran, Athkar
+- **Push destinations** (no bottom bar): `HabitsRoute`, `TasbeehRoute`, `SettingsRoute`
+- **`BottomNavItem`** entries: HOME, PRAYER, QURAN, ATHKAR (TASBEEH removed in 009)
+- `isTopLevel` check: `backStack.lastOrNull()?.let { it::class in topLevelRoutes } ?: false`
+- `goHome()`: `backStack.clear(); backStack.add(HomeRoute)`
+- `AppBackHandler` added to `shared/navigation/src/commonMain/` (expect), `androidMain/` (BackHandler actual), `iosMain/` (no-op actual)
+- Named args forbidden when calling Kotlin function types — use positional args in `entryProvider` lambda calls
 
 ## Notification Infrastructure (008-athkar-tasbeeh)
 
@@ -116,8 +134,11 @@ sourceSets {
 
 - **007-quran-tracking** (commit `761c827`): Full Quran tracking feature — daily log, goal, bookmark with `alquran.cloud` API for accurate Surah+Ayah, reading streak, recent logs, 7-day date strip, read-only past-day navigation. Adds `MudawamaBottomSheet` and updated `MudawamaSurfaceCard` to shared designsystem. Adds `goalCount` TextField to `HabitBottomSheet` for `NUMERIC` habit type. Room DB bumped to v3.
 
-- **008-athkar-tasbeeh** ✅ **Complete**: Daily Athkar tracking (Morning/Evening/Post-Prayer), Tasbeeh counter with daily totals and goal, configurable daily notification reminders. Room DB bumped to v4 (3 new entities). 5-tab bottom bar. All UI edge-to-edge, dark theme safe. Notification infra: Android AlarmManager + BroadcastReceiver; iOS UNCalendarNotificationTrigger.
+- **008-athkar-tasbeeh** ✅ **Complete**: Daily Athkar tracking (Morning/Evening/Post-Prayer), Tasbeeh counter with daily totals and goal, configurable daily notification reminders. Room DB bumped to v4 (3 new entities). All UI edge-to-edge, dark theme safe. Notification infra: Android AlarmManager + BroadcastReceiver; iOS UNCalendarNotificationTrigger.
+
+- **009-home-dashboard** ✅ **Complete**: Home Dashboard aggregating all features into a single scrollable screen. New `feature:home:presentation` module. Summary cards: `NextPrayerCard` (full-width), `AthkarSummaryCard`, `QuranProgressCard`, `TasbeehSummaryCard` (2-column row), `HabitsSummarySection`. Navigation via 6 plain callbacks (no `shared:navigation` dep in home module). `AppBackHandler` expect/actual added to `shared:navigation`. Bottom bar reduced to 4 tabs (TASBEEH removed). `HabitsRoute` + `TasbeehRoute` added as push destinations. `SettingsRoute` + `SettingsScreen` placeholder added. No new DB entities.
 
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
+

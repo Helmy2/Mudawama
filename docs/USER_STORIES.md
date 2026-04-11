@@ -56,9 +56,9 @@
 - **US-4.3: Edit or Delete Habit**
     - _As a_ user, _I want_ to long-press a custom habit to edit its name or delete it entirely, _so that_ I can manage habits that are no longer relevant to my routine.
 
-## Epic 5: Dashboard & Insights
-- **US-5.1: The Home Dashboard Summary**
-    - _As a_ user, _I want_ my Home screen to show my "Next Prayer" prominently and a quick summary ring of my overall daily completion, _so that_ I get an instant snapshot of my spiritual day.
+## Epic 5: Dashboard & Insights ✅ Implemented (US-5.1)
+- **US-5.1: The Home Dashboard Summary** ✅
+    - _As a_ user, _I want_ my Home screen to show my "Next Prayer" prominently, Athkar done/pending status, Quran progress ring, Tasbeeh daily progress, and a summary of today's habits, _so that_ I get an instant snapshot of my spiritual day without switching tabs. Tapping any card navigates directly to the corresponding feature screen.
 - **US-5.2: 7-Day Consistency Heatmap**
     - _As a_ user, _I want_ to view a simple calendar row showing whether I completed all my core rituals over the last 7 days, _so that_ I feel motivated to keep my streak alive.
 

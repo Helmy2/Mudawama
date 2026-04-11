@@ -13,6 +13,7 @@ import io.github.helmy2.mudawama.core.time.di.timeModule
 import io.github.helmy2.mudawama.habits.data.di.habitsDataModule
 import io.github.helmy2.mudawama.habits.domain.di.habitsDomainModule
 import io.github.helmy2.mudawama.habits.presentation.di.habitsPresentationModule
+import io.github.helmy2.mudawama.home.presentation.di.homePresentationModule
 import io.github.helmy2.mudawama.prayer.data.di.PrayerDataModule
 import io.github.helmy2.mudawama.prayer.domain.di.PrayerDomainModule
 import io.github.helmy2.mudawama.prayer.presentation.di.prayerPresentationModule
@@ -48,6 +49,7 @@ fun initializeKoin(
             athkarDomainModule,
             athkarDataModule(),
             athkarPresentationModule(),
+            homePresentationModule(),
         )
     }
 }

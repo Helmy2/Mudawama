@@ -2,7 +2,7 @@
 
 **Platform:** Android & iOS (via Kotlin Multiplatform + Compose Multiplatform)  
 **Phase:** MVP (Minimum Viable Product)  
-**Status:** MVP Shipped (Prayer + Habits + Quran Tracking + Athkar & Tasbeeh)
+**Status:** MVP Shipped (Prayer + Habits + Quran Tracking + Athkar & Tasbeeh + Home Dashboard)
 
 ---
 
@@ -106,7 +106,13 @@ The application is built using a modern, scalable, and modular approach designed
 
 ## 5. User Experience (UX) Flow
 
-1. **Onboarding:** A 2-step setup to welcome the user and set their initial Quran and Tasbeeh goals.
+1. **Onboarding:** A 2-step setup to welcome the user and set their initial Quran and Tasbeeh goals.
+    
+2. **Home Dashboard:** The central hub showing the "Next Prayer" hero card, Athkar daily status (Morning/Evening done/pending), Quran reading progress ring, Tasbeeh daily progress card, and a scrollable summary of today's habits. Tapping any summary card navigates to the corresponding feature screen. A gear icon in the top bar navigates to the Settings placeholder.
+    
+3. **Bottom Navigation:** Quick access to Home, Prayers, Quran, and Athkar via a **4-tab** floating glassmorphism bar. Tasbeeh is accessible via the Tasbeeh card on the Home Dashboard (push destination, no bottom bar). The Habits full screen is accessible via "View All" on the Home Dashboard (push destination, no bottom bar).
+    
+4. **Interactions:** Heavy reliance on fast, one-thumb interactions such as inline list toggles and bottom sheets (e.g., Log Reading, Surah Picker) to keep the user in context.
     
 2. **Home Dashboard:** The central hub displaying the "Next Prayer", today's daily rituals progress, and a scrollable list of pending/completed custom habits.
     

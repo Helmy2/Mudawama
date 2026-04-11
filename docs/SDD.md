@@ -198,20 +198,16 @@ Routes are defined as `@Serializable data object` instances implementing `sealed
 
 #### 3.14.2 Screen & Route Inventory
 
-The following screens are defined in the reference UI (`docs/ui/`) and MUST each have a corresponding `@Serializable data object` route:
-
-| Route | Screen | Bottom-sheet children |
+| Route | Type | Description |
 |---|---|---|
-| `HomeRoute` | Daily Habits — `HabitsScreen` is rendered directly in the `HomeRoute` branch (no separate Home Dashboard) | `NewHabitSheet`, `ManageHabitSheet` |
-| `PrayerRoute` | Today's Prayers | — |
-| `QuranRoute` | Quran Reading Tracker | `LogReadingSheet`, `QuranGoalSheet`, `UpdatePositionSheet` |
-| `AthkarRoute` | Daily Athkar | `MorningAthkarSession`, `PostPrayerAthkar` |
-| `TasbeehRoute` | Tasbeeh Counter | `TasbeehGoalSheet` |
-| `InsightsRoute` | Insights / Progress | — |
-| `SettingsRoute` | Settings | — |
-| `OnboardingRoute` | Welcome / Onboarding | — |
-
-> **Navigation design note**: There is no `HabitsRoute`. The Home tab in the bottom bar maps to `HomeRoute`, and the `NavDisplay` branch for `HomeRoute` renders `HabitsScreen` (the Daily Habits feature screen) directly.
+| `HomeRoute` | Tab (bottom bar) | Home Dashboard — `HomeScreen` from `feature:home:presentation`; shows Next Prayer, Athkar status, Quran/Tasbeeh cards, Habits summary |
+| `PrayerRoute` | Tab (bottom bar) | Today's Prayers |
+| `QuranRoute` | Tab (bottom bar) | Quran Reading Tracker; bottom sheets: `LogReadingSheet`, `QuranGoalSheet`, `UpdatePositionSheet` |
+| `AthkarRoute` | Tab (bottom bar) | Daily Athkar; bottom sheets: `MorningAthkarSession`, `PostPrayerAthkar` |
+| `HabitsRoute` | Push destination | Full Daily Habits screen (`HabitsScreen`); no bottom bar. Navigated to from "View All" on the Home Dashboard. |
+| `TasbeehRoute` | Push destination | Tasbeeh Counter; `TasbeehGoalSheet`. No bottom bar. Navigated to from Tasbeeh card on Home Dashboard. |
+| `SettingsRoute` | Push destination | Settings placeholder; no bottom bar. Navigated to from the Home screen top-bar gear icon. |
+| `OnboardingRoute` | Initial | Welcome / Onboarding |
 
 Bottom sheets are NOT top-level routes; they are launched as `ModalBottomSheet` from within the screen composable that owns them.
 
@@ -220,16 +216,48 @@ Navigation 3 `rememberNavBackStack` owns a `SnapshotStateList<NavKey>`. Tab swit
 ```kotlin
 if (backStack.lastOrNull() != route) { backStack.clear(); backStack.add(route) }
 ```
+Push destinations (`HabitsRoute`, `TasbeehRoute`, `SettingsRoute`) use `backStack.add(route)` without clearing. The `goHome()` helper clears the stack and adds `HomeRoute`, used by `AppBackHandler` to return the user to Home from any push destination.
+
 No `NavController`, `NavOptions`, or `launchSingleTop` are used. The `SavedStateConfiguration` with a polymorphic `SerializersModule` enables Compose's saved-state mechanism to survive process death.
 
-#### 3.14.4 Floating Bottom Navigation Bar
-`MudawamaBottomBar` has **5 tabs**: Home, Prayers, Quran, Athkar, Tasbeeh. It derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack. Active tab renders as a custom rounded-square deep teal pill with white icon + SemiBold label; inactive tabs show icon + label at 55% opacity.
+#### 3.14.4 `AppBackHandler` (expect/actual)
+`AppBackHandler` is an `expect` composable declared in `commonMain`. Its `actual` implementations:
+- **`androidMain`**: wraps `androidx.activity.compose.BackHandler` — intercepts the system back gesture.
+- **`iosMain`**: no-op — iOS back is handled natively by swipe gesture.
 
-The **Home tab** maps to `HomeRoute`, which renders `HabitsScreen` (Daily Habits) directly — there is no intermediate home dashboard.
+`AppBackHandler` is placed inside every non-Home `entryProvider` branch. When triggered, it calls `goHome()` which clears the back-stack and adds `HomeRoute`.
+
+#### 3.14.5 Floating Bottom Navigation Bar
+`MudawamaBottomBar` has **4 tabs**: Home, Prayers, Quran, Athkar. It derives the active tab solely from `backStack.lastOrNull()`. There is no local `remember { mutableStateOf }` for tab selection — the UI indicator cannot desync from the real backstack.
+
+The bar is visible **only** on top-level routes (`HomeRoute`, `PrayerRoute`, `QuranRoute`, `AthkarRoute`). The `isTopLevel` check is:
+```kotlin
+val topLevelRoutes = BottomNavItem.entries.map { it.route::class }.toSet()
+val isTopLevel = backStack.lastOrNull()?.let { it::class in topLevelRoutes } ?: false
+```
+Push destinations (`HabitsRoute`, `TasbeehRoute`, `SettingsRoute`) do NOT show the bottom bar.
+
+Active tab renders as a custom rounded-square deep teal pill with white icon + SemiBold label; inactive tabs show icon + label at 55% opacity.
 
 The bar floats using a `Box` overlay in `MudawamaAppShell` (not `Scaffold.bottomBar`). This prevents an opaque scaffold background from appearing behind the glassmorphism effect. The bar itself consumes `WindowInsets.navigationBars` via `windowInsetsPadding`. Feature screens add `statusBarsPadding()` at their root and a `96.dp` bottom spacer to prevent their last content item from being hidden behind the floating bar.
 
-#### 3.14.5 DI
+#### 3.14.6 `feature:home:presentation` Navigation Pattern
+`HomeScreen` (in `feature:home:presentation`) has **no dependency on `shared:navigation`**. Navigation is done via six plain `() -> Unit` callbacks passed from `MudawamaAppShell`:
+
+```kotlin
+homeScreen: @Composable (
+    onNavigateToPrayer: () -> Unit,
+    onNavigateToAthkar: () -> Unit,
+    onNavigateToQuran: () -> Unit,
+    onNavigateToSettings: () -> Unit,
+    onNavigateToHabits: () -> Unit,
+    onNavigateToTasbeeh: () -> Unit,
+) -> Unit
+```
+
+`HomeUiEvent` uses a nested `sealed interface Navigate` with typed objects (`ToPrayer`, `ToAthkar`, `ToQuran`, `ToSettings`, `ToHabits`, `ToTasbeeh`) — no `Route` types appear in the home module.
+
+#### 3.14.7 DI
 No Koin module — `shared:navigation` is purely a UI shell with no injected services. DI is handled by the modules that own real feature ViewModels.
 
 ---

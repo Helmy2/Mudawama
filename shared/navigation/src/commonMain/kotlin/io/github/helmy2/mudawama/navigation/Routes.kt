@@ -3,7 +3,6 @@ package io.github.helmy2.mudawama.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Loop
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -14,7 +13,6 @@ import mudawama.shared.designsystem.nav_tab_athkar
 import mudawama.shared.designsystem.nav_tab_home
 import mudawama.shared.designsystem.nav_tab_prayers
 import mudawama.shared.designsystem.nav_tab_quran
-import mudawama.shared.designsystem.nav_tab_tasbeeh
 import org.jetbrains.compose.resources.StringResource
 
 /**
@@ -24,11 +22,13 @@ import org.jetbrains.compose.resources.StringResource
 @Serializable
 sealed interface Route : NavKey
 
-@Serializable data object HomeRoute    : Route
-@Serializable data object PrayerRoute  : Route
-@Serializable data object QuranRoute   : Route
-@Serializable data object AthkarRoute  : Route
-@Serializable data object TasbeehRoute : Route
+@Serializable data object HomeRoute     : Route
+@Serializable data object PrayerRoute   : Route
+@Serializable data object QuranRoute    : Route
+@Serializable data object AthkarRoute   : Route
+@Serializable data object TasbeehRoute  : Route
+@Serializable data object SettingsRoute : Route
+@Serializable data object HabitsRoute   : Route
 
 /**
  * Enum binding each bottom-nav [Route] to its icon and string resource label.
@@ -39,10 +39,9 @@ enum class BottomNavItem(
     val icon: ImageVector,
     val labelRes: StringResource,
 ) {
-    HOME(HomeRoute,     Icons.Default.Home,            Res.string.nav_tab_home),
-    PRAYER(PrayerRoute, Icons.Default.Star,            Res.string.nav_tab_prayers),
-    QURAN(QuranRoute, Icons.AutoMirrored.Filled.MenuBook,        Res.string.nav_tab_quran),
-    ATHKAR(AthkarRoute, Icons.Default.SelfImprovement, Res.string.nav_tab_athkar),
-    TASBEEH(TasbeehRoute, Icons.Default.Loop,          Res.string.nav_tab_tasbeeh),
+    HOME(HomeRoute,     Icons.Default.Home,                       Res.string.nav_tab_home),
+    PRAYER(PrayerRoute, Icons.Default.Star,                       Res.string.nav_tab_prayers),
+    QURAN(QuranRoute,   Icons.AutoMirrored.Filled.MenuBook,       Res.string.nav_tab_quran),
+    ATHKAR(AthkarRoute, Icons.Default.SelfImprovement,            Res.string.nav_tab_athkar),
 }
 

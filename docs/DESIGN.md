@@ -9,7 +9,7 @@ All implementation MUST be faithful to the reference screens stored in `docs/ui/
 | File | Screen / Component |
 |---|---|
 | `welcome_to_mudawama.png` | Onboarding welcome — arch illustration, tagline, "Start My Journey" CTA |
-| `home_dashboard.png` | Home — date strip, Next Prayer hero card, Daily Rituals grid, pending habits list |
+| `home_dashboard.png` | Home Dashboard — Next Prayer hero card, Athkar status card, Quran/Tasbeeh progress cards, Habits summary section |
 | `daily_habits.png` | Daily Habits — Core Rituals section + Personal Habits section, Add New Habit button |
 | `daily_prayer_tracker.png` | Today's Prayers — daily completion hero card, 5-prayer list with time + check toggle |
 | `quran_daily_reading_tracker.png` | Quran Reading — progress ring, Goal card, Resume Reading card, Recent Logs list |
@@ -172,6 +172,8 @@ All bottom sheets use the shared `MudawamaBottomSheet` wrapper from `shared/desi
 
 ### Bottom Navigation Bar
 4 tabs: **Home**, **Prayers**, **Quran**, **Athkar**. Active tab: rounded square deep teal container with white icon + label. Inactive: icon + label in `on-surface-variant`. Floating glassmorphism style (80% opacity, 20dp blur, 28dp corner radius, 16dp horizontal margin).
+
+The bar is **visible only on top-level routes** (Home, Prayer, Quran, Athkar). Push destinations (Habits full screen, Tasbeeh, Settings) hide the bottom bar. Tasbeeh is accessed via the Tasbeeh summary card on the Home Dashboard; the full Habits screen is accessed via "View All" on the Home Dashboard.
 
 ### Input Fields
 - **Style:** Minimalist. `surface-container-low` background, `full` roundedness, no visible border box. Placeholder text in `on-surface-variant`. Used in New Habit name field and Search Surah field.

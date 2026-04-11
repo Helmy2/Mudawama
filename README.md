@@ -1,24 +1,27 @@
-# 🌙 Mudawama (مُداوَمَة)
+# Mudawama (مُداوَمَة)
 
 **Mudawama** is a serene, offline-first, open-source Muslim habit tracker designed to help users build and maintain consistency in their daily spiritual obligations (Wird).
 
 Built entirely with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (CMP)**, this project demonstrates modern, AI-driven mobile development using an enterprise-grade modular architecture.
 
-> 🏗 **Developers:** Please read the [Architecture & Module Structure Guide](docs/ARCHITECTURE.md) before exploring the codebase.
+> **Developers:** Please read the [Architecture & Module Structure Guide](docs/ARCHITECTURE.md) before exploring the codebase.
 
 ---
 
-## ✨ Features (MVP)
-* **Prayer Tracking:** Log your 5 daily obligatory prayers with local times fetched via API.
+## Features (MVP)
+
+* **Home Dashboard:** A single scrollable screen aggregating all features — Next Prayer hero card, Athkar daily status (Morning/Evening), Quran progress ring, Tasbeeh daily progress, and a Habits summary. Tap any card to navigate directly to that feature.
+* **Prayer Tracking:** Log your 5 daily obligatory prayers with local times fetched via the Aladhan API.
 * **Quran Tracking:** Set daily reading goals, log pages read, auto-advance your bookmark (Surah & Ayah) via the alquran.cloud API, view your reading streak, and browse recent daily logs with a 7-day date strip.
-* **Athkar & Tasbeeh:** Tap-to-count checklists for Morning, Evening, and Post-Prayer remembrances (5 independent prayer slots), with daily completion persistence. Plus a digital Tasbeeh counter with haptic feedback, configurable goal, session/daily total tracking, and dark mode support.
-* **Custom Habits:** Add personal spiritual goals (e.g., "Fasting Mondays", "Daily Sadaqah").
+* **Athkar & Tasbeeh:** Tap-to-count checklists for Morning, Evening, and Post-Prayer remembrances (5 independent prayer slots), with daily completion persistence. Plus a digital Tasbeeh counter with haptic feedback, configurable goal, session/daily total tracking, and configurable daily reminder notifications.
+* **Custom Habits:** Add personal spiritual goals (e.g., "Fasting Mondays", "Daily Sadaqah") with Boolean or Numeric (goal count) types.
 * **Offline-First:** All your data stays on your device via Room SQLite. No account required. No ads. No tracking.
 
 ---
 
-## 🎨 UI & Design System
-The entire application UI was designed using **Google Stitch** following a strict 8pt grid with a calm, premium aesthetic.
+## UI & Design System
+
+The entire application UI was designed using **Google Stitch** following a strict 8pt grid with a calm, premium aesthetic ("The Digital Sanctuary").
 
 You can view the complete set of high-fidelity UI mockups in the [`docs/ui`](docs/ui/) directory:
 * [Home Dashboard](docs/ui/home_dashboard.png)
@@ -29,47 +32,91 @@ You can view the complete set of high-fidelity UI mockups in the [`docs/ui`](doc
 
 ---
 
-## 📚 Project Documentation
+## Project Documentation
+
 This repository is thoroughly documented to simulate a complete product lifecycle. All foundational documents can be found in the [`docs/`](docs/) folder:
 
-* 🗺️ **[Architecture Blueprint](docs/ARCHITECTURE.md):** Explanation of the Multi-Module "Dual-Umbrella" strategy.
-* 📝 **[System Design Document (SDD)](docs/SDD.md):** Deep dive into data models, MVI flow, and error handling.
-* 📋 **[Product Requirements Document (PRD)](docs/PRD.md):** Scope, goals, and feature definitions.
-* ⚙️ **[Software Requirements Spec (SRS)](docs/SRS.md):** Technical and non-functional requirements.
-* 👥 **[User Stories](docs/USER_STORIES.md):** Agile use cases for the MVP.
-* 🖌️ **[Design Guidelines](docs/DESIGN.md):** Global design system rules and theming constraints.
+* **[Architecture Blueprint](docs/ARCHITECTURE.md):** Multi-Module "Dual-Umbrella" strategy, module dependency rules, navigation shell.
+* **[System Design Document (SDD)](docs/SDD.md):** Data models, MVI flow, navigation shell, error handling.
+* **[Product Requirements Document (PRD)](docs/PRD.md):** Scope, goals, and feature definitions.
+* **[Software Requirements Spec (SRS)](docs/SRS.md):** Functional and non-functional requirements.
+* **[User Stories](docs/USER_STORIES.md):** Agile use cases for the MVP.
+* **[Design Guidelines](docs/DESIGN.md):** Global design system rules and theming constraints.
+
+Feature specifications live in [`specs/`](specs/):
+* [`specs/007-quran-tracking/`](specs/007-quran-tracking/) — Quran reading tracker
+* [`specs/008-athkar-tasbeeh/`](specs/008-athkar-tasbeeh/) — Athkar & Tasbeeh counter
+* [`specs/009-home-dashboard/`](specs/009-home-dashboard/) — Home Dashboard aggregator
 
 ---
 
-## 🛠 Tech Stack
-Mudawama leverages the latest in cross-platform mobile technology:
-* **Language:** Kotlin 2.3.20+ (strong K2 compiler enforcement)
-* **UI:** Jetpack Compose Multiplatform 1.10.3+ (Android & iOS)
-* **Architecture:** Clean Architecture + Custom MVI (Orbit-style)
-* **Local Database:** Room for KMP (SQLite)
-* **Networking:** Ktor 3.4.1+ (with Content Negotiation & Logging)
-* **Dependency Injection:** Koin 4.2.0 (with BOM & Platform Extensions)
-* **Tooling:** Optimized Gradle Convention Plugins (Configuration Cache ready) & GitHub Spec Kit
+## Tech Stack
+
+* **Language:** Kotlin 2.3.20 (KMP — Android minSdk 30 + iOS 15+)
+* **UI:** Compose Multiplatform 1.10.3 (Android & iOS)
+* **Architecture:** Clean Architecture + Custom MVI (Orbit-style) + strict module boundaries
+* **Local Database:** Room 2.8.4 for KMP (SQLite, schema v4)
+* **Networking:** Ktor 3.4.1 (Aladhan API for prayer times, alquran.cloud for bookmark resolution)
+* **Dependency Injection:** Koin 4.2.0 (BOM + Platform Extensions)
+* **Async / Date:** kotlinx-coroutines 1.10.2, kotlinx-datetime 0.7.1
+* **Notifications:** Android AlarmManager + BroadcastReceiver; iOS UNCalendarNotificationTrigger
+* **Tooling:** Gradle Convention Plugins (Configuration Cache ready) + GitHub Spec Kit
 
 ---
 
-## 🏗 Project Structure
-The project follows a modular "Packaging by Feature" strategy to ensure scalability and isolation.
+## Project Structure
+
+The project follows a modular "Packaging by Feature" strategy.
 
 ```mermaid
 graph TD
     App[androidApp / iosApp] --> Umbrella[shared:umbrella-ui]
-    Umbrella --> Feature[feature:habits / feature:prayer / feature:quran / feature:athkar]
-    Umbrella --> CoreDB[shared:core:database]
-    Feature --> Core[shared:core:presentation / data / domain]
-    Feature --> CoreDB
-    Feature --> Design[shared:designsystem]
-    CoreDB --> CoreDomain[shared:core:domain]
+    Umbrella --> HomeP[feature:home:presentation]
+    Umbrella --> HabitsP[feature:habits:presentation]
+    Umbrella --> PrayerP[feature:prayer:presentation]
+    Umbrella --> QuranP[feature:quran:presentation]
+    Umbrella --> AthkarP[feature:athkar:presentation]
+    Umbrella --> Nav[shared:navigation]
+    Umbrella --> Design[shared:designsystem]
+
+    HomeP --> HabitsDomain[feature:habits:domain]
+    HomeP --> PrayerDomain[feature:prayer:domain]
+    HomeP --> AthkarDomain[feature:athkar:domain]
+    HomeP --> QuranDomain[feature:quran:domain]
+
+    HabitsP --> HabitsDomain
+    PrayerP --> PrayerDomain
+    QuranP --> QuranDomain
+    AthkarP --> AthkarDomain
+
+    HabitsDomain --> CoreDomain[shared:core:domain]
+    PrayerDomain --> CoreDomain
+    QuranDomain --> CoreDomain
+    AthkarDomain --> CoreDomain
+
+    HabitsP --> HabitsData[feature:habits:data]
+    PrayerP --> PrayerData[feature:prayer:data]
+    QuranP --> QuranData[feature:quran:data]
+    AthkarP --> AthkarData[feature:athkar:data]
+
+    HabitsData --> HabitsDomain
+    PrayerData --> PrayerDomain
+    QuranData --> QuranDomain
+    AthkarData --> AthkarDomain
+
+    HabitsData --> CoreDB[shared:core:database]
+    QuranData --> CoreDB
+    AthkarData --> CoreDB
+    CoreDB --> CoreDomain
+
+    Nav --> Design
 ```
+
+**Bottom navigation:** 4 tabs — Home, Prayers, Quran, Athkar. Tasbeeh, Habits, and Settings are push destinations (no bottom bar) accessible from the Home Dashboard.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 * Android Studio (Latest Stable or Preview)
@@ -83,11 +130,12 @@ graph TD
    ```
 2. Open the project in Android Studio.
 3. Sync the Gradle files.
-4. **To run Android:** Select the `androidApp` run configuration and click Play.
-5. **To run iOS:** Select the `iosApp` run configuration (ensure you have an iOS simulator selected) and click Play.
+4. **Android:** Select the `androidApp` run configuration and click Play.
+5. **iOS:** Select the `iosApp` run configuration (ensure you have an iOS simulator selected) and click Play.
    *(Alternatively, open `iosApp/iosApp.xcodeproj` in Xcode and hit Run).*
 
 ---
 
-## 🤝 Contributing
+## Contributing
+
 Contributions are welcome! If you spot a bug or want to add a feature from the Phase 2 roadmap, please open an Issue first to discuss it before submitting a Pull Request.

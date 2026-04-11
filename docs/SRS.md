@@ -57,9 +57,12 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 - **FR-4.3:** The system shall display custom habits alongside core rituals on the Home/Habits screen.
 - **FR-4.4:** The system shall allow users to Edit and Delete custom habits via a bottom sheet interface. Core rituals (Prayers, Quran) cannot be deleted.
 
-### FR-5: Daily Logs and Insights
+### FR-5: Daily Logs, Insights & Home Dashboard
 - **FR-5.1:** The system shall generate a new daily log for all active habits automatically at the start of a new day (Islamic or standard midnight, configurable).
 - **FR-5.2:** The system shall display a basic visual heatmap showing the user's consistency (streak) over the last 7 days.
+- **FR-5.3:** The Home Dashboard screen (`feature:home:presentation`) shall aggregate and display read-only summary cards from all core features: (a) a "Next Prayer" card showing the next upcoming prayer name and time, (b) an Athkar status card showing Morning/Evening done/pending state, (c) a Quran progress ring card showing pages read vs. goal, (d) a Tasbeeh daily progress card showing daily total vs. goal, and (e) a Habits summary section. Tapping any summary card shall navigate the user to the corresponding feature screen. No data entry is permitted from the Home Dashboard — it is read-only.
+- **FR-5.4:** The bottom navigation bar shall have **4 tabs**: Home, Prayers, Quran, Athkar. Tasbeeh is accessible as a push destination from the Tasbeeh summary card on the Home Dashboard. The full Habits screen is accessible as a push destination from the Home Dashboard. Push destinations do not show the bottom navigation bar.
+- **FR-5.5:** Back navigation from any push destination (Habits, Tasbeeh, Settings) shall return the user to the Home Dashboard via `AppBackHandler` (Android: system back gesture; iOS: no-op — swipe handled natively).
 
 ---
 
