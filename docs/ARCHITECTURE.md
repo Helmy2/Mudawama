@@ -28,6 +28,12 @@ mudawama/
 │   └── umbrella-ui/            # iOS Export: Compose UI & NavGraph (.framework)
 │
 └── feature/                    # ALL product features live here
+    ├── home/
+    │   └── presentation/       # HomeScreen, HomeViewModel, summary cards (NextPrayerCard,
+    │                           # AthkarSummaryCard, QuranProgressCard, TasbeehSummaryCard,
+    │                           # HabitsSummarySection), MVI model files, Koin DI module
+    │                           # Aggregates domain-only deps from prayer, athkar, quran, habits
+    │
     ├── habits/
     │   ├── domain/             # Models, UseCases, Repository Interfaces
     │   ├── data/               # DAOs via shared:core:database, API Calls
@@ -90,25 +96,27 @@ The single source of truth for all date and time operations across the app. **Fe
 ### 5. The `shared:navigation`
 The structural skeleton of the app. Provides a single `MudawamaAppShell` composable — the only entry point platform shells (`androidApp`, `iosApp`) need to call. It delivers:
 * **Type-safe routing** using JetBrains Navigation 3 (`navigation3-ui:1.0.0-alpha06`). Routes are `@Serializable data object` instances implementing a `sealed interface Route : NavKey`, making `when(route)` exhaustive at compile time.
-* **`MudawamaBottomBar`** — a floating glassmorphism navigation bar with **5 tabs: Home, Prayers, Quran, Athkar, Tasbeeh** (80% opacity, 20dp blur, 28dp corner radius, 16dp horizontal float margin). Active tab is a rounded-square deep teal container with white icon + label; inactive tabs use `on-surface-variant`. Active tab is derived exclusively from `backStack.lastOrNull()` — no separate remembered state variable.
+* **`MudawamaBottomBar`** — a floating glassmorphism navigation bar with **4 tabs: Home, Prayers, Quran, Athkar** (80% opacity, 20dp blur, 28dp corner radius, 16dp horizontal float margin). Active tab is a rounded-square deep teal container with white icon + label; inactive tabs use `on-surface-variant`. Active tab is derived exclusively from `backStack.lastOrNull()` — no separate remembered state variable. The bottom bar is visible only on top-level routes (`HomeRoute`, `PrayerRoute`, `QuranRoute`, `AthkarRoute`); it is hidden on push destinations (`HabitsRoute`, `TasbeehRoute`, `SettingsRoute`).
 * **`NavDisplay` + `entryProvider`** (Navigation 3) replacing the old `NavHost` / `NavController` pattern entirely.
 * **Box overlay layout** — `MudawamaAppShell` uses a plain `Box` (not `Scaffold`) so the bottom bar floats over content. This prevents an opaque scaffold background from showing behind the glassmorphism bar. Feature screens add their own `statusBarsPadding()` and `96.dp` bottom spacer to account for the floating bar.
+* **Back → Home pattern** — `AppBackHandler` (an `expect/actual` composable) is placed inside every non-Home `entryProvider` branch. On Android it wraps `androidx.activity.compose.BackHandler`; on iOS it is a no-op. When triggered, it calls `goHome()` which clears the back-stack and adds `HomeRoute`, ensuring any push destination (Settings, Habits, Tasbeeh) returns the user to the Home Dashboard.
+* **`AppBackHandler` expect/actual** — declared in `shared/navigation/src/commonMain/` with platform implementations in `androidMain/` (wraps `BackHandler`) and `iosMain/` (no-op).
 * **Full screen inventory** — all routes listed below correspond to reference UI screens in `docs/ui/`:
 
-| Route | Screen | `docs/ui/` reference |
+| Route | Type | `docs/ui/` reference |
 |---|---|---|
-| `OnboardingRoute` | Welcome / Onboarding | `welcome_to_mudawama.png` |
-| `HomeRoute` | Daily Habits (Home tab renders `HabitsScreen` directly) | `daily_habits.png` |
-| `PrayerRoute` | Today's Prayers | `daily_prayer_tracker.png` |
-| `QuranRoute` | Quran Reading Tracker | `quran_daily_reading_tracker.png` |
-| `AthkarRoute` | Daily Athkar | `daily_athkar_tracker.png` |
-| `TasbeehRoute` | Tasbeeh Counter | `tasbeeh_counter.png` |
-| `InsightsRoute` | Insights / Progress | `insights_progress.png` |
-| `SettingsRoute` | Settings | `settings.png` |
+| `OnboardingRoute` | Tab / initial | `welcome_to_mudawama.png` |
+| `HomeRoute` | Tab (bottom bar) | `home_dashboard.png` |
+| `PrayerRoute` | Tab (bottom bar) | `daily_prayer_tracker.png` |
+| `QuranRoute` | Tab (bottom bar) | `quran_daily_reading_tracker.png` |
+| `AthkarRoute` | Tab (bottom bar) | `daily_athkar_tracker.png` |
+| `HabitsRoute` | Push destination (no bar) | `daily_habits.png` |
+| `TasbeehRoute` | Push destination (no bar) | `tasbeeh_counter.png` |
+| `SettingsRoute` | Push destination (no bar) | `settings.png` |
 
-> **Note**: There is no separate `HabitsRoute`. `HomeRoute` is the Home tab and its `NavDisplay` branch renders `HabitsScreen` directly — the bottom nav "Home" tab IS the Daily Habits screen. The former `HomePlaceholderScreen` and `HabitsPlaceholderScreen` have been removed from `Placeholders.kt`.
+> **Navigation design**: `HomeRoute` renders `HomeScreen` (the Home Dashboard from `feature:home:presentation`). `HabitsRoute` and `TasbeehRoute` are push destinations navigated to from cards on the Home Dashboard — they are not bottom-bar tabs. `feature:home:presentation` has **no dependency on `shared:navigation`**; navigation is done via plain `() -> Unit` callbacks passed from `MudawamaAppShell`. `HomeUiEvent` uses a nested `sealed interface Navigate` with typed objects (`ToPrayer`, `ToAthkar`, `ToQuran`, `ToSettings`, `ToHabits`, `ToTasbeeh`).
 
-* 100% `commonMain` code — no `androidMain` or `iosMain` source sets.
+* Uses `commonMain`, `androidMain`, and `iosMain` source sets (for `AppBackHandler` expect/actual).
 * Depends on `shared:designsystem` via `api(…)` so consumers inherit `MudawamaTheme` tokens transitively.
 
 ### 6. The `shared:designsystem`
@@ -188,8 +196,9 @@ To prevent breaking the architecture, follow these strict dependency rules when 
 1. `domain` modules may **only** depend on `shared:core:domain`.
 2. `data` modules must depend on their own `:domain`, `shared:core:data`, `shared:core:database`, and `shared:core:time` (for logical date stamping).
 3. `presentation` modules must depend on their own `:domain`, `shared:core:presentation`, and `shared:designsystem`.
-4. Feature modules may **never** depend on other feature modules. (If features must communicate, they do so via deep-linking in the `shared:navigation` routing graph or via shared IDs).
+4. Feature modules may **never** depend on other feature modules' `:presentation` layers. `feature:home:presentation` is the sole **aggregator exception** — it explicitly depends on the `:domain`-only modules of `habits`, `prayer`, `athkar`, and `quran`. Depending on pure-Kotlin `:domain` modules is not a violation.
 5. `shared:navigation` may only depend on `shared:designsystem` (via `api`) — it must never depend on feature modules or core infrastructure directly.
+6. `feature:home:presentation` has **no dependency on `shared:navigation`** — navigation is performed via plain `() -> Unit` callbacks passed in from `MudawamaAppShell`, keeping the module decoupled from the routing graph.
 
 ---
 

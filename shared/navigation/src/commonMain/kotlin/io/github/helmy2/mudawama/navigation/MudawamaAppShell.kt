@@ -24,18 +24,33 @@ import kotlinx.serialization.modules.subclass
 /**
  * Root application shell — single public entry point for platform hosts (FR-001).
  *
- * HomeRoute is wired directly to [habitsScreen]. There is no separate HabitsRoute.
  * FR-002: MudawamaTheme wraps all content; darkTheme derived from isSystemInDarkTheme() — never hardcoded.
  * FR-009/FR-010: Bottom bar floats over content using Box overlay (no Scaffold bottomBar slot,
  * which would add an opaque background behind the bar).
+ *
+ * @param homeScreen Composable for [HomeRoute]. Receives individual navigation callbacks so that
+ *   the Home feature module has no dependency on navigation3 or Route types.
+ * @param habitsScreen Composable for [HabitsRoute]. Receives an [onBack] lambda wired to
+ *   [backStack.removeLastOrNull()].
+ * @param settingsScreen Composable for [SettingsRoute]. Receives an [onBack] lambda wired to
+ *   [backStack.removeLastOrNull()].
  */
 @Composable
 fun MudawamaAppShell(
-    habitsScreen: @Composable () -> Unit = {},
+    homeScreen: @Composable (
+        onNavigateToPrayer: () -> Unit,
+        onNavigateToAthkar: () -> Unit,
+        onNavigateToQuran: () -> Unit,
+        onNavigateToSettings: () -> Unit,
+        onNavigateToHabits: () -> Unit,
+        onNavigateToTasbeeh: () -> Unit,
+    ) -> Unit = { _, _, _, _, _, _ -> },
     prayerScreen: @Composable () -> Unit = {},
     quranScreen: @Composable () -> Unit = {},
     athkarScreen: @Composable () -> Unit = {},
     tasbeehScreen: @Composable () -> Unit = {},
+    habitsScreen: @Composable (onBack: () -> Unit) -> Unit = { _ -> },
+    settingsScreen: @Composable (onBack: () -> Unit) -> Unit = { _ -> },
 ) {
     MudawamaTheme(darkTheme = isSystemInDarkTheme()) {
         val backStack = rememberNavBackStack(
@@ -47,11 +62,30 @@ fun MudawamaAppShell(
                         subclass(QuranRoute::class)
                         subclass(AthkarRoute::class)
                         subclass(TasbeehRoute::class)
+                        subclass(SettingsRoute::class)
+                        subclass(HabitsRoute::class)
                     }
                 }
             },
             HomeRoute
         )
+
+        fun goHome() {
+            backStack.clear()
+            backStack.add(HomeRoute)
+        }
+
+        fun switchTab(route: Route) {
+            if (backStack.lastOrNull()?.let { it::class } != route::class) {
+                backStack.clear()
+                backStack.add(route)
+            }
+        }
+
+        // Top-level routes are those that appear in the bottom nav bar.
+        val topLevelRoutes = BottomNavItem.entries.map { it.route::class }.toSet()
+        val currentRoute = backStack.lastOrNull()
+        val isTopLevel = currentRoute?.let { it::class in topLevelRoutes } ?: true
 
         Box(modifier = Modifier.fillMaxSize()) {
             // ── Content fills the entire screen (bar floats on top) ───────────
@@ -71,26 +105,57 @@ fun MudawamaAppShell(
                     )
                 },
                 entryProvider = entryProvider {
-                    entry<HomeRoute> { habitsScreen() }
-                    entry<PrayerRoute> { prayerScreen() }
-                    entry<QuranRoute> { quranScreen() }
-                    entry<AthkarRoute> { athkarScreen() }
-                    entry<TasbeehRoute> { tasbeehScreen() }
+                    entry<HomeRoute> {
+                        homeScreen(
+                            { switchTab(PrayerRoute) },
+                            { switchTab(AthkarRoute) },
+                            { switchTab(QuranRoute) },
+                            { backStack.add(SettingsRoute) },
+                            { backStack.add(HabitsRoute) },
+                            { backStack.add(TasbeehRoute) },
+                        )
+                    }
+                    entry<PrayerRoute> {
+                        AppBackHandler { goHome() }
+                        prayerScreen()
+                    }
+                    entry<QuranRoute> {
+                        AppBackHandler { goHome() }
+                        quranScreen()
+                    }
+                    entry<AthkarRoute> {
+                        AppBackHandler { goHome() }
+                        athkarScreen()
+                    }
+                    entry<TasbeehRoute> {
+                        AppBackHandler { goHome() }
+                        tasbeehScreen()
+                    }
+                    entry<HabitsRoute> {
+                        AppBackHandler { goHome() }
+                        habitsScreen { goHome() }
+                    }
+                    entry<SettingsRoute> {
+                        AppBackHandler { goHome() }
+                        settingsScreen { goHome() }
+                    }
                 }
             )
 
-            // ── Floating bar overlaid at the bottom ───────────────────────────
-            MudawamaBottomBar(
-                currentRoute = backStack.lastOrNull(),
-                onNavigate = { route ->
-                    // SC-007: single-top guard — tapping the active tab is a no-op
-                    if (backStack.lastOrNull() != route) {
-                        backStack.clear()
-                        backStack.add(route)
-                    }
-                },
-                modifier = Modifier.align(Alignment.BottomCenter),
-            )
+            // ── Floating bar overlaid at the bottom (top-level routes only) ──
+            if (isTopLevel) {
+                MudawamaBottomBar(
+                    currentRoute = currentRoute,
+                    onNavigate = { route ->
+                        // SC-007: single-top guard — tapping the active tab is a no-op
+                        if (backStack.lastOrNull() != route) {
+                            backStack.clear()
+                            backStack.add(route)
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                )
+            }
         }
     }
 }

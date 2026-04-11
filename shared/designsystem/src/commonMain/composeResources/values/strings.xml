@@ -266,4 +266,22 @@
     <string name="notification_open_settings_button">Open Settings</string>
     <string name="notification_time_format">%1$02d:%2$02d</string>
 
+    <!-- ── Home Dashboard ─────────────────────────────────────────────────── -->
+    <string name="home_next_prayer_label">NEXT PRAYER</string>
+    <string name="home_next_prayer_unavailable">Prayer times unavailable</string>
+    <string name="home_all_prayers_done">All prayers done today!</string>
+    <string name="home_athkar_morning_label">Morning</string>
+    <string name="home_athkar_evening_label">Evening</string>
+    <string name="home_athkar_not_started">Tap to get started</string>
+    <string name="home_athkar_done">Done</string>
+    <string name="home_athkar_pending">Pending</string>
+    <string name="home_quran_pages_progress">%1$d / %2$d pages</string>
+    <string name="home_quran_label">QURAN</string>
+    <string name="home_daily_rituals_label">DAILY RITUALS</string>
+    <string name="home_settings_icon_description">Settings</string>
+    <string name="settings_placeholder_title">Settings</string>
+    <string name="settings_placeholder_coming_soon">Coming soon</string>
+    <string name="home_tasbeeh_label">TASBEEH</string>
+    <string name="home_tasbeeh_count_progress">%1$d / %2$d</string>
+
 </resources>

@@ -37,6 +37,8 @@ kotlin {
                 implementation(projects.feature.athkar.data)
                 implementation(projects.feature.athkar.presentation)
 
+                implementation(projects.feature.home.presentation)
+
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.bundles.compose)
                 implementation(libs.bundles.lifecycle)
