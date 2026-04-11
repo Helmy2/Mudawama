@@ -40,7 +40,7 @@ The repository uses a **"Packaging by Feature"** strategy to ensure horizontal s
 
 ## 3. Data Design (Room KMP, Ktor, & DataStore)
 
-The application operates entirely offline using **Room for KMP** (`androidx.room` 2.7+). The schema normalises the definition of a habit (the rule) from its daily completion log (the action), stores the user's Quran reading position as a singleton bookmark, records per-day reading logs, and stores the user's reading goal as a singleton row.
+The application operates entirely offline using **Room for KMP** (`androidx.room` 2.7+). The schema normalises the definition of a habit (the rule) from its daily completion log (the action), stores the user's Quran reading position as a singleton bookmark, records per-day reading logs, stores the user's reading goal as a singleton row, and tracks Athkar daily completion and Tasbeeh session totals.
 
 ### 3.1 Entity: `HabitEntity` — `habits` table
 | Column | Type | Notes |
@@ -96,9 +96,38 @@ Singleton row (`id = 1` always).
 | `pagesPerDay` | `Int` | User's daily reading goal |
 | `updatedAt` | `Long` | Unix timestamp millis |
 
-### 3.6 Database: `MudawamaDatabase`
+### 3.6 Entity: `AthkarDailyLogEntity` — `athkar_daily_logs` table
+Composite primary key on `(group_type, date)` — one row per group per calendar day.
+
+| Column | Type | Notes |
+|---|---|---|
+| `group_type` | `TEXT` | PRIMARY KEY (part 1) — serialized `AthkarGroupType` name |
+| `date` | `TEXT` | PRIMARY KEY (part 2) — ISO date `"yyyy-MM-dd"` |
+| `counters_json` | `TEXT` | JSON-serialized `Map<String, Int>` (itemId → count). `AthkarCountersConverter` (kotlinx-serialization-json) converts this column. |
+| `is_complete` | `INTEGER` | Boolean (0/1): true when all items reach their target |
+
+### 3.7 Entity: `TasbeehGoalEntity` — `tasbeeh_goals` table
+Singleton row (`id = 1` always).
+
+| Column | Type | Notes |
+|---|---|---|
+| `id` | `INTEGER` | Always 1 |
+| `goal_count` | `INTEGER` | User's Tasbeeh target (default 100, min 1) |
+
+### 3.8 Entity: `TasbeehDailyTotalEntity` — `tasbeeh_daily_totals` table
+One row per calendar day.
+
+| Column | Type | Notes |
+|---|---|---|
+| `date` | `TEXT` | PRIMARY KEY — ISO date `"yyyy-MM-dd"` |
+| `total_count` | `INTEGER` | Cumulative count of all flushed sessions for this day |
+
+### 3.9 Database: `MudawamaDatabase`
 - Single `RoomDatabase` class with `@ConstructedBy(MudawamaDatabaseConstructor::class)`
-- Current schema version: **3** (AutoMigration 2→3 removes `dailyGoalPages` + `pagesReadToday` from `quran_bookmarks`; adds `quran_daily_logs` and `quran_goals` tables)
+- Current schema version: **4**
+  - AutoMigration 2→3: removes `dailyGoalPages` + `pagesReadToday` from `quran_bookmarks`; adds `quran_daily_logs` and `quran_goals` tables
+  - AutoMigration 3→4: adds `athkar_daily_logs`, `tasbeeh_goals`, `tasbeeh_daily_totals` tables (pure additions — no spec class needed)
+- `AthkarCountersConverter` TypeConverter (`@TypeConverters`) using `kotlinx-serialization-json` for `Map<String, Int>` serialization
 - Room KSP auto-generates the `actual object MudawamaDatabaseConstructor` for each platform
 - Android builder uses `getDatabaseBuilder(Context)` with `getDatabasePath("mudawama.db")`
 - iOS builder uses `getDatabaseBuilder()` with `NSHomeDirectory() + "/mudawama.db"`
@@ -107,26 +136,32 @@ Singleton row (`id = 1` always).
 ### 3.7 Data Flow & Caching Strategy
 The Data Repository acts as the single source of truth. When a feature module's Use Case requests data, its repository queries the relevant DAO from `MudawamaDatabase`. If the data requires network enrichment (e.g. prayer times), the repository utilises the Ktor client to fetch from the remote API, persists the result locally, and returns it.
 
-### 3.8 DataStore Preferences (`shared/core/data/session`)
+### 3.10 DataStore Preferences (`shared/core/data/session`)
 - `theme_preference` (String) — LIGHT, DARK, SYSTEM
 - `language_preference` (String) — EN, AR
 - `calculation_method_id` (Int) — API-specific ID
 - `daily_reset_preference` (String) — MIDNIGHT, MAGHRIB
+- `athkar_morning_notif_enabled` (Boolean) — Morning Athkar reminder on/off (default `false`)
+- `athkar_morning_notif_hour` (Int) — Hour for morning reminder, 0–23 (default `6`)
+- `athkar_morning_notif_minute` (Int) — Minute for morning reminder, 0–59 (default `0`)
+- `athkar_evening_notif_enabled` (Boolean) — Evening Athkar reminder on/off (default `false`)
+- `athkar_evening_notif_hour` (Int) — Hour for evening reminder, 0–23 (default `18`)
+- `athkar_evening_notif_minute` (Int) — Minute for evening reminder, 0–59 (default `0`)
 
-### 3.9 Session & Cryptography (`shared/core/data/session`)
+### 3.11 Session & Cryptography (`shared/core/data/session`)
 - Authentication tokens and sensitive user session data are stored securely using platform-specific cryptography. 
 - **Android:** Leverages Google's Tink library (`TinkEncryptor`) coupled with Android Keystore (`AES256_GCM`) to encrypt data before persistence.
 - **iOS:** Uses a custom `IosEncryptor` to encrypt data securely across the Swift/Kotlin boundary.
 
-### 3.10 Network Connectivity Monitoring
+### 3.12 Network Connectivity Monitoring
 - The `ConnectivityObserver` domain interface provides a `Flow<ConnectivityStatus>` to monitor network availability.
 - **Android:** Uses `AndroidConnectivityObserver` powered by `ConnectivityManager.NetworkCallback`.
 - **iOS:** Uses `IosConnectivityObserver` powered by Darwin's `NWPathMonitor`.
 
-### 3.11 Time Provider & Logical Date (`shared/core/time`)
+### 3.13 Time Provider & Logical Date (`shared/core/time`)
 All date and time operations are centralized in this module. **No feature or data module may call `Clock.System.now()` directly** (SC-002 — enforced by a CI grep check). All time reads flow through the injected `TimeProvider`.
 
-#### 3.11.1 `TimeProvider` Interface
+#### 3.13.1 `TimeProvider` Interface
 ```kotlin
 interface TimeProvider {
     fun nowInstant(): Instant
@@ -136,7 +171,7 @@ interface TimeProvider {
 - `SystemTimeProvider` — the sole production `Clock.System` call site.
 - `FakeTimeProvider(fixedInstant)` — ships in `commonMain`; any test can freeze time deterministically without platform setup.
 
-#### 3.11.2 `RolloverPolicy`
+#### 3.13.2 `RolloverPolicy`
 Encodes when the *logical day* resets, satisfying FR-5.1 (configurable Islamic day boundary):
 
 | `offsetHour` | Behaviour |
@@ -147,21 +182,21 @@ Encodes when the *logical day* resets, satisfying FR-5.1 (configurable Islamic d
 
 The `computeLogicalDate(calendarDate, hour, policy)` internal function implements the branching algorithm. The default policy is `RolloverPolicy.Standard`; callers can supply `RolloverPolicy.fixed(18)` for an 18:00 Maghrib rollover.
 
-#### 3.11.3 `DateFormatters`
+#### 3.13.3 `DateFormatters`
 Top-level helpers used whenever an `Instant` or `LocalDate` is serialized to the database:
 - `Instant.toIsoDateString(timeZone): String` → `"yyyy-MM-dd"`
 - `LocalDate.toIsoString(): String` → `"yyyy-MM-dd"`
 
-#### 3.11.4 DI
+#### 3.13.4 DI
 `timeModule(rolloverPolicy: RolloverPolicy = RolloverPolicy.Standard): Module` — registered at the composition root in `umbrella-ui`'s `KoinInitializer`. It is 100% `commonMain`; no platform-specific source sets are needed.
 
-### 3.12 Navigation Shell (`shared/navigation`)
+### 3.14 Navigation Shell (`shared/navigation`)
 The single structural entry point for the entire application UI. Platform shells (`androidApp` → `MainActivity`, `iosApp` → `ContentView`) call exactly one composable: `MudawamaAppShell()`.
 
-#### 3.12.1 Routing Model
+#### 3.14.1 Routing Model
 Routes are defined as `@Serializable data object` instances implementing `sealed interface Route : NavKey` from JetBrains Navigation 3 (`navigation3-ui:1.0.0-alpha06`). The sealed hierarchy makes every `when(route)` in the rendering block exhaustive at compile time — adding a new route without handling it is a compiler error, not a runtime crash.
 
-#### 3.12.2 Screen & Route Inventory
+#### 3.14.2 Screen & Route Inventory
 
 The following screens are defined in the reference UI (`docs/ui/`) and MUST each have a corresponding `@Serializable data object` route:
 
@@ -176,25 +211,25 @@ The following screens are defined in the reference UI (`docs/ui/`) and MUST each
 | `SettingsRoute` | Settings | — |
 | `OnboardingRoute` | Welcome / Onboarding | — |
 
-> **Navigation design note**: There is no `HabitsRoute`. The Home tab in the bottom bar maps to `HomeRoute`, and the `NavDisplay` branch for `HomeRoute` renders `HabitsScreen` (the Daily Habits feature screen) directly. `QuranRoute` is now fully implemented — the former `QuranPlaceholderScreen` has been replaced by the full `QuranScreen`. Only `AthkarPlaceholderScreen` remains as scaffolding for a not-yet-implemented feature.
+> **Navigation design note**: There is no `HabitsRoute`. The Home tab in the bottom bar maps to `HomeRoute`, and the `NavDisplay` branch for `HomeRoute` renders `HabitsScreen` (the Daily Habits feature screen) directly.
 
 Bottom sheets are NOT top-level routes; they are launched as `ModalBottomSheet` from within the screen composable that owns them.
 
-#### 3.12.3 Backstack Management
+#### 3.14.3 Backstack Management
 Navigation 3 `rememberNavBackStack` owns a `SnapshotStateList<NavKey>`. Tab switching uses a single-top guard:
 ```kotlin
 if (backStack.lastOrNull() != route) { backStack.clear(); backStack.add(route) }
 ```
 No `NavController`, `NavOptions`, or `launchSingleTop` are used. The `SavedStateConfiguration` with a polymorphic `SerializersModule` enables Compose's saved-state mechanism to survive process death.
 
-#### 3.12.4 Floating Bottom Navigation Bar
-`MudawamaBottomBar` has **4 tabs**: Home, Prayers, Quran, Athkar. It derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack. Active tab renders as a custom rounded-square deep teal pill with white icon + SemiBold label; inactive tabs show icon + label at 55% opacity.
+#### 3.14.4 Floating Bottom Navigation Bar
+`MudawamaBottomBar` has **5 tabs**: Home, Prayers, Quran, Athkar, Tasbeeh. It derives the active tab solely from `backStack.lastOrNull()` (passed as `currentRoute: NavKey?`). There is no local `remember { mutableStateOf }` for tab selection — it is impossible for the UI indicator to desync from the real backstack. Active tab renders as a custom rounded-square deep teal pill with white icon + SemiBold label; inactive tabs show icon + label at 55% opacity.
 
-The **Home tab** maps to `HomeRoute`, which renders `HabitsScreen` (Daily Habits) directly — there is no intermediate home dashboard. This means tapping "Home" in the bottom bar shows the Daily Habits screen immediately.
+The **Home tab** maps to `HomeRoute`, which renders `HabitsScreen` (Daily Habits) directly — there is no intermediate home dashboard.
 
-The bar is "floating" via `padding(horizontal = 16.dp)` and inset-safe via `windowInsetsPadding(WindowInsets.navigationBars)`.
+The bar floats using a `Box` overlay in `MudawamaAppShell` (not `Scaffold.bottomBar`). This prevents an opaque scaffold background from appearing behind the glassmorphism effect. The bar itself consumes `WindowInsets.navigationBars` via `windowInsetsPadding`. Feature screens add `statusBarsPadding()` at their root and a `96.dp` bottom spacer to prevent their last content item from being hidden behind the floating bar.
 
-#### 3.12.5 DI
+#### 3.14.5 DI
 No Koin module — `shared:navigation` is purely a UI shell with no injected services. DI is handled by the modules that own real feature ViewModels.
 
 ---

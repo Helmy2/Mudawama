@@ -2,7 +2,7 @@
 
 **Platform:** Android & iOS (via Kotlin Multiplatform + Compose Multiplatform)  
 **Phase:** MVP (Minimum Viable Product)  
-**Status:** MVP Shipped (Prayer + Habits + Quran Tracking)
+**Status:** MVP Shipped (Prayer + Habits + Quran Tracking + Athkar & Tasbeeh)
 
 ---
 
@@ -55,12 +55,18 @@ The MVP strictly limits scope to foundational habits to ensure high execution qu
     - Save the current bookmark (Surah and Ayah) manually via an "Update Position" sheet.
         
 - **Athkar & Tasbeeh:**
-    
-    - Provide tracking for Morning and Evening Athkar.
-        
-    - Include a dedicated Post-Prayer Athkar checklist.
-        
-    - Include a simple digital Tasbeeh counter.
+
+    - Morning Athkar checklist: tap-to-count per dhikr item, clamped at the required repetition count, persisted daily in Room (`AthkarDailyLogEntity`).
+
+    - Evening Athkar checklist: same tap-to-count model as Morning.
+
+    - Post-Prayer Athkar checklist: 5 prayer slots (Fajr–Isha) selectable via filter chips; counter key format `"itemId#slotIndex"`.
+
+    - Group completion is derived and stored (`is_complete` flag in `AthkarDailyLogEntity`); overview cards show a completion badge when all items reach target.
+
+    - Digital Tasbeeh counter: in-memory session count with haptic feedback on each tap; goal bottom sheet for setting target (default 100); session flushed to `TasbeehDailyTotalEntity` on Reset; daily total shown alongside session count.
+
+    - Long-pressing a completed Athkar item resets its individual counter to 0.
         
 
 ### 3.2 Personal Habits (Custom)
@@ -104,7 +110,7 @@ The application is built using a modern, scalable, and modular approach designed
     
 2. **Home Dashboard:** The central hub displaying the "Next Prayer", today's daily rituals progress, and a scrollable list of pending/completed custom habits.
     
-3. **Bottom Navigation:** Quick access to Home, Prayers, Quran, and Athkar.
+3. **Bottom Navigation:** Quick access to Home, Prayers, Quran, Athkar, and Tasbeeh via a 5-tab floating glassmorphism bar.
     
 4. **Interactions:** Heavy reliance on fast, one-thumb interactions such as inline list toggles and bottom sheets (e.g., Log Reading, Surah Picker) to keep the user in context.
     

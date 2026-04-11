@@ -74,8 +74,8 @@ fun MudawamaBottomBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
+                .padding(horizontal = 4.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             BottomNavItem.entries.forEach { item ->
@@ -108,7 +108,7 @@ private fun RowScope.BottomBarTab(
                 .clip(ActivePillShape)
                 .background(primary)
                 .clickable(onClick = onClick)
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
@@ -116,7 +116,7 @@ private fun RowScope.BottomBarTab(
                 imageVector = item.icon,
                 contentDescription = label,
                 tint = onPrimary,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(20.dp),
             )
             Text(
                 text = label,
@@ -131,7 +131,7 @@ private fun RowScope.BottomBarTab(
         Column(
             modifier = Modifier
                 .clickable(onClick = onClick)
-                .padding(horizontal = 16.dp, vertical = 10.dp),
+                .padding(horizontal = 8.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
@@ -139,7 +139,7 @@ private fun RowScope.BottomBarTab(
                 imageVector = item.icon,
                 contentDescription = label,
                 tint = onSurface.copy(alpha = 0.55f),
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(20.dp),
             )
             Text(
                 text = label,

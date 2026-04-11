@@ -1,22 +1,24 @@
 # Mudawama Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-10
+Auto-generated from all feature plans. Last updated: 2026-04-11
 
 ## Active Technologies
-
 - **Kotlin** 2.3.20 (Kotlin Multiplatform) — Android (minSdk 30) + iOS 15+
 - **Compose Multiplatform** 1.10.3 (UI)
-- **Room** 2.8.4 (local storage) — `shared:core:database`, current schema version **3**
+- **Room** 2.8.4 (local storage) — `shared:core:database`, current schema version **4**
 - **Koin** 4.2.0 (DI)
 - **Ktor** 3.4.1 (network) — used in `feature:prayer:data` and `feature:quran:data`
-- **kotlinx-serialization-json** 1.10.0 (JSON / Ktor content negotiation)
+- **kotlinx-serialization-json** 1.10.0 (JSON / TypeConverter for Athkar counter map)
 - **kotlinx-datetime** 0.7.1 (date handling)
 - **kotlinx-coroutines** 1.10.2
+- **androidx.datastore.preferences** — session storage + 6 Athkar notification pref keys
 
 ## Project Structure
 
 ```text
 feature/
+  athkar/
+    domain/   presentation/   data/
   habits/
     domain/   presentation/   data/
   prayer/
@@ -25,12 +27,13 @@ feature/
     domain/   presentation/   data/
 shared/
   core/
-    database/   domain/   time/   presentation/   location/
+    database/   domain/   data/   time/   presentation/   location/
   designsystem/
   navigation/
   umbrella-ui/
 specs/
   007-quran-tracking/
+  008-athkar-tasbeeh/
 ```
 
 ## Architecture Rules (non-negotiable)
@@ -45,6 +48,7 @@ specs/
 - All strings via `stringResource(Res.string.*)` — zero hardcoded strings in Composables
 - `Res` import: `mudawama.shared.designsystem.Res`
 - `@Preview` import in `commonMain`: `androidx.compose.ui.tooling.preview.Preview`
+- **Notification strings** must be resolved in the UI layer (Composable) and passed as action parameters to the ViewModel — never resolved inside the ViewModel itself (KMP limitation)
 
 ## Shared Design System Components
 
@@ -61,9 +65,21 @@ All in `shared/designsystem/src/commonMain/kotlin/.../designsystem/components/`:
 ## Database
 
 - Room schema lives in `shared/core/database/`
-- Current version: **3** (AutoMigration 2→3 removes `dailyGoalPages` + `pagesReadToday` from `quran_bookmarks`)
-- Schema JSON files: `shared/core/database/schemas/…/2.json` and `3.json`
-- New entities added in v3: `QuranDailyLogEntity`, `QuranGoalEntity`
+- Current version: **4** (AutoMigration 3→4 adds `athkar_daily_logs`, `tasbeeh_goals`, `tasbeeh_daily_totals`)
+- Schema JSON files: `schemas/2.json`, `3.json`, `4.json`
+- All entities in v4: `HabitEntity`, `HabitLogEntity`, `PrayerStatusEntity`, `QuranBookmarkEntity`, `QuranDailyLogEntity`, `QuranGoalEntity`, `AthkarDailyLogEntity`, `TasbeehGoalEntity`, `TasbeehDailyTotalEntity`
+
+## Notification Infrastructure (008-athkar-tasbeeh)
+
+- `NotificationScheduler` interface in `shared/core/domain` — `scheduleDailyReminder(id, hour, minute, title, body)`, `cancelReminder(id)`
+- `NotificationPermissionChecker` interface in `shared/core/domain` — `hasPermission()`, `requestPermission()`
+- **Android**: `AndroidNotificationScheduler` (AlarmManager + `setExactAndAllowWhileIdle`), `AthkarNotificationReceiver` (BroadcastReceiver — re-schedules next day), `AndroidNotificationPermissionChecker` — all in `shared/core/data/src/androidMain`
+- **iOS**: `IosNotificationScheduler` (UNCalendarNotificationTrigger, repeats=true), `IosNotificationPermissionChecker` (UNUserNotificationCenter) — all in `shared/core/data/src/iosMain`
+- Koin modules: `androidNotificationsModule` (androidMain), `iosNotificationsModule` (iosMain) — both in `shared/core/data/src/.../di/NotificationsModule.kt`
+- Notification IDs stable constants: `AthkarNotificationIds.MORNING = 1001`, `AthkarNotificationIds.EVENING = 1002`
+- DataStore keys: `AthkarPreferencesKeys` in `shared/core/data/src/commonMain`
+- `AthkarNotificationRepository` → `AthkarNotificationRepositoryImpl` in `feature:athkar:data`
+- `AthkarNotificationViewModel` in `feature:athkar:presentation/notification/` — observes prefs, dispatches toggle/time actions
 
 ## Ktor HttpClient Pattern
 
@@ -96,11 +112,12 @@ sourceSets {
 }
 ```
 
-## Recent Changes
+## Completed Features
 
 - **007-quran-tracking** (commit `761c827`): Full Quran tracking feature — daily log, goal, bookmark with `alquran.cloud` API for accurate Surah+Ayah, reading streak, recent logs, 7-day date strip, read-only past-day navigation. Adds `MudawamaBottomSheet` and updated `MudawamaSurfaceCard` to shared designsystem. Adds `goalCount` TextField to `HabitBottomSheet` for `NUMERIC` habit type. Room DB bumped to v3.
 
-- **006-prayer-screen**: Prayer times screen with Aladhan API, location-based fetching, habit log integration, 7-day date strip.
+- **008-athkar-tasbeeh** ✅ **Complete**: Daily Athkar tracking (Morning/Evening/Post-Prayer), Tasbeeh counter with daily totals and goal, configurable daily notification reminders. Room DB bumped to v4 (3 new entities). 5-tab bottom bar. All UI edge-to-edge, dark theme safe. Notification infra: Android AlarmManager + BroadcastReceiver; iOS UNCalendarNotificationTrigger.
+
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->

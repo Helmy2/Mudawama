@@ -6,6 +6,7 @@
     <string name="nav_tab_prayers">Prayers</string>
     <string name="nav_tab_quran">Quran</string>
     <string name="nav_tab_athkar">Athkar</string>
+    <string name="nav_tab_tasbeeh">Tasbeeh</string>
 
     <!-- ── Screen titles ──────────────────────────────────────────────────── -->
     <string name="habits_screen_title">Daily Habits</string>
@@ -156,5 +157,113 @@
     <string name="quran_error_invalid_surah">Invalid Surah number.</string>
     <string name="quran_error_invalid_ayah">Invalid Ayah number for this Surah.</string>
     <string name="quran_error_generic">Something went wrong. Please try again.</string>
+
+    <!-- ── Athkar Overview Screen ────────────────────────────────────────── -->
+    <string name="athkar_screen_title">Daily Athkar</string>
+    <string name="athkar_morning_title">Morning Athkar</string>
+    <string name="athkar_evening_title">Evening Athkar</string>
+    <string name="athkar_post_prayer_title">Post-Prayer Athkar</string>
+    <string name="athkar_group_complete">Complete</string>
+    <string name="athkar_group_incomplete">Incomplete</string>
+    <string name="athkar_group_progress_format">%1$d / %2$d</string>
+    <string name="athkar_item_count_format">%1$d / %2$d</string>
+    <string name="athkar_tap_to_count">Tap to count</string>
+
+    <!-- ── Morning Athkar Items ──────────────────────────────────────────── -->
+    <string name="athkar_morning_isti_transliteration">Isti\'atha</string>
+    <string name="athkar_morning_isti_translation">Seeking refuge with Allah from Shaytan</string>
+    <string name="athkar_morning_ayat_kursi_transliteration">Ayat al-Kursi</string>
+    <string name="athkar_morning_ayat_kursi_translation">The Verse of the Throne (Al-Baqarah 2:255)</string>
+    <string name="athkar_morning_ikhlas_transliteration">Al-Ikhlas</string>
+    <string name="athkar_morning_ikhlas_translation">Surah Al-Ikhlas (3×)</string>
+    <string name="athkar_morning_falaq_transliteration">Al-Falaq</string>
+    <string name="athkar_morning_falaq_translation">Surah Al-Falaq (3×)</string>
+    <string name="athkar_morning_nas_transliteration">An-Nas</string>
+    <string name="athkar_morning_nas_translation">Surah An-Nas (3×)</string>
+    <string name="athkar_morning_subhanallah_transliteration">Subhanallah</string>
+    <string name="athkar_morning_subhanallah_translation">Glory be to Allah (33×)</string>
+    <string name="athkar_morning_alhamdulillah_transliteration">Alhamdulillah</string>
+    <string name="athkar_morning_alhamdulillah_translation">All praise is due to Allah (33×)</string>
+    <string name="athkar_morning_allahu_akbar_transliteration">Allahu Akbar</string>
+    <string name="athkar_morning_allahu_akbar_translation">Allah is the Greatest (34×)</string>
+    <string name="athkar_morning_sayyid_istighfar_transliteration">Sayyid al-Istighfar</string>
+    <string name="athkar_morning_sayyid_istighfar_translation">The Master supplication for forgiveness</string>
+    <string name="athkar_morning_protection_transliteration">Morning Protection Dua</string>
+    <string name="athkar_morning_protection_translation">O Allah, by Your leave we have reached the morning…</string>
+
+    <!-- ── Evening Athkar Items ──────────────────────────────────────────── -->
+    <string name="athkar_evening_isti_transliteration">Isti\'atha (Evening)</string>
+    <string name="athkar_evening_isti_translation">Seeking refuge with Allah from Shaytan (Evening)</string>
+    <string name="athkar_evening_ayat_kursi_transliteration">Ayat al-Kursi (Evening)</string>
+    <string name="athkar_evening_ayat_kursi_translation">The Verse of the Throne (Al-Baqarah 2:255)</string>
+    <string name="athkar_evening_ikhlas_transliteration">Al-Ikhlas (Evening)</string>
+    <string name="athkar_evening_ikhlas_translation">Surah Al-Ikhlas (3×)</string>
+    <string name="athkar_evening_falaq_transliteration">Al-Falaq (Evening)</string>
+    <string name="athkar_evening_falaq_translation">Surah Al-Falaq (3×)</string>
+    <string name="athkar_evening_nas_transliteration">An-Nas (Evening)</string>
+    <string name="athkar_evening_nas_translation">Surah An-Nas (3×)</string>
+    <string name="athkar_evening_subhanallah_transliteration">Subhanallah (Evening)</string>
+    <string name="athkar_evening_subhanallah_translation">Glory be to Allah (33×)</string>
+    <string name="athkar_evening_alhamdulillah_transliteration">Alhamdulillah (Evening)</string>
+    <string name="athkar_evening_alhamdulillah_translation">All praise is due to Allah (33×)</string>
+    <string name="athkar_evening_allahu_akbar_transliteration">Allahu Akbar (Evening)</string>
+    <string name="athkar_evening_allahu_akbar_translation">Allah is the Greatest (34×)</string>
+    <string name="athkar_evening_sayyid_istighfar_transliteration">Sayyid al-Istighfar (Evening)</string>
+    <string name="athkar_evening_sayyid_istighfar_translation">The Master supplication for forgiveness</string>
+    <string name="athkar_evening_protection_transliteration">Evening Protection Dua</string>
+    <string name="athkar_evening_protection_translation">O Allah, by Your leave we have reached the evening…</string>
+
+    <!-- ── Post-Prayer Athkar Items ──────────────────────────────────────── -->
+    <string name="athkar_post_prayer_subhanallah_transliteration">Subhanallah</string>
+    <string name="athkar_post_prayer_subhanallah_translation">Glory be to Allah (33×)</string>
+    <string name="athkar_post_prayer_alhamdulillah_transliteration">Alhamdulillah</string>
+    <string name="athkar_post_prayer_alhamdulillah_translation">All praise is due to Allah (33×)</string>
+    <string name="athkar_post_prayer_allahu_akbar_transliteration">Allahu Akbar</string>
+    <string name="athkar_post_prayer_allahu_akbar_translation">Allah is the Greatest (34×)</string>
+    <string name="athkar_post_prayer_la_ilaha_transliteration">La ilaha illallah</string>
+    <string name="athkar_post_prayer_la_ilaha_translation">There is no deity worthy of worship except Allah, alone…</string>
+    <string name="athkar_post_prayer_ayat_kursi_transliteration">Ayat al-Kursi</string>
+    <string name="athkar_post_prayer_ayat_kursi_translation">The Verse of the Throne (1×)</string>
+    <string name="athkar_post_prayer_istighfar_transliteration">Astaghfirullah</string>
+    <string name="athkar_post_prayer_istighfar_translation">I seek forgiveness from Allah (3×)</string>
+    <string name="athkar_post_prayer_allahumma_anta_transliteration">Allahumma Anta as-Salam</string>
+    <string name="athkar_post_prayer_allahumma_anta_translation">O Allah, You are Peace…</string>
+
+    <!-- ── Tasbeeh Screen ─────────────────────────────────────────────────── -->
+    <string name="tasbeeh_screen_title">Tasbeeh Counter</string>
+    <string name="tasbeeh_session_count_label">CURRENT SESSION</string>
+    <string name="tasbeeh_daily_total_label">TODAY\'S TOTAL</string>
+    <string name="tasbeeh_reset_button">Reset</string>
+    <string name="tasbeeh_goal_button">Goal</string>
+    <string name="tasbeeh_goal_sheet_title">Set Tasbeeh Goal</string>
+    <string name="tasbeeh_goal_preset_33">33</string>
+    <string name="tasbeeh_goal_preset_100">100</string>
+    <string name="tasbeeh_goal_preset_300">300</string>
+    <string name="tasbeeh_goal_custom_hint">Custom number…</string>
+    <string name="tasbeeh_goal_confirm_button">Save Goal</string>
+    <string name="tasbeeh_error_invalid_goal">Goal must be a positive number.</string>
+    <string name="tasbeeh_goal_reached_label">Goal reached!</string>
+    <string name="tasbeeh_cd_tap_button">Tap to count</string>
+
+    <!-- ── Post-Prayer Slots ──────────────────────────────────────────────── -->
+    <string name="athkar_prayer_slot_fajr">Fajr</string>
+    <string name="athkar_prayer_slot_dhuhr">Dhuhr</string>
+    <string name="athkar_prayer_slot_asr">Asr</string>
+    <string name="athkar_prayer_slot_maghrib">Maghrib</string>
+    <string name="athkar_prayer_slot_isha">Isha</string>
+    <string name="athkar_post_prayer_prayers_done_format">%1$d / 5 prayers</string>
+
+    <!-- ── Notification Settings ──────────────────────────────────────────── -->
+    <string name="notification_welcome_title">Notifications enabled</string>
+    <string name="notification_welcome_body">You\'ll receive daily Athkar reminders. May Allah accept your dhikr.</string>
+    <string name="notification_athkar_morning_title">Time for Morning Athkar</string>
+    <string name="notification_athkar_morning_body">Start your morning with remembrance of Allah</string>
+    <string name="notification_athkar_evening_title">Time for Evening Athkar</string>
+    <string name="notification_athkar_evening_body">End your evening with remembrance of Allah</string>
+    <string name="notification_settings_morning_label">Morning Athkar Reminder</string>
+    <string name="notification_settings_evening_label">Evening Athkar Reminder</string>
+    <string name="notification_permission_rationale">Enable notifications to receive daily Athkar reminders</string>
+    <string name="notification_open_settings_button">Open Settings</string>
+    <string name="notification_time_format">%1$02d:%2$02d</string>
 
 </resources>

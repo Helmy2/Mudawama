@@ -43,9 +43,13 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 - **FR-2.7:** The system shall calculate and display the user's current consecutive reading-day streak.
 
 ### FR-3: Athkar & Tasbeeh
-- **FR-3.1:** The system shall provide static checklists for "Morning Athkar", "Evening Athkar", and "Post-Prayer Athkar".
-- **FR-3.2:** The system shall track the completion status of the Athkar groups for the current day.
-- **FR-3.3:** The system shall include a digital Tasbeeh counter that increments via a tap gesture, resets to zero, and allows goal setting (e.g., 33, 100).
+- **FR-3.1:** The system shall provide static tap-to-count checklists for "Morning Athkar", "Evening Athkar", and "Post-Prayer Athkar". Each item has a required repetition count; tapping increments the counter up to (and clamped at) that target.
+- **FR-3.2:** The system shall persist the daily completion status and per-item counter state for each Athkar group in Room (`AthkarDailyLogEntity`), keyed by `(groupType, date)`.
+- **FR-3.3:** The Post-Prayer Athkar checklist shall support 5 independent prayer slot sessions (Fajr, Dhuhr, Asr, Maghrib, Isha), each tracking its own set of counters.
+- **FR-3.4:** The system shall display group completion badges on the Athkar overview when all items in a group reach their target for the current day.
+- **FR-3.5:** The system shall include a digital Tasbeeh counter that increments via a tap gesture with haptic feedback, supports goal setting via a bottom sheet (default 100), and resets to zero (flushing the session count to the daily total in Room).
+- **FR-3.6:** The system shall display the cumulative Tasbeeh daily total (sum of all flushed sessions since midnight) alongside the current in-memory session count.
+- **FR-3.7:** Long-pressing a completed Athkar item shall reset that item's counter to 0.
 
 ### FR-4: Custom Habit Management
 - **FR-4.1:** The system shall allow users to create custom habits specifying: Name, Icon, Frequency (Days of week), and Type (Boolean Check-off vs. Numeric Counter).
@@ -84,10 +88,13 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 - **AI Specification:** Code generation and architectural bootstrapping will be guided by specification files via Spec Kit.
 
 ### 5.3 Data Storage (Database)
-- The system shall utilize **Room for Kotlin Multiplatform** to persist data. Current schema version: **3**.
+- The system shall utilize **Room for Kotlin Multiplatform** to persist data. Current schema version: **4**.
 - Data schema must include:
     - `HabitEntity`: Stores metadata for both Core Rituals and Custom Habits.
     - `HabitLogEntity`: Stores daily completion instances linked to dates and specific habits.
     - `QuranBookmarkEntity`: Stores the singleton state of the user's current reading position (Surah + Ayah). Does **not** store goal or daily progress.
     - `QuranDailyLogEntity`: Stores per-day reading log entries (pages read per calendar date).
     - `QuranGoalEntity`: Stores the singleton daily reading goal (pages per day).
+    - `AthkarDailyLogEntity`: Stores per-group per-day Athkar progress. Composite PK `(group_type, date)`. Counter map stored as JSON via `AthkarCountersConverter`.
+    - `TasbeehGoalEntity`: Singleton row (`id = 1`) storing the user's Tasbeeh target count.
+    - `TasbeehDailyTotalEntity`: Stores the cumulative Tasbeeh count flushed per calendar day.

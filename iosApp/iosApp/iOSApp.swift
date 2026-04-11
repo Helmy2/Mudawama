@@ -6,9 +6,11 @@ struct iOSApp: App {
     init() {
         let swiftEncryptor = IosEncryptor()
         let swiftLocationProvider = IosLocationProvider()
+        let swiftNotificationProvider = IosNotificationProvider()
         KoinInitializerKt.initializeKoin(
             iosEncryptor: swiftEncryptor,
-            iosLocationProvider: swiftLocationProvider
+            iosLocationProvider: swiftLocationProvider,
+            iosNotificationProvider: swiftNotificationProvider
         )
     }
 

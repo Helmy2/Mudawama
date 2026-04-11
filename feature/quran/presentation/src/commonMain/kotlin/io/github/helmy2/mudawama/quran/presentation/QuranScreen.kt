@@ -1,5 +1,6 @@
 package io.github.helmy2.mudawama.quran.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -65,7 +67,9 @@ internal fun QuranScreenContent(
 ) {
     Column(
         modifier = modifier
+            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
+            .statusBarsPadding()
             .verticalScroll(rememberScrollState()),
     ) {
         // Date strip
@@ -139,7 +143,7 @@ internal fun QuranScreenContent(
                 onViewAll = { /* future: navigate to full history */ },
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(96.dp))
         }
     }
 
