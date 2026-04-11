@@ -33,6 +33,10 @@ kotlin {
                 implementation(projects.feature.quran.data)
                 implementation(projects.feature.quran.presentation)
 
+                implementation(projects.feature.athkar.domain)
+                implementation(projects.feature.athkar.data)
+                implementation(projects.feature.athkar.presentation)
+
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.bundles.compose)
                 implementation(libs.bundles.lifecycle)

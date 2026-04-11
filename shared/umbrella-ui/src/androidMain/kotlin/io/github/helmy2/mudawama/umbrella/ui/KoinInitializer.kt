@@ -1,6 +1,10 @@
 package io.github.helmy2.mudawama.umbrella.ui
 
+import io.github.helmy2.mudawama.athkar.data.di.athkarDataModule
+import io.github.helmy2.mudawama.athkar.domain.di.athkarDomainModule
+import io.github.helmy2.mudawama.athkar.presentation.di.athkarPresentationModule
 import io.github.helmy2.mudawama.core.data.di.androidCoreDataModule
+import io.github.helmy2.mudawama.core.data.di.androidNotificationsModule
 import io.github.helmy2.mudawama.core.database.di.androidCoreDatabaseModule
 import io.github.helmy2.mudawama.core.time.di.timeModule
 import io.github.helmy2.mudawama.habits.data.di.habitsDataModule
@@ -18,6 +22,7 @@ fun KoinApplication.setupModules(): KoinApplication {
     return modules(
         androidCoreDataModule,
         androidCoreDatabaseModule,
+        androidNotificationsModule,
         timeModule(),
         habitsDomainModule(),
         habitsDataModule(),
@@ -28,5 +33,8 @@ fun KoinApplication.setupModules(): KoinApplication {
         quranDomainModule,
         quranDataModule(),
         quranPresentationModule(),
+        athkarDomainModule,
+        athkarDataModule(),
+        athkarPresentationModule(),
     )
 }

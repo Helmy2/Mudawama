@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -95,14 +97,15 @@ private fun HabitsScreenContent(
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = MudawamaTheme.colors.background,
+        contentWindowInsets = WindowInsets(0),
     ) { innerPadding ->
         when {
             state.isLoading -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding),
+                        .padding(innerPadding)
+                        .statusBarsPadding(),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(color = MudawamaTheme.colors.primary)
@@ -114,11 +117,12 @@ private fun HabitsScreenContent(
                 val personalHabits = state.habits.filter { !it.habit.isCore }
 
                 LazyColumn(
+                    modifier = Modifier.statusBarsPadding(),
                     contentPadding = PaddingValues(
                         start = 16.dp,
                         end = 16.dp,
-                        top = innerPadding.calculateTopPadding() + 8.dp,
-                        bottom = innerPadding.calculateBottomPadding() + 24.dp,
+                        top = 8.dp,
+                        bottom = 96.dp,
                     ),
                     verticalArrangement = Arrangement.spacedBy(0.dp),
                 ) {

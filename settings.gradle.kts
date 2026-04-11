@@ -53,4 +53,7 @@ include(":feature:prayer:presentation")
 include(":feature:quran:domain")
 include(":feature:quran:data")
 include(":feature:quran:presentation")
+include(":feature:athkar:domain")
+include(":feature:athkar:data")
+include(":feature:athkar:presentation")
 

@@ -28,13 +28,23 @@
 - **US-2.9: Navigate Past Days (Read-Only)**
     - _As a_ user, _I want_ to tap a day chip in the 7-day date strip to view that past day's reading pages in read-only mode, _so that_ I can review my history without accidentally editing it.
 
-## Epic 3: Athkar & Supplications
-- **US-3.1: Morning and Evening Athkar Checklists**
+## Epic 3: Athkar & Supplications ✅ Implemented
+- **US-3.1: Morning and Evening Athkar Checklists** ✅
     - _As a_ user, _I want_ to open a checklist for my Morning or Evening Athkar and tap a counter button for each specific supplication, _so that_ I can ensure I read them the correct number of times (e.g., 3 times, 100 times).
-- **US-3.2: Custom Tasbeeh Counter**
+- **US-3.1b: Post-Prayer Athkar Checklist** ✅
+    - _As a_ user, _I want_ to select a prayer slot (Fajr, Dhuhr, Asr, Maghrib, Isha) and tap through the Post-Prayer Athkar items for that prayer, _so that_ I track each prayer's dhikr independently.
+- **US-3.1c: Athkar Group Completion Badge** ✅
+    - _As a_ user, _I want_ the Athkar overview to show a completion badge on each group card once all its items reach their target for today, _so that_ I can see my Athkar progress at a glance.
+- **US-3.1d: Reset a Completed Item** ✅
+    - _As a_ user, _I want_ to long-press a completed Athkar item to reset its counter back to zero, _so that_ I can redo it if I made a mistake.
+- **US-3.2: Custom Tasbeeh Counter** ✅
     - _As a_ user, _I want_ to tap a large digital button to increment a tasbeeh counter, _so that_ I don't lose track of my count while doing general dhikr.
-- **US-3.3: Reset Tasbeeh**
-    - _As a_ user, _I want_ the ability to reset my tasbeeh counter back to zero, _so that_ I can start a new recitation cycle.
+- **US-3.3: Reset Tasbeeh** ✅
+    - _As a_ user, _I want_ the ability to reset my tasbeeh counter back to zero, _so that_ I can start a new recitation cycle. The session count is flushed to the daily total before clearing.
+- **US-3.4: Tasbeeh Goal** ✅
+    - _As a_ user, _I want_ to set a Tasbeeh goal (e.g., 33, 100) via a bottom sheet, _so that_ I can see a progress arc and be notified when I reach my target.
+- **US-3.5: Tasbeeh Daily Total** ✅
+    - _As a_ user, _I want_ to see the cumulative Tasbeeh count for today alongside my current session count, _so that_ I know my total dhikr output for the day even after multiple resets.
 
 ## Epic 4: Custom Personal Habits
 - **US-4.1: Create a Custom Habit**

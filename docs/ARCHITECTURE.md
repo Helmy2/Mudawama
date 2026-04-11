@@ -38,10 +38,17 @@ mudawama/
     │   ├── data/               # Aladhan API via named Ktor HttpClient
     │   └── presentation/
     │
-    └── quran/
-        ├── domain/             # ReadingStreak, LogReading, AdvanceBookmark UseCases, etc.
-        ├── data/               # alquran.cloud API via named Ktor HttpClient, Room DAOs
-        └── presentation/       # QuranScreen, Log/Goal/Position bottom sheets
+    ├── quran/
+    │   ├── domain/             # ReadingStreak, LogReading, AdvanceBookmark UseCases, etc.
+    │   ├── data/               # alquran.cloud API via named Ktor HttpClient, Room DAOs
+    │   └── presentation/       # QuranScreen, Log/Goal/Position bottom sheets
+    │
+    └── athkar/
+        ├── domain/             # AthkarItem, AthkarGroup, AthkarDailyLog, TasbeehGoal, TasbeehDailyTotal models;
+        │                       # AthkarRepository, TasbeehRepository interfaces; 9 use cases
+        ├── data/               # AthkarRepositoryImpl, TasbeehRepositoryImpl, mappers, Koin DI
+        └── presentation/       # AthkarScreen, AthkarGroupScreen, TasbeehScreen, TasbeehGoalBottomSheet,
+                                # AthkarViewModel, TasbeehViewModel; expect/actual BackHandler + Permission
 ```
 
 ---
@@ -62,10 +69,12 @@ To prevent feature modules from importing heavy libraries they don't need, the c
 
 ### 3. The `shared:core:database`
 The offline-first persistence layer for the entire app. Built with **Room for KMP** (`androidx.room`), it provides:
-* Five Room entities: `HabitEntity`, `HabitLogEntity`, `QuranBookmarkEntity`, `QuranDailyLogEntity`, `QuranGoalEntity`
-* Five DAOs: `HabitDao`, `HabitLogDao`, `QuranBookmarkDao`, `QuranDailyLogDao`, `QuranGoalDao`
-* A single `MudawamaDatabase` (current schema version **3**) with an `expect/actual` constructor pattern so Room KSP generates platform bridges automatically
+* **Eight Room entities:** `HabitEntity`, `HabitLogEntity`, `QuranBookmarkEntity`, `QuranDailyLogEntity`, `QuranGoalEntity`, `AthkarDailyLogEntity`, `TasbeehGoalEntity`, `TasbeehDailyTotalEntity`
+* **Eight DAOs:** `HabitDao`, `HabitLogDao`, `QuranBookmarkDao`, `QuranDailyLogDao`, `QuranGoalDao`, `AthkarDailyLogDao`, `TasbeehGoalDao`, `TasbeehDailyTotalDao`
+* A single `MudawamaDatabase` (current schema version **4**) with an `expect/actual` constructor pattern so Room KSP generates platform bridges automatically
 * AutoMigration 2→3: removes `dailyGoalPages` and `pagesReadToday` from `quran_bookmarks`; adds `quran_daily_logs` and `quran_goals` tables
+* AutoMigration 3→4: adds `athkar_daily_logs`, `tasbeeh_goals`, and `tasbeeh_daily_totals` tables (pure additions — no spec class needed)
+* `AthkarCountersConverter` TypeConverter using `kotlinx-serialization-json` to serialize `Map<String, Int>` counter maps
 * Platform-specific `getDatabaseBuilder()` functions (Android uses `Context`, iOS uses `NSHomeDirectory`)
 * A Koin module per platform: `androidCoreDatabaseModule` / `iosCoreDatabaseModule()`
 
@@ -81,8 +90,9 @@ The single source of truth for all date and time operations across the app. **Fe
 ### 5. The `shared:navigation`
 The structural skeleton of the app. Provides a single `MudawamaAppShell` composable — the only entry point platform shells (`androidApp`, `iosApp`) need to call. It delivers:
 * **Type-safe routing** using JetBrains Navigation 3 (`navigation3-ui:1.0.0-alpha06`). Routes are `@Serializable data object` instances implementing a `sealed interface Route : NavKey`, making `when(route)` exhaustive at compile time.
-* **`MudawamaBottomBar`** — a floating glassmorphism navigation bar with **4 tabs: Home, Prayers, Quran, Athkar** (80% opacity, 20dp blur, 28dp corner radius, 16dp horizontal float margin). Active tab is a rounded-square deep teal container with white icon + label; inactive tabs use `on-surface-variant`. Active tab is derived exclusively from `backStack.lastOrNull()` — no separate remembered state variable.
+* **`MudawamaBottomBar`** — a floating glassmorphism navigation bar with **5 tabs: Home, Prayers, Quran, Athkar, Tasbeeh** (80% opacity, 20dp blur, 28dp corner radius, 16dp horizontal float margin). Active tab is a rounded-square deep teal container with white icon + label; inactive tabs use `on-surface-variant`. Active tab is derived exclusively from `backStack.lastOrNull()` — no separate remembered state variable.
 * **`NavDisplay` + `entryProvider`** (Navigation 3) replacing the old `NavHost` / `NavController` pattern entirely.
+* **Box overlay layout** — `MudawamaAppShell` uses a plain `Box` (not `Scaffold`) so the bottom bar floats over content. This prevents an opaque scaffold background from showing behind the glassmorphism bar. Feature screens add their own `statusBarsPadding()` and `96.dp` bottom spacer to account for the floating bar.
 * **Full screen inventory** — all routes listed below correspond to reference UI screens in `docs/ui/`:
 
 | Route | Screen | `docs/ui/` reference |
@@ -203,7 +213,7 @@ Our Koin architecture follows the **Composition Root** pattern, ensuring that de
 ### The Flow
 1. **Module Composition:** Each layer provides its own Koin definitions. Platform-specific implementations are provided via platform-specific modules:
    - `androidCoreDataModule` / `iosCoreDataModule(iosEncryptor)` — Ktor, DataStore, Encryptor, ConnectivityObserver
-   - `androidCoreDatabaseModule` / `iosCoreDatabaseModule()` — `MudawamaDatabase` + all five DAOs
+   - `androidCoreDatabaseModule` / `iosCoreDatabaseModule()` — `MudawamaDatabase` + all eight DAOs
    - `timeModule(rolloverPolicy)` — `TimeProvider` singleton (platform-agnostic; `commonMain` only)
 2. **Umbrella Initialization:** The `umbrella-ui` module is the KMP composition root. It aggregates all module DI registrations and boots Koin.
 3. **Native Launch:**

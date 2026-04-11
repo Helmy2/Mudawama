@@ -62,7 +62,8 @@ internal fun PrayerScreenContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background)
+            .statusBarsPadding(),
     ) {
         // 7-day date strip
         MudawamaDateStrip(
@@ -122,7 +123,7 @@ internal fun PrayerScreenContent(
                     enabled = !state.isReadOnly,
                 )
             }
-            item { Spacer(Modifier.height(8.dp)) }
+            item { Spacer(Modifier.height(96.dp)) }
         }
     }
 
