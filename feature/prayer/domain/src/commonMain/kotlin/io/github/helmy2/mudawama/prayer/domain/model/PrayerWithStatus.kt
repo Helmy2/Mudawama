@@ -1,6 +1,6 @@
 package io.github.helmy2.mudawama.prayer.domain.model
 
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
 
 data class PrayerWithStatus(
     val habitId: String,

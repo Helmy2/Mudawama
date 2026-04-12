@@ -16,7 +16,7 @@ import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.prayer_completion_fraction
 import mudawama.shared.designsystem.prayer_daily_completion_label
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus
 import org.jetbrains.compose.resources.stringResource
 

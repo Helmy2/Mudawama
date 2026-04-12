@@ -15,8 +15,7 @@ kotlin {
             implementation(projects.feature.settings.domain)    // CalculationMethod for prayer
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.time)
-            implementation(projects.shared.core.domain)
-            implementation(libs.kotlinx.datetime)
+            api(projects.shared.core.domain)  // HttpClient from core domain
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.bundles.ktor)
         }

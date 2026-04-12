@@ -28,7 +28,6 @@ kotlinxCoroutinesPlayServices = "1.10.2"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
-
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 koin-android = { module = "io.insert-koin:koin-android" }
@@ -96,5 +95,6 @@ lifecycle = [
     "jetbrains-lifecycle-runtime-compose"
 ]
 koin = [
-    "koin-core"
+    "koin-core",
+    "koin-compose-viewmodel"
 ]

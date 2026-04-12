@@ -4,7 +4,7 @@ import io.github.helmy2.mudawama.core.domain.EmptyResult
 import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.core.time.TimeProvider
 import io.github.helmy2.mudawama.core.time.toIsoDateString
-import io.github.helmy2.mudawama.habits.domain.error.HabitError
+import io.github.helmy2.mudawama.core.domain.error.HabitError
 import io.github.helmy2.mudawama.habits.domain.repository.HabitLogRepository
 
 /**

@@ -25,11 +25,5 @@ kotlin {
                 implementation(libs.ui.tooling.preview)
             }
         }
-        androidMain {
-            dependencies {
-                implementation(libs.androidx.activity.compose)
-                implementation(libs.ui.tooling)
-            }
-        }
     }
 }

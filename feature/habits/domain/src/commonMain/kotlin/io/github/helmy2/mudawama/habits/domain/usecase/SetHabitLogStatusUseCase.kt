@@ -4,9 +4,9 @@ import io.github.helmy2.mudawama.core.domain.EmptyResult
 import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.core.time.TimeProvider
 import io.github.helmy2.mudawama.core.time.toIsoDateString
-import io.github.helmy2.mudawama.habits.domain.error.HabitError
+import io.github.helmy2.mudawama.core.domain.error.HabitError
 import io.github.helmy2.mudawama.habits.domain.model.HabitLog
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
 import io.github.helmy2.mudawama.habits.domain.repository.HabitLogRepository
 import io.github.helmy2.mudawama.habits.domain.util.generateId
 import kotlinx.datetime.LocalDate

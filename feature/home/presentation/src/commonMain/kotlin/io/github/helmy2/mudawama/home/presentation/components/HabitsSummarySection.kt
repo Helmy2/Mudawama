@@ -27,7 +27,7 @@ import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.prayer_asr
 import mudawama.shared.designsystem.prayer_dhuhr

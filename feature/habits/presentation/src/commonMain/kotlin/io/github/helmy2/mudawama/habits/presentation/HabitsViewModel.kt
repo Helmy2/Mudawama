@@ -2,7 +2,7 @@ package io.github.helmy2.mudawama.habits.presentation
 
 import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.core.presentation.mvi.MviViewModel
-import io.github.helmy2.mudawama.habits.domain.error.HabitError
+import io.github.helmy2.mudawama.core.domain.error.HabitError
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.usecase.CreateHabitUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.DeleteHabitUseCase
