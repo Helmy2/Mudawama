@@ -324,4 +324,13 @@
     <string name="settings_method_turkey">Turkey</string>
     <string name="settings_method_tehran">Tehran</string>
 
+    <!-- ── Qibla Compass ───────────────────────────────────────────────────────── -->
+    <string name="qibla_title">Qibla Compass</string>
+    <string name="qibla_calibration_warning">Calibrate your compass</string>
+    <string name="qibla_no_location">Location required</string>
+    <string name="qibla_go_to_settings">Go to Settings</string>
+    <string name="qibla_aligned">You are facing Qibla</string>
+    <string name="qibla_turn_right">Turn %1$d° right</string>
+    <string name="qibla_turn_left">Turn %1$d° left</string>
+
 </resources>

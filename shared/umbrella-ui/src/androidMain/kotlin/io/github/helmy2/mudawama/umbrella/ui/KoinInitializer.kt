@@ -10,6 +10,9 @@ import io.github.helmy2.mudawama.core.time.di.timeModule
 import io.github.helmy2.mudawama.habits.data.di.habitsDataModule
 import io.github.helmy2.mudawama.habits.domain.di.habitsDomainModule
 import io.github.helmy2.mudawama.habits.presentation.di.habitsPresentationModule
+import io.github.helmy2.mudawama.feature.qibla.data.di.qiblaDataModule
+import io.github.helmy2.mudawama.feature.qibla.domain.di.qiblaDomainModule
+import io.github.helmy2.mudawama.feature.qibla.presentation.di.qiblaPresentationModule
 import io.github.helmy2.mudawama.home.presentation.di.homePresentationModule
 import io.github.helmy2.mudawama.prayer.data.di.PrayerDataModule
 import io.github.helmy2.mudawama.prayer.domain.di.PrayerDomainModule
@@ -40,6 +43,9 @@ fun KoinApplication.setupModules(): KoinApplication {
         athkarDataModule(),
         athkarPresentationModule(),
         homePresentationModule(),
+        qiblaDomainModule,
+        qiblaDataModule,
+        qiblaPresentationModule(),
         settingsDataModule,
         settingsPresentationModule,
     )

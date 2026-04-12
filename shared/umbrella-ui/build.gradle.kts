@@ -10,6 +10,9 @@ kotlin {
 
     configureIosFramework("MudawamaUI", isStatic = true) {
         export(projects.shared.core.domain)
+        export(projects.feature.qibla.data)
+        export(projects.feature.qibla.domain)
+        export(projects.feature.qibla.presentation)
     }
 
     sourceSets {
@@ -42,6 +45,10 @@ kotlin {
                 implementation(projects.feature.settings.domain)
                 implementation(projects.feature.settings.data)
                 implementation(projects.feature.settings.presentation)
+
+                api(projects.feature.qibla.domain)
+                api(projects.feature.qibla.data)
+                api(projects.feature.qibla.presentation)
 
                 implementation(project.dependencies.platform(libs.koin.bom))
                 implementation(libs.bundles.koin)

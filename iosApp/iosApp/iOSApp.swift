@@ -7,10 +7,12 @@ struct iOSApp: App {
         let swiftEncryptor = IosEncryptor()
         let swiftLocationProvider = IosLocationProvider()
         let swiftNotificationProvider = IosNotificationProvider()
+        let swiftQiblaViewControllerProvider = IosQiblaViewControllerProvider()
         KoinInitializerKt.initializeKoin(
             iosEncryptor: swiftEncryptor,
             iosLocationProvider: swiftLocationProvider,
-            iosNotificationProvider: swiftNotificationProvider
+            iosNotificationProvider: swiftNotificationProvider,
+            iosQiblaViewControllerProvider: swiftQiblaViewControllerProvider
         )
     }
 

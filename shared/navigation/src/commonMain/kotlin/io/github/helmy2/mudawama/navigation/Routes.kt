@@ -29,6 +29,7 @@ sealed interface Route : NavKey
 @Serializable data object TasbeehRoute  : Route
 @Serializable data object SettingsRoute : Route
 @Serializable data object HabitsRoute   : Route
+@Serializable data object QiblaRoute    : Route
 
 /**
  * Enum binding each bottom-nav [Route] to its icon and string resource label.
