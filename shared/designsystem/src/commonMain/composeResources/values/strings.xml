@@ -110,6 +110,11 @@
     <string name="prayer_mark_pending_action">Undo / Mark Pending</string>
     <string name="prayer_location_service_disabled">Location is turned off. Tap to enable it.</string>
     <string name="prayer_missed_indicator">Missed</string>
+    <string name="prayer_fajr">Fajr</string>
+    <string name="prayer_dhuhr">Dhuhr</string>
+    <string name="prayer_asr">Asr</string>
+    <string name="prayer_maghrib">Maghrib</string>
+    <string name="prayer_isha">Isha</string>
 
     <!-- ── Quran Reading Tracker ─────────────────────────────────────────── -->
     <string name="quran_screen_title">Quran Reading</string>
@@ -283,5 +288,40 @@
     <string name="settings_placeholder_coming_soon">Coming soon</string>
     <string name="home_tasbeeh_label">TASBEEH</string>
     <string name="home_tasbeeh_count_progress">%1$d / %2$d</string>
+
+    <!-- ── Settings Screen ─────────────────────────────────────────────────── -->
+    <string name="settings_section_calculation_method">Prayer Calculation Method</string>
+    <string name="settings_section_location">Location</string>
+    <string name="settings_section_quran_goal">Daily Quran Goal</string>
+    <string name="settings_section_appearance">Appearance</string>
+    <string name="settings_section_language">Language</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_notification_morning">Morning Athkar Reminder</string>
+    <string name="settings_notification_evening">Evening Athkar Reminder</string>
+    <string name="settings_option_gps_automatic">GPS (Automatic)</string>
+    <string name="settings_option_manual">Manual</string>
+    <string name="settings_label_latitude">Latitude</string>
+    <string name="settings_label_longitude">Longitude</string>
+    <string name="settings_label_goal_pages">Pages per day</string>
+    <string name="settings_option_theme_system">System</string>
+    <string name="settings_option_theme_light">Light</string>
+    <string name="settings_option_theme_dark">Dark</string>
+    <string name="settings_option_language_english">English</string>
+    <string name="settings_option_language_arabic">Arabic</string>
+    <string name="settings_error_invalid_latitude">Latitude must be between -90 and 90</string>
+    <string name="settings_error_invalid_longitude">Longitude must be between -180 and 180</string>
+    <string name="settings_error_minimum_goal">Minimum goal is 1 page</string>
+    <string name="settings_method_mwl">Muslim World League</string>
+    <string name="settings_method_egyptian">Egyptian General Authority</string>
+    <string name="settings_method_umm_alqura">Umm Al-Qura</string>
+    <string name="settings_method_karachi">University of Islamic Sciences Karachi</string>
+    <string name="settings_method_isna">ISNA</string>
+    <string name="settings_method_dubai">Dubai</string>
+    <string name="settings_method_kuwait">Kuwait</string>
+    <string name="settings_method_qatar">Qatar</string>
+    <string name="settings_method_msc">Moon Sighting Committee</string>
+    <string name="settings_method_singapore">Singapore</string>
+    <string name="settings_method_turkey">Turkey</string>
+    <string name="settings_method_tehran">Tehran</string>
 
 </resources>

@@ -12,6 +12,7 @@ kotlin {
             implementation(projects.feature.prayer.domain)
             implementation(projects.feature.habits.domain)     // HabitWithStatus, HabitLog
             implementation(projects.feature.habits.data)       // HabitMapper, HabitLogMapper
+            implementation(projects.feature.settings.domain)    // CalculationMethod for prayer
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.time)
             implementation(projects.shared.core.domain)

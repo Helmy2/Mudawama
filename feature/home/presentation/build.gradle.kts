@@ -15,6 +15,7 @@ kotlin {
             implementation(projects.feature.prayer.domain)
             implementation(projects.feature.athkar.domain)
             implementation(projects.feature.quran.domain)
+            implementation(projects.feature.settings.domain)  // Settings for prayer calculation method & location
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.bundles.compose)
             implementation(libs.bundles.lifecycle)

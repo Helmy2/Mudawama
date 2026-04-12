@@ -57,4 +57,7 @@ include(":feature:athkar:domain")
 include(":feature:athkar:data")
 include(":feature:athkar:presentation")
 include(":feature:home:presentation")
+include(":feature:settings:domain")
+include(":feature:settings:data")
+include(":feature:settings:presentation")
 

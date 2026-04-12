@@ -4,6 +4,7 @@ android-compileSdk = "36"
 android-minSdk = "30"
 android-targetSdk = "36"
 androidx-activity = "1.13.0"
+appcompatVersion = "1.7.1"
 composeMultiplatform = "1.10.3"
 material3 = "1.9.0"
 datastorePreferences = "1.2.1"
@@ -29,6 +30,7 @@ kotlinxCoroutinesPlayServices = "1.10.2"
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
 koin-android = { module = "io.insert-koin:koin-android" }
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinBom" }
 koin-core = { module = "io.insert-koin:koin-core" }

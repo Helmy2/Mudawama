@@ -137,16 +137,24 @@ One row per calendar day.
 The Data Repository acts as the single source of truth. When a feature module's Use Case requests data, its repository queries the relevant DAO from `MudawamaDatabase`. If the data requires network enrichment (e.g. prayer times), the repository utilises the Ktor client to fetch from the remote API, persists the result locally, and returns it.
 
 ### 3.10 DataStore Preferences (`shared/core/data/session`)
-- `theme_preference` (String) — LIGHT, DARK, SYSTEM
-- `language_preference` (String) — EN, AR
-- `calculation_method_id` (Int) — API-specific ID
-- `daily_reset_preference` (String) — MIDNIGHT, MAGHRIB
-- `athkar_morning_notif_enabled` (Boolean) — Morning Athkar reminder on/off (default `false`)
-- `athkar_morning_notif_hour` (Int) — Hour for morning reminder, 0–23 (default `6`)
-- `athkar_morning_notif_minute` (Int) — Minute for morning reminder, 0–59 (default `0`)
-- `athkar_evening_notif_enabled` (Boolean) — Evening Athkar reminder on/off (default `false`)
-- `athkar_evening_notif_hour` (Int) — Hour for evening reminder, 0–23 (default `18`)
-- `athkar_evening_notif_minute` (Int) — Minute for evening reminder, 0–59 (default `0`)
+Settings are stored in DataStore Preferences for persistence across sessions:
+
+| Key | Type | Notes |
+|-----|------|-------|
+| `calculation_method` | String | Enum name: `MUSLIM_WORLD_LEAGUE`, `EGYPTIAN`, `UMM_AL_QURA`, etc. (11 methods) |
+| `location_mode_is_gps` | Boolean | `true` = GPS, `false` = Manual |
+| `location_mode_latitude` | Double | Manual location latitude |
+| `location_mode_longitude` | Double | Manual location longitude |
+| `app_theme` | String | Enum: `SYSTEM`, `LIGHT`, `DARK` |
+| `app_language` | String | Enum: `ENGLISH`, `ARABIC` |
+| `morning_notification_enabled` | Boolean | Morning Athkar reminder on/off (default `false`) |
+| `morning_notification_hour` | Int | Hour for morning reminder, 0–23 (default `6`) |
+| `morning_notification_minute` | Int | Minute for morning reminder, 0–59 (default `0`) |
+| `evening_notification_enabled` | Boolean | Evening Athkar reminder on/off (default `false`) |
+| `evening_notification_hour` | Int | Hour for evening reminder, 0–23 (default `18`) |
+| `evening_notification_minute` | Int | Minute for evening reminder, 0–59 (default `0`) |
+
+**Note:** Legacy preferences (`theme_preference`, `language_preference`, `calculation_method_id`, `daily_reset_preference`) are deprecated. All new settings use the structured keys above.
 
 ### 3.11 Session & Cryptography (`shared/core/data/session`)
 - Authentication tokens and sensitive user session data are stored securely using platform-specific cryptography. 

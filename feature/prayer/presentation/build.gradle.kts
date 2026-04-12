@@ -9,6 +9,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.feature.prayer.domain)
             implementation(projects.feature.habits.domain)     // LogStatus, HabitError
+            implementation(projects.feature.settings.domain)    // Settings for prayer calculation method & location
             implementation(projects.shared.core.domain)        // LocationProvider, Coordinates
             implementation(projects.shared.core.time)          // TimeProvider
             implementation(projects.shared.core.presentation)

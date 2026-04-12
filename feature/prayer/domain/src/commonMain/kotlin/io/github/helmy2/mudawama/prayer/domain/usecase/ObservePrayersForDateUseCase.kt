@@ -8,6 +8,7 @@ import io.github.helmy2.mudawama.prayer.domain.model.PrayerName
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus
 import io.github.helmy2.mudawama.prayer.domain.repository.PrayerHabitRepository
 import io.github.helmy2.mudawama.prayer.domain.repository.PrayerTimesRepository
+import io.github.helmy2.mudawama.settings.domain.CalculationMethod
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,10 +20,10 @@ class ObservePrayersForDateUseCase(
     private val prayerTimesRepository: PrayerTimesRepository,
     private val dispatcher: CoroutineDispatcher
 ) {
-    operator fun invoke(date: LocalDate, coordinates: Coordinates): Flow<Result<List<PrayerWithStatus>, PrayerError>> = flow {
+    operator fun invoke(date: LocalDate, coordinates: Coordinates, method: CalculationMethod = CalculationMethod.MUSLIM_WORLD_LEAGUE): Flow<Result<List<PrayerWithStatus>, PrayerError>> = flow {
         // Fetch times once and combine with the habits flow.
         val timesResult = withContext(dispatcher) {
-            prayerTimesRepository.getPrayerTimes(date, coordinates)
+            prayerTimesRepository.getPrayerTimes(date, coordinates, method)
         }
 
         prayerHabitRepository.observePrayerHabitsWithStatus(date).collect { habits ->

@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ── Bottom navigation tab labels ───────────────────────────────────── -->
+    <string name="nav_tab_home">الرئيسية</string>
+    <string name="nav_tab_prayers">الصلوات</string>
+    <string name="nav_tab_quran">القرآن</string>
+    <string name="nav_tab_athkar">الأذكار</string>
+    <string name="nav_tab_tasbeeh">التسبيح</string>
+
+    <!-- ── Screen titles ──────────────────────────────────────────────────── -->
+    <string name="habits_screen_title">العادات اليومية</string>
+    <string name="home_daily_habits_button">العادات اليومية</string>
+    <string name="home_daily_habits_subtitle">شاهد طقوسك الأساسية وعاداتك الشخصية</string>
+
+    <!-- ── Section headings ───────────────────────────────────────────────── -->
+    <string name="section_core_rituals">العبادات الأساسية</string>
+    <string name="section_personal_habits">العادات الشخصية</string>
+
+    <!-- ── Numeric progress format strings ───────────────────────────────── -->
+    <string name="habit_progress_fraction">%1$d / %2$d</string>
+    <string name="habit_progress_count">%1$d</string>
+
+    <!-- ── Common actions ─────────────────────────────────────────────────── -->
+    <string name="action_add_new_habit">+ إضافة عادة جديدة</string>
+    <string name="action_view_all">عرض الكل</string>
+    <string name="action_save">حفظ</string>
+    <string name="action_cancel">إلغاء</string>
+    <string name="action_done">تم</string>
+    <string name="action_close">إغلاق</string>
+
+    <!-- ── Habit list item content descriptions ───────────────────────────── -->
+    <string name="cd_mark_complete">وضع علامة مكتمل</string>
+    <string name="cd_mark_incomplete">وضع علامة غير مكتمل</string>
+    <string name="cd_increment_count">زيادة العدد</string>
+    <string name="cd_decrement_count">تقليل العدد</string>
+    <string name="cd_add_habit">إضافة عادة</string>
+
+    <!-- ── Add / Edit habit bottom sheet ──────────────────────────────────── -->
+    <string name="title_new_habit">عادة جديدة</string>
+    <string name="title_edit_habit">تعديل عادة</string>
+    <string name="hint_habit_name">اسم العادة</string>
+    <string name="error_name_empty">لا يمكن أن يكون الاسم فارغاً</string>
+    <string name="label_icon">الأيقونة</string>
+    <string name="label_days">الأيام</string>
+    <string name="error_select_day">اختر يوماً واحداً على الأقل</string>
+    <string name="label_type">النوع</string>
+    <string name="type_boolean">علامة صح</string>
+    <string name="type_numeric">عداد رقمي</string>
+    <string name="hint_daily_goal">الهدف اليومي (اختياري)</string>
+    <string name="btn_cancel">إلغاء</string>
+    <string name="btn_save">حفظ</string>
+
+    <!-- ── Day abbreviations (frequency picker) ──────────────────────────── -->
+    <string name="day_mon">الإثنين</string>
+    <string name="day_tue">الثلاثاء</string>
+    <string name="day_wed">الأربعاء</string>
+    <string name="day_thu">الخميس</string>
+    <string name="day_fri">الجمعة</string>
+    <string name="day_sat">السبت</string>
+    <string name="day_sun">الأحد</string>
+
+    <!-- ── Options / manage sheet ─────────────────────────────────────────── -->
+    <string name="action_edit">تعديل</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_manage_habit">إدارة العادة</string>
+    <string name="action_edit_habit">تعديل العادة</string>
+    <string name="action_edit_habit_subtitle">تعديل التفاصيل والتكرار والأيقونات</string>
+    <string name="action_reset_today">إعادة ضبط اليوم</string>
+    <string name="action_reset_today_subtitle">مسح سجلات اليوم الحالي</string>
+    <string name="action_delete_habit">حذف العادة</string>
+    <string name="action_delete_habit_subtitle">إزالة هذه العادة وبياناتها نهائياً</string>
+
+    <!-- ── Delete confirmation dialog ────────────────────────────────────── -->
+    <string name="dialog_delete_title">حذف العادة؟</string>
+    <string name="dialog_delete_message">سيؤدي هذا إلى إزالة العادة وكل سجلاتها نهائياً.</string>
+
+    <!-- ── Empty state ────────────────────────────────────────────────────── -->
+    <string name="empty_habits_title">لا توجد عادات بعد</string>
+    <string name="empty_habits_body">انقر على زر + لإنشاء أول عادة لك والبدء في بناء الاتساق.</string>
+
+    <!-- ── Snackbar / error messages ─────────────────────────────────────── -->
+    <string name="error_generic">حدث خطأ. يرجى المحاولة مرة أخرى.</string>
+    <string name="error_cannot_delete_core">لا يمكن حذف هذه العادة.</string>
+    <string name="error_name_empty_snackbar">لا يمكن أن يكون اسم العادة فارغاً.</string>
+    <string name="error_no_day_selected_snackbar">يرجى اختيار يوم واحد على الأقل.</string>
+
+    <!-- ── New Habit sheet section labels ────────────────────────────────── -->
+    <string name="label_habit_name">اسم العادة</string>
+    <string name="hint_habit_name_placeholder">مثال: صيام Mondays، الصدقة</string>
+    <string name="label_identity_icon">أيقونة الهوية</string>
+    <string name="label_frequency">التكرار</string>
+    <string name="label_goal_type">نوع الهدف</string>
+    <string name="type_checkoff_title">علامة صح</string>
+    <string name="type_checkoff_subtitle">إكمال بسيط</string>
+    <string name="type_counter_title">عداد</string>
+    <string name="type_counter_subtitle">أهداف رقمية</string>
+    <string name="label_daily_reminder">تذكير يومي</string>
+    <string name="label_daily_reminder_subtitle">ذكرني للبقاء على المسار</string>
+
+    <!-- ── Prayer Screen ──────────────────────────────────────────────────── -->
+    <string name="prayer_screen_title">صلوات اليوم</string>
+    <string name="prayer_daily_completion_label">الإكمال اليومي</string>
+    <string name="prayer_completion_fraction">%1$d / %2$d</string>
+    <string name="prayer_completion_summary">%1$d / %2$d صلوات مكتملة</string>
+    <string name="prayer_location_fallback">مطلوب إذن الموقع لجلب أوقات الصلاة. سيتم استخدام مكة كموقع افتراضي.</string>
+    <string name="error_location_denied">الموقع غير متوفر</string>
+    <string name="error_times_unavailable">تعذر جلب أوقات الصلاة.</string>
+    <string name="prayer_mark_missed_title">وضع علامة كتفويت</string>
+    <string name="prayer_mark_missed_action">وضع علامة كتفويت</string>
+    <string name="prayer_mark_pending_action">تراجع / وضع كقيد الانتظار</string>
+    <string name="prayer_location_service_disabled">الموقع مغلق. انقر لتفعيله.</string>
+    <string name="prayer_missed_indicator">تفويت</string>
+    <string name="prayer_fajr">الفجر</string>
+    <string name="prayer_dhuhr">الظهر</string>
+    <string name="prayer_asr">العصر</string>
+    <string name="prayer_maghrib">المغرب</string>
+    <string name="prayer_isha">العشاء</string>
+
+    <!-- ── Quran Reading Tracker ──────────────────────────────────────────── -->
+    <string name="quran_screen_title">قراءة القرآن</string>
+    <string name="quran_daily_progress_label">التقدم اليومي</string>
+    <string name="quran_daily_progress_subtitle_in_progress">اقتربت، استمر</string>
+    <string name="quran_daily_progress_subtitle_complete">تم تحقيق الهدف! ما شاء الله.</string>
+    <string name="quran_of_pages_format">%1$d من %2$d صفحة</string>
+    <string name="quran_goal_card_badge">هدف نشط</string>
+    <string name="quran_goal_card_title_format">هدف: %1$d صفحة</string>
+    <string name="quran_goal_card_subtitle">أنشئ اتصالاً ثابتاً مع كلام الله اليوم.</string>
+    <string name="quran_log_reading_button">تسجيل القراءة</string>
+    <string name="quran_resume_reading_label">استئناف القراءة</string>
+    <string name="quran_resume_reading_no_position">انقر لتعيين موضع القراءة</string>
+    <string name="quran_resume_reading_ayah_format">الآية %1$d</string>
+    <string name="quran_recent_logs_title">السجلات الأخيرة</string>
+    <string name="quran_recent_logs_view_all">عرض الكل</string>
+    <string name="quran_log_status_over_goal">فوق الهدف</string>
+    <string name="quran_log_status_under_goal">تحت الهدف</string>
+    <string name="quran_log_status_hit_goal">تم تحقيق الهدف</string>
+    <string name="quran_streak_label">سلسلة القراءة</string>
+    <string name="quran_streak_days_format">%1$d أيام</string>
+    <string name="quran_log_reading_sheet_title">تسجيل القراءة</string>
+    <string name="quran_log_reading_session_label">الصفحات المقروءة في هذه الجلسة</string>
+    <string name="quran_log_reading_done_button">تم</string>
+    <string name="quran_log_reading_chip_one_page">+1 صفحة</string>
+    <string name="quran_log_reading_chip_five_pages">+5 صفحات</string>
+    <string name="quran_log_reading_chip_one_juz">جزء واحد</string>
+    <string name="quran_log_reading_current_position_label">الموضع الحالي</string>
+    <string name="quran_goal_sheet_title">الهدف اليومي للقرآن</string>
+    <string name="quran_goal_sheet_pages_per_day">صفحات في اليوم</string>
+    <string name="quran_goal_sheet_hint">يؤدي setting a sustainable goal إلى بناء عادة lifelong مع القرآن. يبدأ most people بـ 5 صفحات.</string>
+    <string name="quran_goal_sheet_popular_goals">الأهداف الشائعة</string>
+    <string name="quran_goal_sheet_one_page">1 صفحة</string>
+    <string name="quran_goal_sheet_five_pages">5 صفحات</string>
+    <string name="quran_goal_sheet_ten_pages">10 صفحات</string>
+    <string name="quran_goal_sheet_one_juz">جزء واحد</string>
+    <string name="quran_goal_sheet_save_button">حفظ</string>
+    <string name="quran_position_sheet_title">تحديث الموضع</string>
+    <string name="quran_position_sheet_done_button">تم</string>
+    <string name="quran_position_sheet_search_hint">بحث عن سورة</string>
+    <string name="quran_position_sheet_verse_label">الآية</string>
+    <string name="quran_position_of_ayah_format">من %1$d</string>
+    <string name="quran_error_invalid_pages">عدد الصفحات غير صالح. يجب أن يكون بين 1 و 604.</string>
+    <string name="quran_error_invalid_goal">الهدف غير صالح. يجب أن يكون بين 1 و 60 صفحة.</string>
+    <string name="quran_error_invalid_surah">رقم السورة غير صالح.</string>
+    <string name="quran_error_invalid_ayah">رقم الآية غير صالح لهذه السورة.</string>
+    <string name="quran_error_generic">حدث خطأ. يرجى المحاولة مرة أخرى.</string>
+
+    <!-- ── Athkar Overview Screen ────────────────────────────────────────── -->
+    <string name="athkar_screen_title">الأذكار اليومية</string>
+    <string name="athkar_morning_title">أذكار الصباح</string>
+    <string name="athkar_evening_title">أذكار المساء</string>
+    <string name="athkar_post_prayer_title">أذكار بعد الصلاة</string>
+    <string name="athkar_group_complete">مكتمل</string>
+    <string name="athkar_group_incomplete">غير مكتمل</string>
+    <string name="athkar_group_progress_format">%1$d / %2$d</string>
+    <string name="athkar_item_count_format">%1$d / %2$d</string>
+    <string name="athkar_tap_to_count">انقر للعد</string>
+
+    <!-- ── Morning Athkar Items ──────────────────────────────────────────── -->
+    <string name="athkar_morning_isti_transliteration">الاستعاذة</string>
+    <string name="athkar_morning_isti_translation">اللجوء إلى الله من الشيطان</string>
+    <string name="athkar_morning_ayat_kursi_transliteration">آية الكرسي</string>
+    <string name="athkar_morning_ayat_kursi_translation">آية الكرسي (البقرة 2:255)</string>
+    <string name="athkar_morning_ikhlas_transliteration">الإخلاص</string>
+    <string name="athkar_morning_ikhlas_translation">سورة الإخلاص (3 مرات)</string>
+    <string name="athkar_morning_falaq_transliteration">الفلق</string>
+    <string name="athkar_morning_falaq_translation">سورة الفلق (3 مرات)</string>
+    <string name="athkar_morning_nas_transliteration">الناس</string>
+    <string name="athkar_morning_nas_translation">سورة الناس (3 مرات)</string>
+    <string name="athkar_morning_subhanallah_transliteration">سبحان الله</string>
+    <string name="athkar_morning_subhanallah_translation">التسبيح (33 مرة)</string>
+    <string name="athkar_morning_alhmadullah_transliteration">الحمد لله</string>
+    <string name="athkar_morning_alhmadullah_translation">الحمد لله (33 مرة)</string>
+    <string name="athkar_morning_allahu_akbar_transliteration">الله أكبر</string>
+    <string name="athkar_morning_allahu_akbar_translation">الله أكبر (34 مرة)</string>
+    <string name="athkar_morning_sayyid_istighfar_transliteration">سيد الاستغفار</string>
+    <string name="athkar_morning_sayyid_istighfar_translation">أفضل استغفار</string>
+    <string name="athkar_morning_protection_transliteration">دعاء حماية الصباح</string>
+    <string name="athkar_morning_protection_translation">اللهم بإذنك وصلنا إلى الصباح...</string>
+
+    <!-- ── Evening Athkar Items ──────────────────────────────────────────── -->
+    <string name="athkar_evening_isti_transliteration">الاستعاذة (المساء)</string>
+    <string name="athkar_evening_isti_translation">اللجوء إلى الله من الشيطان (المساء)</string>
+    <string name="athkar_evening_ayat_kursi_transliteration">آية الكرسي (المساء)</string>
+    <string name="athkar_evening_ayat_kursi_translation">آية الكرسي (البقرة 2:255)</string>
+    <string name="athkar_evening_ikhlas_transliteration">الإخلاص (المساء)</string>
+    <string name="athkar_evening_ikhlas_translation">سورة الإخلاص (3 مرات)</string>
+    <string name="athkar_evening_falaq_transliteration">الفلق (المساء)</string>
+    <string name="athkar_evening_falaq_translation">سورة الفلق (3 مرات)</string>
+    <string name="athkar_evening_nas_transliteration">الناس (المساء)</string>
+    <string name="athkar_evening_nas_translation">سورة الناس (3 مرات)</string>
+    <string name="athkar_evening_subhanallah_transliteration">سبحان الله (المساء)</string>
+    <string name="athkar_evening_subhanallah_translation">التسبيح (33 مرة)</string>
+    <string name="athkar_evening_alhmadullah_transliteration">الحمد لله (المساء)</string>
+    <string name="athkar_evening_alhmadullah_translation">الحمد لله (33 مرة)</string>
+    <string name="athkar_evening_allahu_akbar_transliteration">الله أكبر (المساء)</string>
+    <string name="athkar_evening_allahu_akbar_translation">الله أكبر (34 مرة)</string>
+    <string name="athkar_evening_sayyid_istighfar_transliteration">سيد الاستغفار (المساء)</string>
+    <string name="athkar_evening_sayyid_istighfar_translation">أفضل استغفار</string>
+    <string name="athkar_evening_protection_transliteration">دعاء حماية المساء</string>
+    <string name="athkar_evening_protection_translation">اللهم بإذنك وصلنا إلى المساء...</string>
+
+    <!-- ── Post-Prayer Athkar Items ──────────────────────────────────────── -->
+    <string name="athkar_post_prayer_subhanallah_transliteration">سبحان الله</string>
+    <string name="athkar_post_prayer_subhanallah_translation">التسبيح (33 مرة)</string>
+    <string name="athkar_post_prayer_alhmadullah_transliteration">الحمد لله</string>
+    <string name="athkar_post_prayer_alhmadullah_translation">الحمد لله (33 مرة)</string>
+    <string name="athkar_post_prayer_allahu_akbar_transliteration">الله أكبر</string>
+    <string name="athkar_post_prayer_allahu_akbar_translation">الله أكبر (34 مرة)</string>
+    <string name="athkar_post_prayer_la_ilaha_transliteration">لا إله إلا الله</string>
+    <string name="athkar_post_prayer_la_ilaha_translation">لا إله إلا الله وحده...</string>
+    <string name="athkar_post_prayer_ayat_kursi_transliteration">آية الكرسي</string>
+    <string name="athkar_post_prayer_ayat_kursi_translation">آية الكرسي (1 مرة)</string>
+    <string name="athkar_post_prayer_istighfar_transliteration">أستغفر الله</string>
+    <string name="athkar_post_prayer_istighfar_translation">أستغفر الله (3 مرات)</string>
+    <string name="athkar_post_prayer_allahumma_anta_transliteration">اللهم أنت السلام</string>
+    <string name="athkar_post_prayer_allahumma_anta_translation">اللهم أنت السلام...</string>
+
+    <!-- ── Tasbeeh Screen ─────────────────────────────────────────────────── -->
+    <string name="tasbeeh_screen_title">عداد التسبيح</string>
+    <string name="tasbeeh_session_count_label">الجلسة الحالية</string>
+    <string name="tasbeeh_daily_total_label">إجمالي اليوم</string>
+    <string name="tasbeeh_reset_button">إعادة ضبط</string>
+    <string name="tasbeeh_goal_button">الهدف</string>
+    <string name="tasbeeh_goal_sheet_title">تحديد هدف التسبيح</string>
+    <string name="tasbeeh_goal_preset_33">33</string>
+    <string name="tasbeeh_goal_preset_100">100</string>
+    <string name="tasbeeh_goal_preset_300">300</string>
+    <string name="tasbeeh_goal_custom_hint">رقم مخصص...</string>
+    <string name="tasbeeh_goal_confirm_button">حفظ الهدف</string>
+    <string name="tasbeeh_error_invalid_goal">الهدف يجب أن يكون رقماً موجباً.</string>
+    <string name="tasbeeh_goal_reached_label">تم تحقيق الهدف!</string>
+    <string name="tasbeeh_cd_tap_button">انقر للعد</string>
+
+    <!-- ── Post-Prayer Slots ──────────────────────────────────────────────── -->
+    <string name="athkar_prayer_slot_fajr">الفجر</string>
+    <string name="athkar_prayer_slot_dhuhr">الظهر</string>
+    <string name="athkar_prayer_slot_asr">العصر</string>
+    <string name="athkar_prayer_slot_maghrib">المغرب</string>
+    <string name="athkar_prayer_slot_isha">العشاء</string>
+    <string name="athkar_post_prayer_prayers_done_format">%1$d / 5 صلوات</string>
+
+    <!-- ── Notification Settings ──────────────────────────────────────────── -->
+    <string name="notification_welcome_title">تم تفعيل الإشعارات</string>
+    <string name="notification_welcome_body">ستتلقى تذكيرات الأذكار اليومية. تقبل الله منك.</string>
+    <string name="notification_athkar_morning_title">حان وقت أذكار الصباح</string>
+    <string name="notification_athkar_morning_body">ابدأ صباحك بذكر الله</string>
+    <string name="notification_athkar_evening_title">حان وقت أذكار المساء</string>
+    <string name="notification_athkar_evening_body">اختم مسائك بذكر الله</string>
+    <string name="notification_settings_morning_label">تذكير أذكار الصباح</string>
+    <string name="notification_settings_evening_label">تذكير أذكار المساء</string>
+    <string name="notification_permission_rationale">تفعيل الإشعارات لتلقي تذكيرات الأذكار اليومية</string>
+    <string name="notification_open_settings_button">فتح الإعدادات</string>
+    <string name="notification_time_format">%1$02d:%2$02d</string>
+
+    <!-- ── Home Dashboard ─────────────────────────────────────────────────── -->
+    <string name="home_next_prayer_label">الصلاة القادمة</string>
+    <string name="home_next_prayer_unavailable">أوقات الصلاة غير متاحة</string>
+    <string name="home_all_prayers_done">أتممت جميع الصلوات اليوم!</string>
+    <string name="home_athkar_morning_label">الصباح</string>
+    <string name="home_athkar_evening_label">المساء</string>
+    <string name="home_athkar_not_started">انقر للبدء</string>
+    <string name="home_athkar_done">مكتمل</string>
+    <string name="home_athkar_pending">قيد الانتظار</string>
+    <string name="home_quran_pages_progress">%1$d / %2$d صفحة</string>
+    <string name="home_quran_label">القرآن</string>
+    <string name="home_daily_rituals_label">العبادات اليومية</string>
+    <string name="home_settings_icon_description">الإعدادات</string>
+    <string name="settings_placeholder_title">الإعدادات</string>
+    <string name="settings_placeholder_coming_soon">قريباً</string>
+    <string name="home_tasbeeh_label">التسبيح</string>
+    <string name="home_tasbeeh_count_progress">%1$d / %2$d</string>
+
+    <!-- ── Settings Screen ─────────────────────────────────────────────────── -->
+    <string name="settings_section_calculation_method">طريقة حساب الصلاة</string>
+    <string name="settings_section_location">الموقع</string>
+    <string name="settings_section_quran_goal">الهدف اليومي للقرآن</string>
+    <string name="settings_section_appearance">المظهر</string>
+    <string name="settings_section_language">اللغة</string>
+    <string name="settings_section_notifications">الإشعارات</string>
+    <string name="settings_notification_morning">تذكير أذكار الصباح</string>
+    <string name="settings_notification_evening">تذكير أذكار المساء</string>
+    <string name="settings_option_gps_automatic">نظام تحديد المواقع (تلقائي)</string>
+    <string name="settings_option_manual">يدوي</string>
+    <string name="settings_label_latitude">خط العرض</string>
+    <string name="settings_label_longitude">خط الطول</string>
+    <string name="settings_label_goal_pages">صفحات في اليوم</string>
+    <string name="settings_option_theme_system">النظام</string>
+    <string name="settings_option_theme_light">فاتح</string>
+    <string name="settings_option_theme_dark">داكن</string>
+    <string name="settings_option_language_english">الإنجليزية</string>
+    <string name="settings_option_language_arabic">العربية</string>
+    <string name="settings_error_invalid_latitude">يجب أن يكون خط العرض بين -90 و 90</string>
+    <string name="settings_error_invalid_longitude">يجب أن يكون خط الطول بين -180 و 180</string>
+    <string name="settings_error_minimum_goal">أقل هدف هو صفحة واحدة</string>
+    <string name="settings_method_mwl">رابطة العالم الإسلامي</string>
+    <string name="settings_method_egyptian">الهيئة المصرية العامة</string>
+    <string name="settings_method_umm_alqura">أم القرى</string>
+    <string name="settings_method_karachi">جامعة العلوم الإسلامية بكراتشي</string>
+    <string name="settings_method_isna">الجمعية الإسلامية لأمريكا الشمالية</string>
+    <string name="settings_method_dubai">دبي</string>
+    <string name="settings_method_kuwait">الكويت</string>
+    <string name="settings_method_qatar">قطر</string>
+    <string name="settings_method_msc">لجنة رؤية الهلال</string>
+    <string name="settings_method_singapore">سنغافورة</string>
+    <string name="settings_method_turkey">تركيا</string>
+    <string name="settings_method_tehran">طهران</string>
+
+</resources>

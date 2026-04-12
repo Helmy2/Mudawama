@@ -69,3 +69,15 @@
     - _As the_ system, _I need_ to generate fresh, empty `HabitLogEntity` rows in the database for all active habits when the clock strikes midnight, _so that_ the user has a clean slate for the new day without losing yesterday's data.
 - **TC-6.3: Resolve Quran Page Position via API**
     - _As the_ system, _I need_ to call the `alquran.cloud` API with the current Madinah Mushaf page number after a reading log is confirmed, _so that_ the bookmark is automatically advanced to the correct Surah and Ayah. The system must fall back to `ayah = 1` if the network call fails.
+
+## Epic 7: Settings & Configuration ✅ Implemented
+- **US-7.1: Prayer Calculation Method** ✅
+    - _As a_ user, _I want_ to select my preferred prayer calculation method (e.g., Muslim World League, Egyptian, Umm Al-Qura), _so that_ prayer times are calculated according to my school's jurisprudence.
+- **US-7.2: Location Mode (GPS/Manual)** ✅
+    - _As a_ user, _I want_ to choose between automatic GPS location or manual coordinate entry, _so that_ prayer times are accurate for my specific location.
+- **US-7.3: App Theme** ✅
+    - _As a_ user, _I want_ to select my preferred theme (System, Light, Dark), _so that_ the app matches my device preference.
+- **US-7.4: App Language (English/Arabic)** ✅
+    - _As a_ user, _I want_ to switch between English and Arabic, _so that_ the app UI displays in my preferred language. Arabic enables RTL layout.
+- **US-7.5: Notification Preferences** ✅
+    - _As a_ user, _I want_ to enable or disable daily Athkar reminder notifications (morning and evening), _so that_ I receive reminders at my preferred times without needing to open the Athkar screen.
