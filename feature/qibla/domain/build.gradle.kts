@@ -8,8 +8,7 @@ kotlin {
     configureIosFramework("FeatureQiblaDomain")
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.kotlinx.coroutines.core)
-            api(projects.shared.core.domain)
+            implementation(projects.shared.core.domain)
         }
     }
 }

@@ -12,7 +12,7 @@ kotlin {
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.data)
             implementation(projects.shared.core.domain)
-            implementation(libs.kotlinx.coroutines.core)
+
             implementation(libs.androidx.datastore.preferences)
         }
     }

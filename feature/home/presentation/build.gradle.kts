@@ -16,6 +16,7 @@ kotlin {
             implementation(projects.feature.athkar.domain)
             implementation(projects.feature.quran.domain)
             implementation(projects.feature.settings.domain)
+            implementation(projects.shared.core.domain)
         }
     }
 }

@@ -12,8 +12,7 @@ kotlin {
             implementation(projects.feature.quran.domain)
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.time)
-            api(projects.shared.core.domain)  // HttpClient from core domain
-            implementation(libs.kotlinx.coroutines.core)
+            implementation(projects.shared.core.domain)
             implementation(libs.bundles.ktor)
         }
         androidMain.dependencies { implementation(libs.ktor.client.okhttp) }

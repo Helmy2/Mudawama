@@ -15,6 +15,7 @@ kotlin {
             implementation(projects.feature.habits.domain)
             implementation(projects.shared.core.presentation)
             implementation(projects.shared.designsystem)
+            implementation(projects.shared.core.domain)
         }
     }
 }

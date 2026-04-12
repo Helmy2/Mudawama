@@ -3,9 +3,6 @@ plugins {
 }
 
 compose.resources {
-    // Res must be public so shared:navigation and all feature :presentation
-    // modules can import mudawama.shared.designsystem.Res directly.
-    // By default the convention plugin leaves publicResClass = false (internal).
     publicResClass = true
 }
 

@@ -8,8 +8,7 @@ kotlin {
     configureIosFramework("FeatureSettingsData")
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.kotlinx.coroutines.core)
-            api(projects.shared.core.data)
+            implementation(projects.shared.core.data)
             implementation(projects.feature.settings.domain)
             implementation(libs.androidx.datastore.preferences)
         }

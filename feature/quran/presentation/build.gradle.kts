@@ -11,6 +11,7 @@ kotlin {
             implementation(projects.shared.core.presentation)
             implementation(projects.shared.designsystem)
             implementation(projects.feature.quran.domain)
+            implementation(projects.shared.core.domain)
         }
     }
 }

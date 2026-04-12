@@ -11,6 +11,7 @@ kotlin {
             implementation(projects.feature.athkar.domain)
             implementation(projects.shared.core.presentation)
             implementation(projects.shared.designsystem)
+            implementation(projects.shared.core.domain)
         }
     }
 }

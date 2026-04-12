@@ -9,6 +9,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.shared.core.presentation)
+            implementation(projects.shared.core.domain)
             implementation(projects.shared.designsystem)
             implementation(projects.feature.settings.domain)
             implementation(projects.feature.settings.data)

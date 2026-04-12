@@ -15,8 +15,7 @@ kotlin {
             implementation(projects.feature.habits.domain)
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.time)
-            implementation(libs.kotlinx.coroutines.core)
-            // Note: offline-first module — Ktor kept for future API layer
+            implementation(projects.shared.core.domain)
         }
     }
 }
