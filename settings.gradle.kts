@@ -60,4 +60,7 @@ include(":feature:home:presentation")
 include(":feature:settings:domain")
 include(":feature:settings:data")
 include(":feature:settings:presentation")
+include(":feature:qibla:domain")
+include(":feature:qibla:data")
+include(":feature:qibla:presentation")
 

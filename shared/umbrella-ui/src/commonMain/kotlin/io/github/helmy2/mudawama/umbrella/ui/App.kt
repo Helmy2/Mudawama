@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.LayoutDirection
 import io.github.helmy2.mudawama.athkar.presentation.athkar.AthkarScreen
 import io.github.helmy2.mudawama.athkar.presentation.tasbeeh.TasbeehScreen
-import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import io.github.helmy2.mudawama.feature.qibla.presentation.qibla.QiblaScreen
 import io.github.helmy2.mudawama.habits.presentation.HabitsScreen
 import io.github.helmy2.mudawama.home.presentation.HomeScreen
 import io.github.helmy2.mudawama.navigation.MudawamaAppShell
@@ -42,7 +42,9 @@ fun App() {
     MudawamaAppShell(
         darkTheme = isDarkTheme,
         layoutDirection = layoutDirection,
-        homeScreen = { onNavigateToPrayer, onNavigateToAthkar, onNavigateToQuran, onNavigateToSettings, onNavigateToHabits, onNavigateToTasbeeh ->
+        homeScreen = { onNavigateToPrayer, onNavigateToAthkar,
+                       onNavigateToQuran, onNavigateToSettings,
+                       onNavigateToHabits, onNavigateToTasbeeh, onNavigateToQibla ->
             HomeScreen(
                 onNavigateToPrayer = onNavigateToPrayer,
                 onNavigateToAthkar = onNavigateToAthkar,
@@ -50,11 +52,13 @@ fun App() {
                 onNavigateToSettings = onNavigateToSettings,
                 onNavigateToHabits = onNavigateToHabits,
                 onNavigateToTasbeeh = onNavigateToTasbeeh,
+                onNavigateToQibla = onNavigateToQibla
             )
         },
         prayerScreen = { PrayerScreen() },
         quranScreen = { QuranScreen() },
         athkarScreen = { AthkarScreen() },
+        qiblaScreen = { onBack -> QiblaScreen(onNavigateBack = onBack) },
         tasbeehScreen = { TasbeehScreen() },
         habitsScreen = { _ -> HabitsScreen() },
         settingsScreen = { onBack -> SettingsScreen(onNavigateBack = onBack) },

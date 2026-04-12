@@ -62,6 +62,16 @@ mudawama/
         │                       # SettingsRepository interface, ObserveSettingsUseCase, SetXxxUseCases
         ├── data/               # SettingsRepositoryImpl using DataStore Preferences, Koin DI
         └── presentation/       # SettingsScreen, SettingsViewModel (MVI), Notifications section
+
+    │
+    └── qibla/
+        ├── domain/             # CompassHeading, QiblaState, QiblaAction, QiblaError models;
+        │                       # QiblaViewControllerProvider interface (iOS Swift integration);
+        │                       # CalculateQiblaAngleUseCase (Haversine formula)
+        ├── data/               # CompassSensorManager (expect/actual: Android TYPE_ROTATION_VECTOR,
+        │                       # iOS CLLocationManager with callbackFlow); Koin DI
+        └── presentation/       # QiblaScreen (expect/actual: Android Compose, iOS UIKitViewController
+                                # wrapping SwiftUI); QiblaViewModel (MVI); iOS-specific Koin module
 ```
 
 ---
@@ -237,3 +247,71 @@ Our Koin architecture follows the **Composition Root** pattern, ensuring that de
    - **iOS:** `iOSApp.swift` instantiates a Swift `IosEncryptor` and passes it into KMP via `KoinInitializerKt.initializeKoin(iosEncryptor:)`, which registers all three platform modules.
 
 By restricting `startKoin` to the top-level composition root (the umbrella module or native apps), we ensure that feature modules can easily register their dependencies (such as Use Cases or ViewModels) into the DI graph without encountering race conditions or initialization limitations.
+
+### iOS Swift Integration Pattern
+
+For performance-critical features (e.g., Qibla Compass with 60-120fps compass rotation), Mudawama uses **native SwiftUI views** on iOS while keeping Compose Multiplatform for Android. This hybrid approach follows a strict dependency injection pattern:
+
+#### The Pattern
+
+1. **Define a Kotlin interface** in the feature's `:domain` layer (e.g., `QiblaViewControllerProvider`). This interface exposes a factory method that returns a platform-specific view controller (`Any` in Kotlin, `UIViewController` in Swift).
+
+2. **Implement the interface in Swift** (e.g., `IosQiblaViewControllerProvider: QiblaViewControllerProvider`). The Swift class creates a `UIHostingController` wrapping the native SwiftUI view and observes the Kotlin ViewModel's `StateFlow` using a Timer-based polling approach (100ms / 10 FPS).
+
+3. **Register via `initializeKoin()`**: The Swift implementation is instantiated in `iOSApp.swift` and passed to `KoinInitializerKt.initializeKoin(...)` alongside other iOS providers (e.g., `IosLocationProvider`, `IosNotificationProvider`).
+
+4. **Platform-specific Koin modules**: The feature's `:presentation` layer provides an iOS-specific Koin module (e.g., `iosQiblaPresentationModule(iosQiblaViewControllerProvider)`) that registers the Swift provider as a singleton.
+
+5. **expect/actual QiblaScreen**: The `QiblaScreen` composable uses `expect/actual`:
+   - **Android**: Full Compose implementation with `Canvas`, compass dial rendering, and `SensorManager` for compass readings.
+   - **iOS**: `UIKitViewController` factory that injects the `QiblaViewControllerProvider` from Koin and calls `createViewController()`.
+
+6. **Communication bridge**: A Kotlin `object QiblaScreenBridge` stores the ViewModel and navigation callback temporarily. Swift retrieves these from the bridge when `createViewController()` is called.
+
+#### Example Files
+
+```kotlin
+// feature/qibla/domain/.../ui/QiblaViewControllerProvider.kt
+interface QiblaViewControllerProvider {
+    fun createViewController(): Any  // UIViewController on iOS
+}
+```
+
+```swift
+// iosApp/iosApp/IosQiblaViewControllerProvider.swift
+@MainActor
+class IosQiblaViewControllerProvider: NSObject, QiblaViewControllerProvider {
+    func createViewController() -> Any {
+        let viewModel = QiblaScreenBridge.shared.viewModel!
+        let onNavigateBack = QiblaScreenBridge.shared.onNavigateBack!
+        let swiftUIView = QiblaViewWrapper(viewModel: viewModel, onNavigateBack: onNavigateBack)
+        return UIHostingController(rootView: swiftUIView)
+    }
+}
+```
+
+```kotlin
+// feature/qibla/presentation/src/iosMain/.../QiblaScreen.kt
+@Composable
+actual fun QiblaScreen(onNavigateBack: () -> Unit, viewModel: QiblaViewModel) {
+    val provider = koinInject<QiblaViewControllerProvider>()
+    QiblaScreenBridge.viewModel = viewModel
+    QiblaScreenBridge.onNavigateBack = onNavigateBack
+    
+    UIKitViewController(
+        factory = { provider.createViewController() as UIViewController },
+        modifier = Modifier
+    )
+}
+```
+
+#### When to Use This Pattern
+
+Use native SwiftUI for iOS when:
+- **Performance is critical** (e.g., 60-120fps animations, sensor-driven real-time updates)
+- **Platform APIs are complex** (e.g., CLLocationManager delegate pattern, advanced CoreMotion)
+- **Native UX is preferred** (e.g., platform-specific gestures, haptics, or animations)
+
+For standard CRUD screens, lists, and forms, stick with Compose Multiplatform for code sharing.
+
+---

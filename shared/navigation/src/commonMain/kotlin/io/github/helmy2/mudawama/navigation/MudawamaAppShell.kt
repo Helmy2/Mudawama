@@ -6,12 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
@@ -54,10 +49,12 @@ fun MudawamaAppShell(
         onNavigateToSettings: () -> Unit,
         onNavigateToHabits: () -> Unit,
         onNavigateToTasbeeh: () -> Unit,
-    ) -> Unit = { _, _, _, _, _, _ -> },
+        onNavigateToQibla: () -> Unit,
+    ) -> Unit = { _, _, _, _, _, _, _ -> },
     prayerScreen: @Composable () -> Unit = {},
     quranScreen: @Composable () -> Unit = {},
     athkarScreen: @Composable () -> Unit = {},
+    qiblaScreen: @Composable (onBack: () -> Unit) -> Unit = { _ -> },
     tasbeehScreen: @Composable () -> Unit = {},
     habitsScreen: @Composable (onBack: () -> Unit) -> Unit = { _ -> },
     settingsScreen: @Composable (onBack: () -> Unit) -> Unit = { _ -> },
@@ -74,6 +71,7 @@ fun MudawamaAppShell(
                         subclass(TasbeehRoute::class)
                         subclass(SettingsRoute::class)
                         subclass(HabitsRoute::class)
+                        subclass(QiblaRoute::class)
                     }
                 }
             },
@@ -124,6 +122,7 @@ fun MudawamaAppShell(
                                 { backStack.add(SettingsRoute) },
                                 { backStack.add(HabitsRoute) },
                                 { backStack.add(TasbeehRoute) },
+                                { backStack.add(QiblaRoute) },
                             )
                         }
                         entry<PrayerRoute> {
@@ -137,6 +136,10 @@ fun MudawamaAppShell(
                         entry<AthkarRoute> {
                             AppBackHandler { goHome() }
                             athkarScreen()
+                        }
+                        entry<QiblaRoute> {
+                            AppBackHandler { goHome() }
+                            qiblaScreen { goHome() }
                         }
                         entry<TasbeehRoute> {
                             AppBackHandler { goHome() }

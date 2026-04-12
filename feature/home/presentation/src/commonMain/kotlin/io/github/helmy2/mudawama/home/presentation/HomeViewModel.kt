@@ -20,6 +20,7 @@ import io.github.helmy2.mudawama.home.presentation.model.HomeUiEvent
 import io.github.helmy2.mudawama.home.presentation.model.HomeUiState
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus
 import io.github.helmy2.mudawama.prayer.domain.usecase.ObservePrayersForDateUseCase
+import io.github.helmy2.mudawama.prayer.domain.usecase.SeedPrayerHabitsUseCase
 import io.github.helmy2.mudawama.quran.domain.usecase.ObserveQuranStateUseCase
 import io.github.helmy2.mudawama.settings.domain.CalculationMethod
 import io.github.helmy2.mudawama.settings.domain.LocationMode
@@ -36,6 +37,7 @@ class HomeViewModel(
     private val incrementCountUseCase: IncrementHabitCountUseCase,
     private val decrementCountUseCase: DecrementHabitCountUseCase,
     private val observePrayersForDateUseCase: ObservePrayersForDateUseCase,
+    private val seedPrayerHabitsUseCase: SeedPrayerHabitsUseCase,
     private val observeAthkarCompletionUseCase: ObserveAthkarCompletionUseCase,
     private val observeQuranStateUseCase: ObserveQuranStateUseCase,
     private val observeTasbeehGoalUseCase: ObserveTasbeehGoalUseCase,
@@ -52,6 +54,10 @@ class HomeViewModel(
     private var currentCalculationMethod: CalculationMethod = CalculationMethod.MUSLIM_WORLD_LEAGUE
 
     init {
+        // Seed prayer habits first to ensure they exist before observing
+        intent {
+            seedPrayerHabitsUseCase()
+        }
         observeSettings()
         observeHabits()
         observePrayers()
@@ -220,6 +226,8 @@ class HomeViewModel(
                 intent { emitEvent(HomeUiEvent.Navigate.ToSettings) }
             is HomeUiAction.HabitsViewAllTapped ->
                 intent { emitEvent(HomeUiEvent.Navigate.ToHabits) }
+            is HomeUiAction.QiblaCardTapped ->
+                intent { emitEvent(HomeUiEvent.Navigate.ToQibla) }
         }
     }
 

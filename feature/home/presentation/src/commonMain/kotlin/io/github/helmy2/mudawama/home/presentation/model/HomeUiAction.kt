@@ -13,4 +13,5 @@ sealed interface HomeUiAction {
     data object TasbeehCardTapped : HomeUiAction
     data object SettingsIconTapped : HomeUiAction
     data object HabitsViewAllTapped : HomeUiAction
+    data object QiblaCardTapped : HomeUiAction
 }

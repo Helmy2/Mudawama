@@ -13,5 +13,6 @@ sealed interface HomeUiEvent {
         data object ToSettings : Navigate
         data object ToHabits : Navigate
         data object ToTasbeeh : Navigate
+        data object ToQibla : Navigate
     }
 }

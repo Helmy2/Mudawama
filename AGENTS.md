@@ -1,6 +1,6 @@
 # Mudawama Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-11
+Auto-generated from all feature plans. Last updated: 2026-04-12
 
 ## Active Technologies
 - **Kotlin** 2.3.20 (Kotlin Multiplatform) — Android (minSdk 30) + iOS 15+
@@ -12,6 +12,8 @@ Auto-generated from all feature plans. Last updated: 2026-04-11
 - **kotlinx-datetime** 0.7.1 (date handling)
 - **kotlinx-coroutines** 1.10.2
 - **androidx.datastore.preferences** — session storage + 6 Athkar notification pref keys
+- **Android Sensor API** (TYPE_ROTATION_VECTOR) + **iOS CoreLocation** (CLLocationManager) — compass sensor (011-qibla-compass)
+- DataStore (settings location), no new DB entities required (011-qibla-compass)
 
 ## Project Structure
 
@@ -56,7 +58,22 @@ specs/
 - **Notification strings** must be resolved in the UI layer (Composable) and passed as action parameters to the ViewModel — never resolved inside the ViewModel itself (KMP limitation)
 - **`feature:home:presentation` navigation rule**: this module has **no dependency on `shared:navigation`**. Navigation is done via plain `() -> Unit` callbacks passed from `MudawamaAppShell`. `HomeUiEvent` uses a nested `sealed interface Navigate` with typed objects (`ToPrayer`, `ToAthkar`, `ToQuran`, `ToSettings`, `ToHabits`, `ToTasbeeh`) — no `Route` types in the home module.
 - **`AppBackHandler` pattern**: every non-Home `entryProvider` branch in `MudawamaAppShell` wraps content in `AppBackHandler { goHome() }`. `goHome()` clears the back-stack and adds `HomeRoute`. `AppBackHandler` is an `expect/actual` composable in `shared:navigation` — Android actual wraps `BackHandler`; iOS actual is a no-op.
-- **Bottom bar visibility**: only shown on top-level routes (`HomeRoute`, `PrayerRoute`, `QuranRoute`, `AthkarRoute`). Hidden on push destinations (`HabitsRoute`, `TasbeehRoute`, `SettingsRoute`).
+- **Bottom bar visibility**: only shown on top-level routes (`HomeRoute`, `PrayerRoute`, `QuranRoute`, `AthkarRoute`). Hidden on push destinations (`HabitsRoute`, `TasbeehRoute`, `SettingsRoute`, `QiblaRoute`).
+
+## iOS SwiftUI Integration Pattern (011-qibla-compass)
+
+For performance-critical features requiring 60-120fps updates or complex platform APIs, Mudawama uses **native SwiftUI views** on iOS while keeping Compose for Android:
+
+1. **Define Kotlin interface** in `:domain` layer (e.g., `QiblaViewControllerProvider`)
+2. **Implement in Swift** (`IosQiblaViewControllerProvider: QiblaViewControllerProvider`)
+3. **Register via `initializeKoin()`** — Swift instance passed alongside `IosLocationProvider`, `IosEncryptor`, etc.
+4. **Platform-specific Koin module** — `iosQiblaPresentationModule(iosQiblaViewControllerProvider)` registers provider
+5. **expect/actual screen** — Android: full Compose; iOS: `UIKitViewController` + `koinInject<QiblaViewControllerProvider>()`
+6. **Communication bridge** — Kotlin `object` stores ViewModel + callbacks for Swift to retrieve
+
+**Example**: `IosQiblaViewControllerProvider` creates `UIHostingController(rootView: QiblaViewContent)`, observes Kotlin `StateFlow` via Timer (100ms / 10 FPS), uses `UIImpactFeedbackGenerator` for haptics. See `specs/011-qibla-compass/IMPLEMENTATION.md` for full details.
+
+**When to use**: 60-120fps animations, complex platform delegates (CLLocationManagerDelegate), or native UX patterns. For CRUD screens, use Compose Multiplatform.
 
 ## Shared Design System Components
 
@@ -138,7 +155,14 @@ sourceSets {
 
 - **009-home-dashboard** ✅ **Complete**: Home Dashboard aggregating all features into a single scrollable screen. New `feature:home:presentation` module. Summary cards: `NextPrayerCard` (full-width), `AthkarSummaryCard`, `QuranProgressCard`, `TasbeehSummaryCard` (2-column row), `HabitsSummarySection`. Navigation via 6 plain callbacks (no `shared:navigation` dep in home module). `AppBackHandler` expect/actual added to `shared:navigation`. Bottom bar reduced to 4 tabs (TASBEEH removed). `HabitsRoute` + `TasbeehRoute` added as push destinations. `SettingsRoute` + `SettingsScreen` placeholder added. No new DB entities.
 
+- **011-qibla-compass** ✅ **Complete**: Qibla Compass feature with real-time compass updates on both platforms. New `feature:qibla:domain`, `feature:qibla:data`, `feature:qibla:presentation` modules. **iOS uses native SwiftUI** via `IosQiblaViewControllerProvider` (implements `QiblaViewControllerProvider` Kotlin interface, passed via `initializeKoin()`). Android uses full Compose. Sensors: Android TYPE_ROTATION_VECTOR; iOS CLLocationManager with callbackFlow (object delegation pattern — no NSObject subclass). Haversine formula for Qibla angle calculation. Haptic feedback on alignment (±2°). Calibration warnings for LOW/UNRELIABLE accuracy. Location permission fallback with "Go to Settings". All strings via stringResource. Navigation from HomeScreen Qibla card. Prayer habits now seeded in `HomeViewModel.init` to ensure prayers show on first app launch. **Architecture pattern**: See `specs/011-qibla-compass/IMPLEMENTATION.md` for full Swift-Kotlin interop details.
+
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
 
+
+## Recent Changes
+- 011-qibla-compass: Fixed iOS CompassSensorManager to use callbackFlow + object delegation instead of NSObject inheritance (Kotlin/Native limitation)
+- 011-qibla-compass: Integrated native iOS SwiftUI view via `IosQiblaViewControllerProvider` pattern for optimal performance
+- 009-home-dashboard: Added `SeedPrayerHabitsUseCase` to `HomeViewModel.init` to fix prayer times not showing on first app launch
