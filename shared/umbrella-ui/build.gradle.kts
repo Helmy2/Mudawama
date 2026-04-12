@@ -39,6 +39,13 @@ kotlin {
 
                 implementation(projects.feature.home.presentation)
 
+                implementation(projects.feature.settings.domain)
+                implementation(projects.feature.settings.data)
+                implementation(projects.feature.settings.presentation)
+
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.bundles.koin)
+                implementation(libs.koin.compose.viewmodel)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.bundles.compose)
                 implementation(libs.bundles.lifecycle)

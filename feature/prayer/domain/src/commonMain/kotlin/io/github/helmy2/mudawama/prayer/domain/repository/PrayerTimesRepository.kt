@@ -4,6 +4,7 @@ import io.github.helmy2.mudawama.core.location.Coordinates
 import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.prayer.domain.error.PrayerError
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerTime
+import io.github.helmy2.mudawama.settings.domain.CalculationMethod
 import kotlinx.datetime.LocalDate
 
 interface PrayerTimesRepository {
@@ -11,7 +12,7 @@ interface PrayerTimesRepository {
      * Fetches prayer times for the specified date.
      * Checks the local cache first. If absent, fetches from Aladhan API, caches, and returns.
      */
-    suspend fun getPrayerTimes(date: LocalDate, coordinates: Coordinates): Result<List<PrayerTime>, PrayerError>
+    suspend fun getPrayerTimes(date: LocalDate, coordinates: Coordinates, method: CalculationMethod): Result<List<PrayerTime>, PrayerError>
     
     /**
      * Optional: Just read from cache, do not trigger network fetch.

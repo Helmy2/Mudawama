@@ -14,6 +14,9 @@ import io.github.helmy2.mudawama.prayer.domain.usecase.SeedPrayerHabitsUseCase
 import io.github.helmy2.mudawama.prayer.domain.usecase.TogglePrayerStatusUseCase
 import io.github.helmy2.mudawama.prayer.presentation.model.PrayerUiAction
 import io.github.helmy2.mudawama.prayer.presentation.model.PrayerUiState
+import io.github.helmy2.mudawama.settings.domain.CalculationMethod
+import io.github.helmy2.mudawama.settings.domain.LocationMode
+import io.github.helmy2.mudawama.settings.domain.ObserveSettingsUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,110 +34,130 @@ class PrayerViewModel(
     private val seedPrayerHabitsUseCase: SeedPrayerHabitsUseCase,
     private val locationProvider: LocationProvider,
     private val timeProvider: TimeProvider,
+    private val observeSettingsUseCase: ObserveSettingsUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(
         PrayerUiState(
             selectedDate = timeProvider.logicalDate(),
             today = timeProvider.logicalDate(),
-            dateStrip = generateDateStrip(timeProvider.logicalDate())
-        )
+            dateStrip = generateDateStrip(timeProvider.logicalDate()))
     )
     val state: StateFlow<PrayerUiState> = _state.asStateFlow()
 
     private var currentCoordinates: Coordinates? = null
+    private var currentLocationMode: LocationMode = LocationMode.Gps
+    private var currentCalculationMethod: CalculationMethod = CalculationMethod.MUSLIM_WORLD_LEAGUE
 
     init {
         viewModelScope.launch {
-            // 1. Seed DB rows (idempotent — no-op if already present)
             seedPrayerHabitsUseCase()
-            // 2. Resolve location before starting the observe loop so coordinates are ready
-            resolveLocation()
-            // 3. Now start the observation loop — no race with location or empty DB
-            _state.collectLatest { currentState ->
-                observePrayersForDateUseCase(
-                    currentState.selectedDate,
-                    currentCoordinates ?: MECCA_COORDINATES
-                ).collect { result ->
-                    when (result) {
-                        is Result.Success -> _state.value =
-                            _state.value.copy(prayers = result.data, timesAvailable = true)
-                        is Result.Failure -> _state.value =
-                            _state.value.copy(timesAvailable = false)
-                    }
+            observeSettingsUseCase().collectLatest { settings ->
+                val locationChanged = currentLocationMode != settings.locationMode
+                val methodChanged = currentCalculationMethod != settings.calculationMethod
+
+                currentLocationMode = settings.locationMode
+                currentCalculationMethod = settings.calculationMethod
+
+                resolveLocation()
+
+                if (locationChanged || methodChanged) {
+                    loadPrayersForDate(_state.value.selectedDate)
                 }
+            }
+        }
+        observeDateChanges()
+    }
+
+    private fun observeDateChanges() {
+        viewModelScope.launch {
+            _state.collectLatest { currentState ->
+                loadPrayersForDate(currentState.selectedDate)
+            }
+        }
+    }
+
+    private suspend fun loadPrayersForDate(date: LocalDate) {
+        val coords = currentCoordinates ?: MECCA_COORDINATES
+        val method = currentCalculationMethod
+        observePrayersForDateUseCase(date, coords, method).collect { result ->
+            when (result) {
+                is Result.Success -> _state.value =
+                    _state.value.copy(prayers = result.data, timesAvailable = true)
+                is Result.Failure -> _state.value =
+                    _state.value.copy(timesAvailable = false)
             }
         }
     }
 
     private suspend fun resolveLocation() {
-        val location = locationProvider.getCurrentLocation()
-        when (location) {
-            is Result.Success -> {
-                currentCoordinates = location.data
+        when (val mode = currentLocationMode) {
+            is LocationMode.Gps -> {
+                val location = locationProvider.getCurrentLocation()
+                when (location) {
+                    is Result.Success -> {
+                        currentCoordinates = location.data
+                        _state.value = _state.value.copy(
+                            locationServiceDisabled = false,
+                            usingFallbackLocation = false
+                        )
+                    }
+                    is Result.Failure -> when (location.error) {
+                        LocationError.PermissionDenied -> {
+                            _state.value = _state.value.copy(
+                                locationServiceDisabled = true,
+                                usingFallbackLocation = true
+                            )
+                            currentCoordinates = MECCA_COORDINATES
+                        }
+                        else -> {
+                            currentCoordinates = MECCA_COORDINATES
+                            _state.value = _state.value.copy(usingFallbackLocation = true)
+                        }
+                    }
+                }
+            }
+            is LocationMode.Manual -> {
+                currentCoordinates = Coordinates(mode.latitude, mode.longitude)
                 _state.value = _state.value.copy(
                     locationServiceDisabled = false,
                     usingFallbackLocation = false
                 )
             }
-            is Result.Failure -> when (location.error) {
-                is LocationError.LocationUnavailable ->
-                    _state.value = _state.value.copy(
-                        locationServiceDisabled = true,
-                        usingFallbackLocation = false
-                    )
-                else ->
-                    _state.value = _state.value.copy(
-                        usingFallbackLocation = true,
-                        locationServiceDisabled = false
-                    )
-            }
         }
     }
 
     fun onAction(action: PrayerUiAction) {
-        when (action) {
-            is PrayerUiAction.SelectDate -> {
-                _state.value = _state.value.copy(selectedDate = action.date)
-            }
-            is PrayerUiAction.TogglePrayer -> {
-                viewModelScope.launch {
+        viewModelScope.launch {
+            when (action) {
+                is PrayerUiAction.SelectDate -> {
+                    _state.value = _state.value.copy(selectedDate = action.date)
+                }
+                is PrayerUiAction.TogglePrayer -> {
                     togglePrayerStatusUseCase(action.prayerHabitId, _state.value.selectedDate)
                 }
-            }
-            is PrayerUiAction.MarkMissedRequested -> {
-                _state.value = _state.value.copy(missedSheetPrayer = action.prayer)
-            }
-            is PrayerUiAction.ConfirmMarkMissed -> {
-                val date = _state.value.selectedDate
-                _state.value = _state.value.copy(missedSheetPrayer = null)
-                viewModelScope.launch {
-                    markPrayerMissedUseCase(action.prayerHabitId, date)
+                is PrayerUiAction.ConfirmMarkMissed -> {
+                    markPrayerMissedUseCase(action.prayerHabitId, _state.value.selectedDate)
                 }
-            }
-            is PrayerUiAction.ConfirmMarkPending -> {
-                val date = _state.value.selectedDate
-                _state.value = _state.value.copy(missedSheetPrayer = null)
-                viewModelScope.launch {
-                    markPrayerPendingUseCase(action.prayerHabitId, date)
+                is PrayerUiAction.ConfirmMarkPending -> {
+                    markPrayerPendingUseCase(action.prayerHabitId, _state.value.selectedDate)
                 }
-            }
-            is PrayerUiAction.DismissMissedSheet -> {
-                _state.value = _state.value.copy(missedSheetPrayer = null)
-            }
-            is PrayerUiAction.LocationPermissionGranted -> {
-                viewModelScope.launch {
-                    // Re-resolve now that permission has been granted; clears banners
+                is PrayerUiAction.MarkMissedRequested -> {
+                    _state.value = _state.value.copy(missedSheetPrayer = action.prayer)
+                }
+                is PrayerUiAction.DismissMissedSheet -> {
+                    _state.value = _state.value.copy(missedSheetPrayer = null)
+                }
+                is PrayerUiAction.LocationPermissionGranted -> {
                     _state.value = _state.value.copy(
                         usingFallbackLocation = false,
                         locationServiceDisabled = false
                     )
                     resolveLocation()
                 }
-            }
-            is PrayerUiAction.OpenLocationSettings -> {
-                // Handled entirely in the UI layer (expect/actual); ViewModel is a no-op here.
-                // When the user returns from Settings, LocationPermissionGranted will re-resolve.
+                is PrayerUiAction.OpenLocationSettings -> {
+                    // Handled in UI layer
+                }
             }
         }
     }
@@ -143,7 +166,6 @@ class PrayerViewModel(
         (-3..3).map { today.plus(DatePeriod(days = it)) }
 
     companion object {
-        // Fallback: Mecca, Saudi Arabia
         private val MECCA_COORDINATES = Coordinates(21.3891, 39.8579)
     }
 }

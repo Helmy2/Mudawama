@@ -55,6 +55,13 @@ mudawama/
         ├── data/               # AthkarRepositoryImpl, TasbeehRepositoryImpl, mappers, Koin DI
         └── presentation/       # AthkarScreen, AthkarGroupScreen, TasbeehScreen, TasbeehGoalBottomSheet,
                                 # AthkarViewModel, TasbeehViewModel; expect/actual BackHandler + Permission
+
+    │
+    └── settings/
+        ├── domain/             # AppSettings, CalculationMethod, LocationMode, AppTheme, AppLanguage models;
+        │                       # SettingsRepository interface, ObserveSettingsUseCase, SetXxxUseCases
+        ├── data/               # SettingsRepositoryImpl using DataStore Preferences, Koin DI
+        └── presentation/       # SettingsScreen, SettingsViewModel (MVI), Notifications section
 ```
 
 ---

@@ -31,6 +31,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.ui.tooling)
+                implementation(libs.appcompat)
             }
         }
     }

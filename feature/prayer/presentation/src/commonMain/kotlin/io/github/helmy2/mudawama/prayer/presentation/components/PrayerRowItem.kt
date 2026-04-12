@@ -26,6 +26,13 @@ import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.habits.domain.model.LogStatus
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerName
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.prayer_fajr
+import mudawama.shared.designsystem.prayer_dhuhr
+import mudawama.shared.designsystem.prayer_asr
+import mudawama.shared.designsystem.prayer_maghrib
+import mudawama.shared.designsystem.prayer_isha
+import org.jetbrains.compose.resources.stringResource
 
 private val CardShape = RoundedCornerShape(20.dp)
 
@@ -35,12 +42,13 @@ private data class PrayerIconStyle(
     val usePrimaryChip: Boolean,
 )
 
+@Composable
 private fun PrayerName.displayName(): String = when (this) {
-    PrayerName.FAJR    -> "Fajr"
-    PrayerName.DHUHR   -> "Dhuhr"
-    PrayerName.ASR     -> "Asr"
-    PrayerName.MAGHRIB -> "Maghrib"
-    PrayerName.ISHA    -> "Isha"
+    PrayerName.FAJR    -> stringResource(Res.string.prayer_fajr)
+    PrayerName.DHUHR   -> stringResource(Res.string.prayer_dhuhr)
+    PrayerName.ASR     -> stringResource(Res.string.prayer_asr)
+    PrayerName.MAGHRIB -> stringResource(Res.string.prayer_maghrib)
+    PrayerName.ISHA    -> stringResource(Res.string.prayer_isha)
 }
 
 /**

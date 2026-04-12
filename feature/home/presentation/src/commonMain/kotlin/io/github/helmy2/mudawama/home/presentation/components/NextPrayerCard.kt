@@ -1,23 +1,29 @@
 package io.github.helmy2.mudawama.home.presentation.components
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material.icons.filled.WbTwilight
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerName
+import mudawama.shared.designsystem.prayer_asr
+import mudawama.shared.designsystem.prayer_dhuhr
+import mudawama.shared.designsystem.prayer_fajr
+import mudawama.shared.designsystem.prayer_isha
+import mudawama.shared.designsystem.prayer_maghrib
+import org.jetbrains.compose.resources.stringResource
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.home_all_prayers_done
 import mudawama.shared.designsystem.home_next_prayer_label
@@ -90,12 +96,13 @@ fun NextPrayerCard(
     }
 }
 
+@Composable
 private fun PrayerName.displayName(): String = when (this) {
-    PrayerName.FAJR -> "Fajr"
-    PrayerName.DHUHR -> "Dhuhr"
-    PrayerName.ASR -> "Asr"
-    PrayerName.MAGHRIB -> "Maghrib"
-    PrayerName.ISHA -> "Isha"
+    PrayerName.FAJR -> stringResource(Res.string.prayer_fajr)
+    PrayerName.DHUHR -> stringResource(Res.string.prayer_dhuhr)
+    PrayerName.ASR -> stringResource(Res.string.prayer_asr)
+    PrayerName.MAGHRIB -> stringResource(Res.string.prayer_maghrib)
+    PrayerName.ISHA -> stringResource(Res.string.prayer_isha)
 }
 
 @Preview

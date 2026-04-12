@@ -17,6 +17,8 @@ import io.github.helmy2.mudawama.prayer.presentation.di.prayerPresentationModule
 import io.github.helmy2.mudawama.quran.data.di.quranDataModule
 import io.github.helmy2.mudawama.quran.domain.di.quranDomainModule
 import io.github.helmy2.mudawama.quran.presentation.di.quranPresentationModule
+import io.github.helmy2.mudawama.settings.data.di.settingsDataModule
+import io.github.helmy2.mudawama.settings.presentation.di.settingsPresentationModule
 import org.koin.core.KoinApplication
 
 fun KoinApplication.setupModules(): KoinApplication {
@@ -38,5 +40,7 @@ fun KoinApplication.setupModules(): KoinApplication {
         athkarDataModule(),
         athkarPresentationModule(),
         homePresentationModule(),
+        settingsDataModule,
+        settingsPresentationModule,
     )
 }

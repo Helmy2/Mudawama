@@ -14,6 +14,7 @@ kotlin {
             api(projects.shared.core.domain)
             // EXCEPTION: shared LogStatus enum — depends on habits:domain for that enum only
             implementation(projects.feature.habits.domain)
+            implementation(projects.feature.settings.domain)
         }
     }
 }

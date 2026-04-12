@@ -5,11 +5,13 @@ import io.github.helmy2.mudawama.core.database.dao.PrayerTimeCacheDao
 import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.core.time.TimeProvider
 import io.github.helmy2.mudawama.core.time.toIsoDateString
+import io.github.helmy2.mudawama.prayer.data.mapper.toAladhanMethodId
 import io.github.helmy2.mudawama.prayer.data.mapper.toDomainList
 import io.github.helmy2.mudawama.prayer.data.mapper.toEntity
 import io.github.helmy2.mudawama.prayer.domain.error.PrayerError
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerTime
 import io.github.helmy2.mudawama.prayer.domain.repository.PrayerTimesRepository
+import io.github.helmy2.mudawama.settings.domain.CalculationMethod
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -21,7 +23,7 @@ internal class PrayerTimesRepositoryImpl(
     private val timeProvider: TimeProvider
 ) : PrayerTimesRepository {
 
-    override suspend fun getPrayerTimes(date: LocalDate, coordinates: Coordinates): Result<List<PrayerTime>, PrayerError> {
+    override suspend fun getPrayerTimes(date: LocalDate, coordinates: Coordinates, method: CalculationMethod): Result<List<PrayerTime>, PrayerError> {
         val cached = getCachedPrayerTimes(date)
         if (cached != null) return Result.Success(cached)
 
@@ -29,12 +31,13 @@ internal class PrayerTimesRepositoryImpl(
             val dateString = toIsoDateString(date)
             // Aladhan API expects DD-MM-YYYY
             val formattedDate = "${date.day.toString().padStart(2, '0')}-${(date.month.ordinal + 1).toString().padStart(2, '0')}-${date.year}"
+            val methodId = method.toAladhanMethodId()
             
             val response: io.github.helmy2.mudawama.prayer.data.dto.AladhanResponseDto = httpClient.get("https://api.aladhan.com/v1/timings/$formattedDate") {
                 url {
                     parameters.append("latitude", coordinates.latitude.toString())
                     parameters.append("longitude", coordinates.longitude.toString())
-                    parameters.append("method", "2")
+                    parameters.append("method", methodId)
                 }
             }.body()
 

@@ -47,6 +47,7 @@ Feature specifications live in [`specs/`](specs/):
 * [`specs/007-quran-tracking/`](specs/007-quran-tracking/) — Quran reading tracker
 * [`specs/008-athkar-tasbeeh/`](specs/008-athkar-tasbeeh/) — Athkar & Tasbeeh counter
 * [`specs/009-home-dashboard/`](specs/009-home-dashboard/) — Home Dashboard aggregator
+* [`specs/010-settings-screen/`](specs/010-settings-screen/) — Settings screen with prayer calculation, location, theme, language, and notification preferences
 
 ---
 
@@ -56,6 +57,7 @@ Feature specifications live in [`specs/`](specs/):
 * **UI:** Compose Multiplatform 1.10.3 (Android & iOS)
 * **Architecture:** Clean Architecture + Custom MVI (Orbit-style) + strict module boundaries
 * **Local Database:** Room 2.8.4 for KMP (SQLite, schema v4)
+* **Settings Storage:** DataStore Preferences (prayer method, location, theme, language, notifications)
 * **Networking:** Ktor 3.4.1 (Aladhan API for prayer times, alquran.cloud for bookmark resolution)
 * **Dependency Injection:** Koin 4.2.0 (BOM + Platform Extensions)
 * **Async / Date:** kotlinx-coroutines 1.10.2, kotlinx-datetime 0.7.1

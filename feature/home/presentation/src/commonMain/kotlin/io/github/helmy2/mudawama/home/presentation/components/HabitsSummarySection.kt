@@ -28,6 +28,13 @@ import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus
 import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.prayer_asr
+import mudawama.shared.designsystem.prayer_dhuhr
+import mudawama.shared.designsystem.prayer_fajr
+import mudawama.shared.designsystem.prayer_isha
+import mudawama.shared.designsystem.prayer_maghrib
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A read-only summary section showing today's habits with toggle/counter interactions.
@@ -59,10 +66,12 @@ internal fun HabitsSummarySection(
                     }
                 }
             }
+
             habits.isEmpty() -> {
                 // No habits yet — no action needed here, user manages in Habits tab
                 Spacer(Modifier.height(24.dp))
             }
+
             else -> {
                 Column(
                     modifier = Modifier.padding(vertical = 8.dp),
@@ -78,6 +87,24 @@ internal fun HabitsSummarySection(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun getLocalizedHabitName(name: String, category: String): String {
+    return when (category.lowercase()) {
+        "prayer" -> {
+            when (name.lowercase()) {
+                "fajr" -> stringResource(Res.string.prayer_fajr)
+                "dhuhr" -> stringResource(Res.string.prayer_dhuhr)
+                "asr" -> stringResource(Res.string.prayer_asr)
+                "maghrib" -> stringResource(Res.string.prayer_maghrib)
+                "isha" -> stringResource(Res.string.prayer_isha)
+                else -> name
+            }
+        }
+
+        else -> name
     }
 }
 
@@ -101,12 +128,7 @@ private fun HabitSummaryRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            text = habit.iconKey,
-            style = MudawamaTheme.typography.h4,
-        )
-        Spacer(Modifier.width(12.dp))
-        Text(
-            text = habit.name,
+            text = getLocalizedHabitName(habit.name, habit.category),
             style = MudawamaTheme.typography.body1,
             color = MudawamaTheme.colors.onSurface,
             modifier = Modifier.weight(1f),
@@ -128,6 +150,7 @@ private fun HabitSummaryRow(
                     )
                 }
             }
+
             HabitType.NUMERIC -> {
                 IconButton(
                     onClick = onDecrement,

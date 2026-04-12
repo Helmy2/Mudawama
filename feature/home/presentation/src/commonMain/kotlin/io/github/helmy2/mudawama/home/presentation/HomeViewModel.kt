@@ -6,6 +6,8 @@ import io.github.helmy2.mudawama.athkar.domain.usecase.ObserveTasbeehDailyTotalU
 import io.github.helmy2.mudawama.athkar.domain.usecase.ObserveTasbeehGoalUseCase
 import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.core.location.Coordinates
+import io.github.helmy2.mudawama.core.location.LocationError
+import io.github.helmy2.mudawama.core.location.LocationProvider
 import io.github.helmy2.mudawama.core.presentation.mvi.MviViewModel
 import io.github.helmy2.mudawama.core.time.TimeProvider
 import io.github.helmy2.mudawama.habits.domain.model.LogStatus
@@ -19,8 +21,12 @@ import io.github.helmy2.mudawama.home.presentation.model.HomeUiState
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus
 import io.github.helmy2.mudawama.prayer.domain.usecase.ObservePrayersForDateUseCase
 import io.github.helmy2.mudawama.quran.domain.usecase.ObserveQuranStateUseCase
+import io.github.helmy2.mudawama.settings.domain.CalculationMethod
+import io.github.helmy2.mudawama.settings.domain.LocationMode
+import io.github.helmy2.mudawama.settings.domain.ObserveSettingsUseCase
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
@@ -34,18 +40,48 @@ class HomeViewModel(
     private val observeQuranStateUseCase: ObserveQuranStateUseCase,
     private val observeTasbeehGoalUseCase: ObserveTasbeehGoalUseCase,
     private val observeTasbeehDailyTotalUseCase: ObserveTasbeehDailyTotalUseCase,
+    private val locationProvider: LocationProvider,
     private val timeProvider: TimeProvider,
+    private val observeSettingsUseCase: ObserveSettingsUseCase,
     private val dispatcher: CoroutineDispatcher,
 ) : MviViewModel<HomeUiState, HomeUiAction, HomeUiEvent>(HomeUiState()) {
 
     private val today get() = timeProvider.logicalDate()
+    private var currentCoordinates: Coordinates = MECCA_COORDINATES
+    private var currentLocationMode: LocationMode = LocationMode.Gps
+    private var currentCalculationMethod: CalculationMethod = CalculationMethod.MUSLIM_WORLD_LEAGUE
 
     init {
+        observeSettings()
         observeHabits()
         observePrayers()
         observeAthkar()
         observeQuran()
         observeTasbeeh()
+    }
+
+    private fun observeSettings() {
+        intent {
+            observeSettingsUseCase().collectLatest { settings ->
+                currentLocationMode = settings.locationMode
+                currentCalculationMethod = settings.calculationMethod
+                resolveLocation()
+            }
+        }
+    }
+
+    private suspend fun resolveLocation() {
+        when (val mode = currentLocationMode) {
+            is LocationMode.Gps -> {
+                val location = locationProvider.getCurrentLocation()
+                when (location) {
+                    is Result.Success -> currentCoordinates = location.data
+                    is Result.Failure -> currentCoordinates = MECCA_COORDINATES
+                }
+            }
+            is LocationMode.Manual -> currentCoordinates = Coordinates(mode.latitude, mode.longitude)
+        }
+        observePrayers()
     }
 
     // ── Observation coroutines ────────────────────────────────────────────────
@@ -62,7 +98,7 @@ class HomeViewModel(
 
     private fun observePrayers() {
         intent {
-            observePrayersForDateUseCase(today, MECCA_COORDINATES)
+            observePrayersForDateUseCase(today, currentCoordinates, currentCalculationMethod)
                 .catch { reduce { copy(isPrayerLoading = false, prayerTimesAvailable = false) } }
                 .collect { result ->
                     when (result) {

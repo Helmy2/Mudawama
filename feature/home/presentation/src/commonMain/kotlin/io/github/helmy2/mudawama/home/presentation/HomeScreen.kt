@@ -87,8 +87,7 @@ internal fun HomeScreenContent(
     Column(
         modifier = Modifier
             .background(MudawamaTheme.colors.background)
-            .fillMaxSize()
-            .statusBarsPadding(),
+            .fillMaxSize(),
     ) {
         TopAppBar(
             title = {

@@ -44,6 +44,12 @@ import mudawama.shared.designsystem.cd_increment_count
 import mudawama.shared.designsystem.cd_mark_complete
 import mudawama.shared.designsystem.cd_mark_incomplete
 import mudawama.shared.designsystem.habit_progress_fraction
+import mudawama.shared.designsystem.prayer_asr
+import mudawama.shared.designsystem.prayer_dhuhr
+import mudawama.shared.designsystem.prayer_fajr
+import mudawama.shared.designsystem.prayer_isha
+import mudawama.shared.designsystem.prayer_maghrib
+import org.jetbrains.compose.resources.stringResource
 import io.github.helmy2.mudawama.habits.domain.model.Habit
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus
@@ -79,12 +85,19 @@ fun HabitCoreRitualItem(
 
     val progressFraction = when (habit.type) {
         HabitType.BOOLEAN -> if (isCompleted) 1f else 0f
-        HabitType.NUMERIC -> if (goal > 0) (numericProgress.toFloat() / goal).coerceIn(0f, 1f) else 0f
+        HabitType.NUMERIC -> if (goal > 0) (numericProgress.toFloat() / goal).coerceIn(
+            0f,
+            1f
+        ) else 0f
     }
 
     val progressLabel = when (habit.type) {
         HabitType.BOOLEAN -> if (isCompleted) "1/1" else "0/1"
-        HabitType.NUMERIC -> stringResource(Res.string.habit_progress_fraction, numericProgress, goal)
+        HabitType.NUMERIC -> stringResource(
+            Res.string.habit_progress_fraction,
+            numericProgress,
+            goal
+        )
     }
 
     val onClick: () -> Unit = when (habit.type) {
@@ -139,7 +152,7 @@ fun HabitCoreRitualItem(
             // ── Name + subtitle ────────────────────────────────────────────
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = habit.name,
+                    text = getLocalizedHabitName(habit),
                     style = MudawamaTheme.typography.h4,
                     color = MudawamaTheme.colors.onSurface,
                 )
@@ -184,7 +197,8 @@ fun HabitPersonalItem(
     val habit = habitWithStatus.habit
     val todayLog = habitWithStatus.todayLog
     val isCompleted = todayLog?.status == LogStatus.COMPLETED
-    val todayDayOfWeek = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek }
+    val todayDayOfWeek =
+        remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek }
     val isDueToday = todayDayOfWeek in habit.frequencyDays
 
     val cardColors = CardDefaults.cardColors(
@@ -219,7 +233,7 @@ fun HabitPersonalItem(
 
             // ── Habit name ─────────────────────────────────────────────────
             Text(
-                text = habit.name,
+                text = getLocalizedHabitName(habit),
                 style = MudawamaTheme.typography.h4,
                 color = if (isCompleted && habit.type == HabitType.BOOLEAN)
                     MudawamaTheme.colors.onSurface.copy(alpha = 0.5f)
@@ -435,5 +449,23 @@ private fun HabitPersonalItemPreview() {
                 onToggle = {}, onIncrement = {}, onDecrement = {}, onMoreClick = {},
             )
         }
+    }
+}
+
+@Composable
+private fun getLocalizedHabitName(habit: Habit): String {
+    return when (habit.category.lowercase()) {
+        "prayer" -> {
+            when (habit.name.lowercase()) {
+                "fajr" -> stringResource(Res.string.prayer_fajr)
+                "dhuhr" -> stringResource(Res.string.prayer_dhuhr)
+                "asr" -> stringResource(Res.string.prayer_asr)
+                "maghrib" -> stringResource(Res.string.prayer_maghrib)
+                "isha" -> stringResource(Res.string.prayer_isha)
+                else -> habit.name
+            }
+        }
+
+        else -> habit.name
     }
 }
