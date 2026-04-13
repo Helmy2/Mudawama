@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import io.github.helmy2.mudawama.core.data.preferences.AppPreferencesKeys
 import io.github.helmy2.mudawama.settings.domain.AppLanguage
 import io.github.helmy2.mudawama.settings.domain.AppSettings
 import io.github.helmy2.mudawama.settings.domain.AppTheme
@@ -68,13 +69,20 @@ class SettingsRepositoryImpl(
             morningNotificationHour = prefs[Keys.MORNING_NOTIFICATION_HOUR] ?: 6,
             morningNotificationMinute = prefs[Keys.MORNING_NOTIFICATION_MINUTE] ?: 0,
             eveningNotificationHour = prefs[Keys.EVENING_NOTIFICATION_HOUR] ?: 18,
-            eveningNotificationMinute = prefs[Keys.EVENING_NOTIFICATION_MINUTE] ?: 0
+            eveningNotificationMinute = prefs[Keys.EVENING_NOTIFICATION_MINUTE] ?: 0,
+            useDynamicTheme = prefs[AppPreferencesKeys.USE_DYNAMIC_THEME] ?: true
         )
     }
 
     override suspend fun setCalculationMethod(method: CalculationMethod) {
         dataStore.edit { prefs ->
             prefs[Keys.CALCULATION_METHOD] = method.name
+        }
+    }
+
+    override suspend fun setDynamicThemeEnabled(enabled: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[AppPreferencesKeys.USE_DYNAMIC_THEME] = enabled
         }
     }
 

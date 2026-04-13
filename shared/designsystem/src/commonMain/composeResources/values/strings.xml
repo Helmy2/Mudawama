@@ -306,6 +306,7 @@
     <string name="settings_option_theme_system">System</string>
     <string name="settings_option_theme_light">Light</string>
     <string name="settings_option_theme_dark">Dark</string>
+    <string name="settings_option_dynamic_theme">Dynamic Theme</string>
     <string name="settings_option_language_english">English</string>
     <string name="settings_option_language_arabic">Arabic</string>
     <string name="settings_error_invalid_latitude">Latitude must be between -90 and 90</string>

@@ -101,3 +101,10 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
     - `AthkarDailyLogEntity`: Stores per-group per-day Athkar progress. Composite PK `(group_type, date)`. Counter map stored as JSON via `AthkarCountersConverter`.
     - `TasbeehGoalEntity`: Singleton row (`id = 1`) storing the user's Tasbeeh target count.
     - `TasbeehDailyTotalEntity`: Stores the cumulative Tasbeeh count flushed per calendar day.
+
+### FR-6: Dynamic Theming
+- **FR-6.1:** The system shall automatically detect if the device supports Android dynamic theming (API 31+).
+- **FR-6.2:** The system shall enable dynamic theming by default on supported devices.
+- **FR-6.3:** The system shall provide a toggle in the Settings screen to enable/disable dynamic theming.
+- **FR-6.4:** The system shall hide the dynamic theming toggle on unsupported devices (Android < 12 and iOS).
+- **FR-6.5:** The system shall fallback to Mudawama's default brand colors (Light/Dark variants) when dynamic theming is disabled or unsupported.

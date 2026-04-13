@@ -67,6 +67,10 @@ The MVP strictly limits scope to foundational habits to ensure high execution qu
     - Digital Tasbeeh counter: in-memory session count with haptic feedback on each tap; goal bottom sheet for setting target (default 100); session flushed to `TasbeehDailyTotalEntity` on Reset; daily total shown alongside session count.
 
     - Long-pressing a completed Athkar item resets its individual counter to 0.
+
+- **Appearance:**
+
+    - Dynamic Theming (Android 12+): Support Material You colors, with a Settings toggle to switch between dynamic wallpaper-based themes and static brand colors.
         
 
 ### 3.2 Personal Habits (Custom)

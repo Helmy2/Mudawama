@@ -11,6 +11,7 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import io.github.helmy2.mudawama.designsystem.theme.getDynamicColorScheme
 
 private val MudawamaTypography = Typography()
 
@@ -94,9 +95,12 @@ val MaterialTheme.motion: MudawamaMotion
 
 @Composable
 fun MudawamaTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    useDynamicTheme: Boolean = true,
+    content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) darkScheme else lightScheme
+    val dynamicColorScheme = if (useDynamicTheme) getDynamicColorScheme(darkTheme) else null
+    val colorScheme = dynamicColorScheme ?: (if (darkTheme) darkScheme else lightScheme)
 
     CompositionLocalProvider(
         LocalSpacing provides MudawamaSpacing(),

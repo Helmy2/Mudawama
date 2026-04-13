@@ -41,6 +41,7 @@ import kotlinx.serialization.modules.subclass
 @Composable
 fun MudawamaAppShell(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    useDynamicTheme: Boolean = true,
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     homeScreen: @Composable (
         onNavigateToPrayer: () -> Unit,
@@ -95,7 +96,7 @@ fun MudawamaAppShell(
         val currentRoute = backStack.lastOrNull()
         val isTopLevel = currentRoute?.let { it::class in topLevelRoutes } ?: true
 
-        MudawamaTheme(darkTheme = darkTheme) {
+        MudawamaTheme(darkTheme = darkTheme, useDynamicTheme = useDynamicTheme) {
             Box(modifier = Modifier.fillMaxSize()) {
                 // ── Content fills the entire screen (bar floats on top) ───────────
                 NavDisplay(

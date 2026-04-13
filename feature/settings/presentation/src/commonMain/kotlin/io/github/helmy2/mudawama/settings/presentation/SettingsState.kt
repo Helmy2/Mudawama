@@ -17,9 +17,10 @@ data class SettingsState(
     val goalInput: String = "",
     val goalError: String? = null,
     val morningNotificationEnabled: Boolean = false,
-    val eveningNotificationEnabled: Boolean = false
+    val eveningNotificationEnabled: Boolean = false,
+    val useDynamicTheme: Boolean = true
 )
-
+ 
 sealed interface SettingsAction {
     data class SetCalculationMethod(val method: CalculationMethod) : SettingsAction
     data class SetLocationMode(val mode: LocationMode) : SettingsAction
@@ -32,6 +33,7 @@ sealed interface SettingsAction {
     data object SaveGoal : SettingsAction
     data class SetMorningNotification(val enabled: Boolean) : SettingsAction
     data class SetEveningNotification(val enabled: Boolean) : SettingsAction
+    data class SetDynamicTheme(val enabled: Boolean) : SettingsAction
 }
 
 sealed interface SettingsEvent {

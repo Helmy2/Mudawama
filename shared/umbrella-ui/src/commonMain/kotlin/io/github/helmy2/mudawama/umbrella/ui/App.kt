@@ -40,6 +40,7 @@ fun App() {
 
     MudawamaAppShell(
         darkTheme = isDarkTheme,
+        useDynamicTheme = settings.useDynamicTheme,
         layoutDirection = layoutDirection,
         homeScreen = { onNavigateToPrayer, onNavigateToAthkar,
                        onNavigateToQuran, onNavigateToSettings,

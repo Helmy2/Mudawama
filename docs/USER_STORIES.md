@@ -81,3 +81,7 @@
     - _As a_ user, _I want_ to switch between English and Arabic, _so that_ the app UI displays in my preferred language. Arabic enables RTL layout.
 - **US-7.5: Notification Preferences** ✅
     - _As a_ user, _I want_ to enable or disable daily Athkar reminder notifications (morning and evening), _so that_ I receive reminders at my preferred times without needing to open the Athkar screen.
+
+## Epic 8: Theming & Personalization
+- **US-8.1: Dynamic Theming**
+    - _As a_ user on Android 12+, _I want_ to enable dynamic Material You colors in the Settings, _so that_ the app UI automatically adapts to my wallpaper's color palette.

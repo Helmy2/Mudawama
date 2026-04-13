@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
 import io.github.helmy2.mudawama.designsystem.components.MudawamaTopAppBar
+import io.github.helmy2.mudawama.designsystem.theme.isDynamicColorSupported
 import io.github.helmy2.mudawama.settings.domain.AppLanguage
 import io.github.helmy2.mudawama.settings.domain.AppTheme
 import io.github.helmy2.mudawama.settings.domain.CalculationMethod
@@ -53,6 +54,7 @@ import mudawama.shared.designsystem.settings_method_turkey
 import mudawama.shared.designsystem.settings_method_umm_alqura
 import mudawama.shared.designsystem.settings_notification_evening
 import mudawama.shared.designsystem.settings_notification_morning
+import mudawama.shared.designsystem.settings_option_dynamic_theme
 import mudawama.shared.designsystem.settings_option_gps_automatic
 import mudawama.shared.designsystem.settings_option_language_arabic
 import mudawama.shared.designsystem.settings_option_language_english
@@ -193,6 +195,13 @@ fun SettingsScreen(
 
                 // Theme Section
                 SettingsSection(title = stringResource(Res.string.settings_section_appearance)) {
+                    if (isDynamicColorSupported) {
+                        NotificationToggleRow(
+                            label = stringResource(Res.string.settings_option_dynamic_theme),
+                            enabled = state.useDynamicTheme,
+                            onToggle = { viewModel.onAction(SettingsAction.SetDynamicTheme(it)) }
+                        )
+                    }
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
