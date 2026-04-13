@@ -5,22 +5,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import io.github.helmy2.mudawama.designsystem.borderRadius
+import io.github.helmy2.mudawama.designsystem.spacing
 
-/**
- * App-wide bottom sheet wrapper that matches the Habit sheet style:
- * - containerColor = MudawamaTheme.colors.background
- * - shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
- * - dragHandle = null (no pill handle)
- * - skipPartiallyExpanded = true by default
- * - 20.dp top padding applied to all content
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MudawamaBottomSheet(
@@ -33,14 +26,17 @@ fun MudawamaBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         modifier = modifier,
-        containerColor = MudawamaTheme.colors.background,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        containerColor = MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(
+            topStart = MaterialTheme.borderRadius.extraFull,
+            topEnd = MaterialTheme.borderRadius.extraFull
+        ),
         dragHandle = null,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 20.dp),
+                .padding(top = MaterialTheme.spacing.large),
         ) {
             content()
         }

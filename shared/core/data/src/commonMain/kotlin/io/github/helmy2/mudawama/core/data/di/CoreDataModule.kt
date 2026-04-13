@@ -19,7 +19,7 @@ internal val coreDataModule = module {
     single {
         HttpClientFactory(
             sessionStorage = get(),
-            baseUrl = "https://api.example.com" // TODO: Replace with actual base URL
+            baseUrl = "https://api.example.com"
         )
     }
     single<HttpClient> { get<HttpClientFactory>().create() }

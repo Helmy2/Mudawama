@@ -1,5 +1,6 @@
 package io.github.helmy2.mudawama.home.presentation
 
+// import io.github.helmy2.mudawama.designsystem.MudawamaAppTheme
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,32 +11,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.helmy2.mudawama.core.presentation.util.ObserveAsEvents
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
+import io.github.helmy2.mudawama.designsystem.components.MudawamaTopAppBar
 import io.github.helmy2.mudawama.home.presentation.components.AthkarSummaryCard
 import io.github.helmy2.mudawama.home.presentation.components.HabitsSummarySection
 import io.github.helmy2.mudawama.home.presentation.components.NextPrayerCard
@@ -49,6 +47,7 @@ import mudawama.shared.designsystem.action_view_all
 import mudawama.shared.designsystem.home_daily_habits_button
 import mudawama.shared.designsystem.home_daily_rituals_label
 import mudawama.shared.designsystem.home_settings_icon_description
+import mudawama.shared.designsystem.qibla_subtitle
 import mudawama.shared.designsystem.qibla_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -94,15 +93,15 @@ internal fun HomeScreenContent(
 ) {
     Column(
         modifier = Modifier
-            .background(MudawamaTheme.colors.background)
+            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize(),
     ) {
-        TopAppBar(
+        MudawamaTopAppBar(
             title = {
                 Text(
                     text = stringResource(Res.string.home_daily_habits_button),
-                    style = MudawamaTheme.typography.h3,
-                    color = MudawamaTheme.colors.onSurface,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             },
             actions = {
@@ -110,13 +109,10 @@ internal fun HomeScreenContent(
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = stringResource(Res.string.home_settings_icon_description),
-                        tint = MudawamaTheme.colors.onSurface,
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Transparent,
-            ),
         )
 
         Column(
@@ -189,20 +185,20 @@ internal fun HomeScreenContent(
                     Icon(
                         imageVector = Icons.Default.Explore,
                         contentDescription = null,
-                        tint = MudawamaTheme.colors.primary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(40.dp)
                     )
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text(
                             text = stringResource(Res.string.qibla_title),
-                            style = MudawamaTheme.typography.h3,
-                            color = MudawamaTheme.colors.onSurface,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         Text(
-                            text = "Find the direction of Mecca",
-                            style = MudawamaTheme.typography.body2,
-                            color = MudawamaTheme.colors.onSurface.copy(alpha = 0.6f),
+                            text = stringResource(Res.string.qibla_subtitle),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         )
                     }
                 }
@@ -217,15 +213,15 @@ internal fun HomeScreenContent(
             ) {
                 Text(
                     text = stringResource(Res.string.home_daily_rituals_label),
-                    style = MudawamaTheme.typography.caption,
-                    color = MudawamaTheme.colors.onSurface.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     modifier = Modifier.weight(1f),
                 )
                 TextButton(onClick = { onAction(HomeUiAction.HabitsViewAllTapped) }) {
                     Text(
                         text = stringResource(Res.string.action_view_all),
-                        style = MudawamaTheme.typography.caption,
-                        color = MudawamaTheme.colors.primary,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
@@ -235,7 +231,6 @@ internal fun HomeScreenContent(
             // ── Habits summary section ────────────────────────────────────────
             HabitsSummarySection(
                 habits = state.habits,
-                isLoading = state.isHabitsLoading,
                 onToggle = { onAction(HomeUiAction.ToggleCompletion(it)) },
                 onIncrement = { onAction(HomeUiAction.IncrementCount(it)) },
                 onDecrement = { onAction(HomeUiAction.DecrementCount(it)) },

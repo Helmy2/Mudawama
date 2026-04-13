@@ -48,18 +48,21 @@ class IosLocationProvider: NSObject, LocationProvider, CLLocationManagerDelegate
 
     // MARK: - LocationProvider
 
-    func hasPermission() -> Bool {
-        let s = manager.authorizationStatus
-        return s == .authorizedAlways || s == .authorizedWhenInUse
+    nonisolated func hasPermission() -> Bool {
+        let status = CLLocationManager().authorizationStatus
+        return status == .authorizedAlways || status == .authorizedWhenInUse
     }
 
-    /// Called by the KMP coroutine runtime. The completionHandler is invoked
-    /// with either a ResultSuccess<Coordinates> or ResultFailure<LocationError>.
-    func getCurrentLocation(completionHandler: @escaping (Result?, Error?) -> Void) {
+    nonisolated func __getCurrentLocation(completionHandler: @escaping @Sendable ((any Result)?, (any Error)?) -> Void) {
         Task { @MainActor in
             let result = await self.resolveLocation()
             completionHandler(result, nil)
         }
+    }
+
+    // Convenience wrapper matching the Kotlin suspend function
+    func getCurrentLocation() async throws -> any Result {
+        return await resolveLocation()
     }
 
     // MARK: - Internal async logic (always runs on MainActor)
@@ -131,34 +134,50 @@ class IosLocationProvider: NSObject, LocationProvider, CLLocationManagerDelegate
 
     // MARK: - CLLocationManagerDelegate
 
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        Task { @MainActor in
+            self.handleAuthorizationChange(manager: manager)
+        }
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        Task { @MainActor in
+            self.handleLocationUpdate(locations: locations)
+        }
+    }
+
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        Task { @MainActor in
+            self.handleLocationError(error: error)
+        }
+    }
+
+    // MARK: - Internal handlers (MainActor)
+
+    private func handleAuthorizationChange(manager: CLLocationManager) {
         let status = manager.authorizationStatus
         guard status != .notDetermined else { return }
 
         if let continuation = permissionContinuation {
-            // Async path: resume the waiting continuation.
             permissionContinuation = nil
             continuation.resume(returning: status)
         } else {
-            // Synchronous-race path: delegate fired before withCheckedContinuation
-            // closure ran — cache the status so the closure can pick it up.
             pendingAuthStatus = status
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    private func handleLocationUpdate(locations: [CLLocation]) {
         let location = locations.last
 
         if let continuation = locationContinuation {
             locationContinuation = nil
             continuation.resume(returning: location)
         } else {
-            // Synchronous-race path.
             pendingLocation = .some(location)
         }
     }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    private func handleLocationError(error: Error) {
         if let continuation = locationContinuation {
             locationContinuation = nil
             continuation.resume(returning: nil)

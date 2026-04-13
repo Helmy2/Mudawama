@@ -14,16 +14,15 @@ kotlin {
             dependencies {
                 implementation(projects.shared.core.domain)
                 implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.bundles.compose)
-                implementation(libs.bundles.lifecycle)
-                implementation(libs.compose.resources)
+                api(libs.bundles.compose)
+                api(libs.bundles.lifecycle)
+                api(libs.compose.resources)
             }
         }
         androidMain {
             dependencies {
+                implementation(libs.appcompat)
                 implementation(libs.androidx.activity.compose)
-                implementation(libs.ui.tooling)
-                implementation(libs.ui.tooling.preview)
             }
         }
     }

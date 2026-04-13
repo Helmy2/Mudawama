@@ -13,8 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +38,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.helmy2.mudawama.designsystem.components.MudawamaTopAppBar
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.tasbeeh_cd_tap_button
 import mudawama.shared.designsystem.tasbeeh_daily_total_label
@@ -53,6 +57,7 @@ import org.koin.compose.viewmodel.koinViewModel
  */
 @Composable
 fun TasbeehScreen(
+    onBack: () -> Unit,
     viewModel: TasbeehViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -60,6 +65,7 @@ fun TasbeehScreen(
         state = state,
         onAction = viewModel::onAction,
         eventFlow = viewModel.eventFlow,
+        onBack = onBack,
     )
 }
 
@@ -67,7 +73,8 @@ fun TasbeehScreen(
 internal fun TasbeehContent(
     state: TasbeehUiState,
     onAction: (TasbeehUiAction) -> Unit,
-    eventFlow: kotlinx.coroutines.flow.Flow<TasbeehUiEvent>,
+    eventFlow: Flow<TasbeehUiEvent>,
+    onBack: (() -> Unit)? = null,
 ) {
     val haptic = LocalHapticFeedback.current
 
@@ -86,20 +93,24 @@ internal fun TasbeehContent(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(horizontal = 20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(24.dp))
-
-        Text(
-            text = stringResource(Res.string.tasbeeh_screen_title),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
+        MudawamaTopAppBar(
+            title = {
+                Text(
+                    text = stringResource(Res.string.tasbeeh_screen_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            },
+            navigationIcon = Icons.AutoMirrored.Filled.ArrowBack,
+            onNavigationClick = onBack,
         )
 
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.weight(1f))
+
+        Spacer(Modifier.height(16.dp))
 
         TasbeehTapButton(
             sessionCount = state.sessionCount,
@@ -109,8 +120,6 @@ internal fun TasbeehContent(
             contentDescription = stringResource(Res.string.tasbeeh_cd_tap_button),
             onClick = { onAction(TasbeehUiAction.Tap) },
         )
-
-        Spacer(Modifier.height(40.dp))
 
         if (state.isGoalReached) {
             Text(
@@ -136,8 +145,6 @@ internal fun TasbeehContent(
             )
         }
 
-        Spacer(Modifier.weight(1f))
-
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -158,7 +165,7 @@ internal fun TasbeehContent(
             }
         }
 
-        Spacer(Modifier.height(96.dp))
+        Spacer(Modifier.weight(1f))
     }
 
     if (state.isGoalSheetVisible) {
@@ -180,7 +187,7 @@ private fun TasbeehTapButton(
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier.size(220.dp),
+        modifier = Modifier.size(240.dp),
     ) {
         Canvas(modifier = Modifier.fillMaxSize()) {
             val strokeWidth = 8.dp.toPx()
@@ -214,7 +221,7 @@ private fun TasbeehTapButton(
         Surface(
             shape = CircleShape,
             color = if (isGoalReached) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.surface,
+            else MaterialTheme.colorScheme.surface,
             shadowElevation = 4.dp,
             modifier = Modifier
                 .size(196.dp)
@@ -251,7 +258,7 @@ private fun StatColumn(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
@@ -266,6 +273,13 @@ private fun StatColumn(
 @Preview
 @Composable
 private fun TasbeehScreenPreview() {
-    // Minimal preview stub
+    MaterialTheme {
+        TasbeehContent(
+            state = TasbeehUiState(),
+            onAction = {},
+            eventFlow = emptyFlow(),
+            onBack = {}
+        )
+    }
 }
 

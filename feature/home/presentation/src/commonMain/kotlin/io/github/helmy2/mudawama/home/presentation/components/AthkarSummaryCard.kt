@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.athkar.domain.model.AthkarGroupType
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
+import io.github.helmy2.mudawama.designsystem.components.Skeleton
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.home_athkar_done
 import mudawama.shared.designsystem.home_athkar_evening_label
@@ -44,14 +45,14 @@ fun AthkarSummaryCard(
         Column(modifier = Modifier.padding(16.dp)) {
             when {
                 isAthkarLoading -> {
-                    SkeletonBlock(
+                    Skeleton(
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
                             .height(16.dp)
                             .clip(MaterialTheme.shapes.medium),
                     )
                     Spacer(Modifier.height(8.dp))
-                    SkeletonBlock(
+                    Skeleton(
                         modifier = Modifier
                             .fillMaxWidth(0.6f)
                             .height(16.dp)
@@ -107,23 +108,23 @@ private fun AthkarRow(
         Icon(
             imageVector = if (isDone) Icons.Default.Check else Icons.Default.Circle,
             contentDescription = null,
-            tint = if (isDone) MudawamaTheme.colors.primary
-            else MudawamaTheme.colors.onSurface.copy(alpha = 0.3f),
+            tint = if (isDone) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
             modifier = Modifier.height(14.dp),
         )
         Text(
             text = label,
-            style = MudawamaTheme.typography.caption,
-            color = MudawamaTheme.colors.onSurface,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(start = 6.dp)
                 .weight(1f),
         )
         Text(
             text = statusText,
-            style = MudawamaTheme.typography.caption,
-            color = if (isDone) MudawamaTheme.colors.primary
-            else MudawamaTheme.colors.onSurface.copy(alpha = 0.5f),
+            style = MaterialTheme.typography.labelSmall,
+            color = if (isDone) MaterialTheme.colorScheme.primary
+            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
     }
 }

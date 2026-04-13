@@ -5,12 +5,11 @@ import io.github.helmy2.mudawama.athkar.domain.usecase.ObserveAthkarCompletionUs
 import io.github.helmy2.mudawama.athkar.domain.usecase.ObserveTasbeehDailyTotalUseCase
 import io.github.helmy2.mudawama.athkar.domain.usecase.ObserveTasbeehGoalUseCase
 import io.github.helmy2.mudawama.core.domain.Result
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
 import io.github.helmy2.mudawama.core.location.Coordinates
-import io.github.helmy2.mudawama.core.location.LocationError
 import io.github.helmy2.mudawama.core.location.LocationProvider
 import io.github.helmy2.mudawama.core.presentation.mvi.MviViewModel
 import io.github.helmy2.mudawama.core.time.TimeProvider
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
 import io.github.helmy2.mudawama.habits.domain.usecase.DecrementHabitCountUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.IncrementHabitCountUseCase
 import io.github.helmy2.mudawama.habits.domain.usecase.ObserveHabitsWithTodayStatusUseCase
@@ -25,7 +24,6 @@ import io.github.helmy2.mudawama.quran.domain.usecase.ObserveQuranStateUseCase
 import io.github.helmy2.mudawama.settings.domain.CalculationMethod
 import io.github.helmy2.mudawama.settings.domain.LocationMode
 import io.github.helmy2.mudawama.settings.domain.ObserveSettingsUseCase
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.TimeZone
@@ -45,7 +43,6 @@ class HomeViewModel(
     private val locationProvider: LocationProvider,
     private val timeProvider: TimeProvider,
     private val observeSettingsUseCase: ObserveSettingsUseCase,
-    private val dispatcher: CoroutineDispatcher,
 ) : MviViewModel<HomeUiState, HomeUiAction, HomeUiEvent>(HomeUiState()) {
 
     private val today get() = timeProvider.logicalDate()

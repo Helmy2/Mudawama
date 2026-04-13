@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOff
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,8 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import io.github.helmy2.mudawama.designsystem.components.ActionBottomSheet
+import io.github.helmy2.mudawama.designsystem.components.ActionItem
 import io.github.helmy2.mudawama.designsystem.components.MudawamaDateStrip
-import io.github.helmy2.mudawama.prayer.presentation.components.MarkMissedBottomSheet
 import io.github.helmy2.mudawama.prayer.presentation.components.PrayerCompletionHero
 import io.github.helmy2.mudawama.prayer.presentation.components.PrayerRowItem
 import io.github.helmy2.mudawama.prayer.presentation.model.PrayerUiAction
@@ -24,6 +26,9 @@ import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.error_times_unavailable
 import mudawama.shared.designsystem.prayer_location_fallback
 import mudawama.shared.designsystem.prayer_location_service_disabled
+import mudawama.shared.designsystem.prayer_mark_missed_action
+import mudawama.shared.designsystem.prayer_mark_missed_title
+import mudawama.shared.designsystem.prayer_mark_pending_action
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -130,10 +135,21 @@ internal fun PrayerScreenContent(
     // Mark as Missed bottom sheet
     val sheetPrayer = state.missedSheetPrayer
     if (sheetPrayer != null) {
-        MarkMissedBottomSheet(
-            prayer = sheetPrayer,
-            onMarkMissed = { onAction(PrayerUiAction.ConfirmMarkMissed(sheetPrayer.habitId)) },
-            onMarkPending = { onAction(PrayerUiAction.ConfirmMarkPending(sheetPrayer.habitId)) },
+        ActionBottomSheet(
+            title = "${stringResource(Res.string.prayer_mark_missed_title)} — ${sheetPrayer.name.name}",
+            actions = listOf(
+                ActionItem(
+                    label = stringResource(Res.string.prayer_mark_missed_action),
+                    icon = Icons.Default.Warning,
+                    color = MaterialTheme.colorScheme.error,
+                    onClick = { onAction(PrayerUiAction.ConfirmMarkMissed(sheetPrayer.habitId)) },
+                ),
+                ActionItem(
+                    label = stringResource(Res.string.prayer_mark_pending_action),
+                    onClick = { onAction(PrayerUiAction.ConfirmMarkPending(sheetPrayer.habitId)) },
+                    color = MaterialTheme.colorScheme.onSurface,
+                ),
+            ),
             onDismiss = { onAction(PrayerUiAction.DismissMissedSheet) }
         )
     }

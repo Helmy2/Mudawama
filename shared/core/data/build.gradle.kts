@@ -14,7 +14,7 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.shared.core.domain)
+                api(projects.shared.core.domain)
                 implementation(libs.kotlinx.coroutines.core)
                 implementation(libs.bundles.ktor)
                 implementation(libs.kotlinx.serialization.json)

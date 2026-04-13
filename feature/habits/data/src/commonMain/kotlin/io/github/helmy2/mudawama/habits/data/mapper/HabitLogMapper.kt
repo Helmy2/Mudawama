@@ -2,7 +2,7 @@ package io.github.helmy2.mudawama.habits.data.mapper
 
 import io.github.helmy2.mudawama.core.database.entity.HabitLogEntity
 import io.github.helmy2.mudawama.habits.domain.model.HabitLog
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
 
 /**
  * Converts a [HabitLogEntity] from the database layer to the domain [HabitLog] model.

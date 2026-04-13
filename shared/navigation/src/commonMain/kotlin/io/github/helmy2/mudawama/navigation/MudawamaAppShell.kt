@@ -33,9 +33,9 @@ import kotlinx.serialization.modules.subclass
  *
  * @param homeScreen Composable for [HomeRoute]. Receives individual navigation callbacks so that
  *   the Home feature module has no dependency on navigation3 or Route types.
- * @param habitsScreen Composable for [HabitsRoute]. Receives an [onBack] lambda wired to
+ * @param habitsScreen Composable for [HabitsRoute].
  *   [backStack.removeLastOrNull()].
- * @param settingsScreen Composable for [SettingsRoute]. Receives an [onBack] lambda wired to
+ * @param settingsScreen Composable for [SettingsRoute].
  *   [backStack.removeLastOrNull()].
  */
 @Composable
@@ -55,7 +55,7 @@ fun MudawamaAppShell(
     quranScreen: @Composable () -> Unit = {},
     athkarScreen: @Composable () -> Unit = {},
     qiblaScreen: @Composable (onBack: () -> Unit) -> Unit = { _ -> },
-    tasbeehScreen: @Composable () -> Unit = {},
+    tasbeehScreen: @Composable (onBack: () -> Unit) -> Unit = {},
     habitsScreen: @Composable (onBack: () -> Unit) -> Unit = { _ -> },
     settingsScreen: @Composable (onBack: () -> Unit) -> Unit = { _ -> },
 ) {
@@ -143,7 +143,7 @@ fun MudawamaAppShell(
                         }
                         entry<TasbeehRoute> {
                             AppBackHandler { goHome() }
-                            tasbeehScreen()
+                            tasbeehScreen { goHome() }
                         }
                         entry<HabitsRoute> {
                             AppBackHandler { goHome() }

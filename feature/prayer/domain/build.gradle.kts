@@ -8,11 +8,8 @@ kotlin {
     configureIosFramework("FeaturePrayerDomain")
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.kotlinx.datetime)
             implementation(projects.shared.core.time)
-            api(projects.shared.core.domain)
-            // EXCEPTION: shared LogStatus enum — depends on habits:domain for that enum only
+            implementation(projects.shared.core.domain)
             implementation(projects.feature.habits.domain)
             implementation(projects.feature.settings.domain)
         }

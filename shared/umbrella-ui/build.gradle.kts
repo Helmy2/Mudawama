@@ -1,6 +1,7 @@
 plugins {
     id("mudawama.kmp.compose")
     id("mudawama.kmp.koin")
+    alias(libs.plugins.skie)
 }
 
 kotlin {
@@ -24,6 +25,7 @@ kotlin {
                 implementation(projects.shared.core.time)
                 implementation(projects.shared.designsystem)
                 implementation(projects.shared.navigation)
+
                 implementation(projects.feature.habits.domain)
                 implementation(projects.feature.habits.data)
                 implementation(projects.feature.habits.presentation)
@@ -49,21 +51,6 @@ kotlin {
                 api(projects.feature.qibla.domain)
                 api(projects.feature.qibla.data)
                 api(projects.feature.qibla.presentation)
-
-                implementation(project.dependencies.platform(libs.koin.bom))
-                implementation(libs.bundles.koin)
-                implementation(libs.koin.compose.viewmodel)
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.bundles.compose)
-                implementation(libs.bundles.lifecycle)
-                implementation(libs.compose.resources)
-            }
-        }
-        androidMain {
-            dependencies {
-                implementation(libs.androidx.activity.compose)
-                implementation(libs.ui.tooling)
-                implementation(libs.ui.tooling.preview)
             }
         }
     }

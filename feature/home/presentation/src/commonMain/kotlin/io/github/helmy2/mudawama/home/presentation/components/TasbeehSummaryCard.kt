@@ -18,6 +18,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
+import io.github.helmy2.mudawama.designsystem.components.Skeleton
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.home_tasbeeh_count_progress
 import mudawama.shared.designsystem.home_tasbeeh_label
@@ -42,13 +43,13 @@ fun TasbeehSummaryCard(
         ) {
             Text(
                 text = stringResource(Res.string.home_tasbeeh_label),
-                style = MudawamaTheme.typography.caption,
-                color = MudawamaTheme.colors.onSurface.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
             )
             Spacer(Modifier.height(8.dp))
 
             if (isLoading) {
-                SkeletonBlock(
+                Skeleton(
                     modifier = Modifier
                         .size(56.dp)
                         .clip(MaterialTheme.shapes.medium),
@@ -58,14 +59,14 @@ fun TasbeehSummaryCard(
                     CircularProgressIndicator(
                         progress = { progressFraction },
                         modifier = Modifier.size(56.dp),
-                        color = MudawamaTheme.colors.primary,
-                        trackColor = MudawamaTheme.colors.primary.copy(alpha = 0.15f),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                         strokeWidth = 5.dp,
                     )
                     Text(
                         text = "$dailyTotal",
-                        style = MudawamaTheme.typography.caption,
-                        color = MudawamaTheme.colors.onSurface,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 Spacer(Modifier.height(6.dp))
@@ -75,8 +76,8 @@ fun TasbeehSummaryCard(
                         dailyTotal,
                         goal,
                     ),
-                    style = MudawamaTheme.typography.caption,
-                    color = MudawamaTheme.colors.onSurface.copy(alpha = 0.6f),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 )
             }
         }

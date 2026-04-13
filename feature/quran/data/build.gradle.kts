@@ -13,8 +13,6 @@ kotlin {
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.time)
             implementation(projects.shared.core.domain)
-            implementation(libs.kotlinx.datetime)
-            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.bundles.ktor)
         }
         androidMain.dependencies { implementation(libs.ktor.client.okhttp) }

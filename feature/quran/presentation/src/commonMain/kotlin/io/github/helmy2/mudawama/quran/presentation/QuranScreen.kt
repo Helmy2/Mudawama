@@ -30,9 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import io.github.helmy2.mudawama.designsystem.components.CircularProgressIndicator
 import io.github.helmy2.mudawama.designsystem.components.MudawamaDateStrip
 import io.github.helmy2.mudawama.quran.presentation.components.QuranGoalCard
-import io.github.helmy2.mudawama.quran.presentation.components.QuranProgressRing
 import io.github.helmy2.mudawama.quran.presentation.components.QuranRecentLogsList
 import io.github.helmy2.mudawama.quran.presentation.components.QuranResumeReadingCard
 import io.github.helmy2.mudawama.quran.presentation.model.QuranUiAction
@@ -41,7 +41,10 @@ import io.github.helmy2.mudawama.quran.presentation.sheets.LogReadingSheet
 import io.github.helmy2.mudawama.quran.presentation.sheets.SetGoalSheet
 import io.github.helmy2.mudawama.quran.presentation.sheets.UpdatePositionSheet
 import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.quran_daily_progress_subtitle_complete
+import mudawama.shared.designsystem.quran_daily_progress_subtitle_in_progress
 import mudawama.shared.designsystem.quran_log_reading_button
+import mudawama.shared.designsystem.quran_of_pages_format
 import mudawama.shared.designsystem.quran_streak_days_format
 import mudawama.shared.designsystem.quran_streak_label
 import org.jetbrains.compose.resources.stringResource
@@ -81,11 +84,17 @@ internal fun QuranScreenContent(
         )
 
         // Progress ring
-        QuranProgressRing(
-            pagesRead = state.pagesReadToday,
-            goalPages = state.goalPages,
+        CircularProgressIndicator(
+            currentValue = state.pagesReadToday,
             progressFraction = state.progressFraction,
             isLoading = state.isLoading,
+            centerLabel = stringResource(Res.string.quran_of_pages_format, state.pagesReadToday, state.goalPages)
+                .substringAfter("OF "),
+            subtitle = if (state.progressFraction >= 1f) {
+                stringResource(Res.string.quran_daily_progress_subtitle_complete)
+            } else {
+                stringResource(Res.string.quran_daily_progress_subtitle_in_progress)
+            },
             modifier = Modifier.padding(horizontal = 16.dp),
         )
 

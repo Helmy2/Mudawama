@@ -90,7 +90,7 @@ fun LogReadingSheet(
                 )
                 Text(
                     text = pageInput.toString(),
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface,
                 )

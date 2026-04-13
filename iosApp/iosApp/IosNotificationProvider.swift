@@ -22,8 +22,9 @@ class IosNotificationProvider: NSObject, NotificationPermissionProvider, UNUserN
 
     // MARK: - NotificationPermissionProvider
 
-    func requestPermissionAndNotifyIfGranted(completionHandler: @escaping (Error?) -> Void) {
+    nonisolated func __requestPermissionAndNotifyIfGranted(completionHandler: @escaping @Sendable ((any Error)?) -> Void) {
         Task { @MainActor in
+            let center = UNUserNotificationCenter.current()
             let settings = await center.notificationSettings()
 
             switch settings.authorizationStatus {
@@ -31,7 +32,9 @@ class IosNotificationProvider: NSObject, NotificationPermissionProvider, UNUserN
                 do {
                     let granted = try await center.requestAuthorization(options: [.alert, .sound, .badge])
                     if granted {
-                        self.scheduleWelcomeNotification()
+                        await MainActor.run {
+                            self.scheduleWelcomeNotification()
+                        }
                     }
                     completionHandler(nil)
                 } catch {
@@ -45,6 +48,15 @@ class IosNotificationProvider: NSObject, NotificationPermissionProvider, UNUserN
             default:
                 // .denied — user has to go to Settings; nothing we can do here.
                 completionHandler(nil)
+            }
+        }
+    }
+
+    // Convenience wrapper matching the Kotlin suspend function
+    func requestPermissionAndNotifyIfGranted() async {
+        await withCheckedContinuation { continuation in
+            __requestPermissionAndNotifyIfGranted { _ in
+                continuation.resume()
             }
         }
     }

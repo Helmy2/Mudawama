@@ -72,7 +72,7 @@ internal fun AthkarOverviewContent(
             Column {
                 Text(
                     text = stringResource(Res.string.athkar_screen_title),
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                 )

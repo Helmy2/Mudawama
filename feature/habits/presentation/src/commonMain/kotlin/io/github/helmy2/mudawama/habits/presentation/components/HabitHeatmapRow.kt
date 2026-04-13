@@ -6,14 +6,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.habits.domain.model.HabitLog
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
+import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.TimeZone
@@ -51,9 +52,9 @@ fun HabitHeatmapRow(
             val isCompleted = weekLogs.getOrNull(i)?.status == LogStatus.COMPLETED
 
             val cellColor = when {
-                !isScheduled -> MudawamaTheme.colors.onSurface.copy(alpha = 0.12f)
-                isCompleted  -> MudawamaTheme.colors.primary
-                else         -> MudawamaTheme.colors.onSurface.copy(alpha = 0.25f)
+                !isScheduled -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
+                isCompleted  -> MaterialTheme.colorScheme.primary
+                else         -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
             }
 
             Box(

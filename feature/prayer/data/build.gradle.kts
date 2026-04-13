@@ -10,14 +10,12 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.feature.prayer.domain)
-            implementation(projects.feature.habits.domain)     // HabitWithStatus, HabitLog
-            implementation(projects.feature.habits.data)       // HabitMapper, HabitLogMapper
-            implementation(projects.feature.settings.domain)    // CalculationMethod for prayer
+            implementation(projects.feature.habits.domain)
+            implementation(projects.feature.habits.data)
+            implementation(projects.feature.settings.domain)
             implementation(projects.shared.core.database)
             implementation(projects.shared.core.time)
             implementation(projects.shared.core.domain)
-            implementation(libs.kotlinx.datetime)
-            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.bundles.ktor)
         }
         androidMain.dependencies { implementation(libs.ktor.client.okhttp) }

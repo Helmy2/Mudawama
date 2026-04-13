@@ -2,7 +2,7 @@ package io.github.helmy2.mudawama.prayer.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerName
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus
 import io.github.helmy2.mudawama.prayer.presentation.model.PrayerUiState

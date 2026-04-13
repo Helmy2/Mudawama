@@ -3,9 +3,6 @@ plugins {
 }
 
 compose.resources {
-    // Res must be public so shared:navigation and all feature :presentation
-    // modules can import mudawama.shared.designsystem.Res directly.
-    // By default the convention plugin leaves publicResClass = false (internal).
     publicResClass = true
 }
 
@@ -19,19 +16,12 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinx.coroutines.core)
-                implementation(libs.kotlinx.datetime)
-                implementation(libs.bundles.compose)
-                implementation(libs.bundles.lifecycle)
-                implementation(libs.compose.resources)
-                implementation(libs.ui.tooling.preview)
-            }
-        }
-        androidMain {
-            dependencies {
-                implementation(libs.androidx.activity.compose)
-                implementation(libs.ui.tooling)
-                implementation(libs.appcompat)
+                api(projects.shared.core.time)
+                api(libs.bundles.compose)
+                api(libs.bundles.lifecycle)
+                api(libs.compose.resources)
+                api(libs.ui.tooling.preview)
+                api(libs.material.icons.extended)
             }
         }
     }

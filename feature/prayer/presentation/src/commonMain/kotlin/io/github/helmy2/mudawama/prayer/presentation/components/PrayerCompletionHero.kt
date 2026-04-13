@@ -1,35 +1,44 @@
 package io.github.helmy2.mudawama.prayer.presentation.components
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
+import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
+import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.prayer_completion_fraction
 import mudawama.shared.designsystem.prayer_daily_completion_label
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
-import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus
 import org.jetbrains.compose.resources.stringResource
 
 private val HeroCardShape = RoundedCornerShape(24.dp)
 
-/**
- * Full-width hero card matching the design reference (daily_prayer_tracker.png):
- *   - Primary (deep teal) fill, rounded-xl corners
- *   - Left: "DAILY COMPLETION" label + large fraction (e.g. "2 / 5")
- *   - Right: circular progress ring (onPrimary arc on semi-transparent track)
- *
- * All colours come from MudawamaTheme / MaterialTheme — no hardcoded hex literals.
- */
 @Composable
 fun PrayerCompletionHero(
     prayers: List<PrayerWithStatus>,
@@ -37,64 +46,94 @@ fun PrayerCompletionHero(
 ) {
     val completedCount = prayers.count { it.status == LogStatus.COMPLETED }
     val total = prayers.size
-    val progress = if (total > 0) completedCount.toFloat() / total else 0f
+    val targetProgress = if (total > 0) completedCount.toFloat() / total else 0f
 
-    val cardColor   = MudawamaTheme.colors.primary
-    val onCardColor = MudawamaTheme.colors.onPrimary
-    val trackColor  = onCardColor.copy(alpha = 0.25f)
+    val animatedProgress by animateFloatAsState(
+        targetValue = targetProgress,
+        animationSpec = tween(durationMillis = 800),
+        label = "progress"
+    )
 
-    Surface(
+    val primary = MaterialTheme.colorScheme.primary
+    val onPrimary = MaterialTheme.colorScheme.onPrimary
+    val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
+
+    MudawamaSurfaceCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         shape = HeroCardShape,
-        color = cardColor,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 20.dp),
+                .padding(20.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Left: label + fraction
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = stringResource(Res.string.prayer_daily_completion_label),
                     style = MaterialTheme.typography.labelMedium.copy(
                         letterSpacing = 1.5.sp,
-                        color = onCardColor.copy(alpha = 0.75f),
+                        color = onPrimaryContainer.copy(alpha = 0.7f),
                     ),
                 )
-                Spacer(Modifier.height(6.dp))
-                Text(
-                    text = stringResource(Res.string.prayer_completion_fraction, completedCount, total),
-                    style = MaterialTheme.typography.displaySmall.copy(
-                        color = onCardColor,
-                    ),
-                )
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    Text(
+                        text = stringResource(Res.string.prayer_completion_fraction, completedCount, total),
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = onPrimaryContainer,
+                        ),
+                    )
+                    if (completedCount == total && total > 0) {
+                        Spacer(Modifier.width(8.dp))
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = onPrimaryContainer,
+                            modifier = Modifier.size(28.dp),
+                        )
+                    }
+                }
             }
 
-            // Right: circular progress ring
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.size(72.dp),
+                modifier = Modifier.size(80.dp),
             ) {
-                // Track (background ring)
                 CircularProgressIndicator(
                     progress = { 1f },
-                    modifier = Modifier.size(72.dp),
-                    strokeWidth = 6.dp,
-                    color = trackColor,
+                    modifier = Modifier.size(80.dp),
+                    strokeWidth = 8.dp,
+                    color = primary.copy(alpha = 0.2f),
                     trackColor = Color.Transparent,
                 )
-                // Progress arc
                 CircularProgressIndicator(
-                    progress = { progress },
-                    modifier = Modifier.size(72.dp),
-                    strokeWidth = 6.dp,
-                    color = onCardColor,
+                    progress = { animatedProgress },
+                    modifier = Modifier.size(80.dp),
+                    strokeWidth = 8.dp,
+                    color = primary,
                     trackColor = Color.Transparent,
                 )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(primary),
+                ) {
+                    Text(
+                        text = "${(animatedProgress * 100).toInt()}%",
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = onPrimary,
+                        ),
+                    )
+                }
             }
         }
     }

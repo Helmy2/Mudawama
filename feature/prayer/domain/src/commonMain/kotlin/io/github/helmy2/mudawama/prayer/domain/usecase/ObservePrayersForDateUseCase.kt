@@ -2,7 +2,7 @@ package io.github.helmy2.mudawama.prayer.domain.usecase
 
 import io.github.helmy2.mudawama.core.location.Coordinates
 import io.github.helmy2.mudawama.core.domain.Result
-import io.github.helmy2.mudawama.habits.domain.model.LogStatus
+import io.github.helmy2.mudawama.core.domain.model.LogStatus
 import io.github.helmy2.mudawama.prayer.domain.error.PrayerError
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerName
 import io.github.helmy2.mudawama.prayer.domain.model.PrayerWithStatus

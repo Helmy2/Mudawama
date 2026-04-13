@@ -332,5 +332,6 @@
     <string name="qibla_aligned">You are facing Qibla</string>
     <string name="qibla_turn_right">Turn %1$d° right</string>
     <string name="qibla_turn_left">Turn %1$d° left</string>
+    <string name="qibla_subtitle">Find the direction of Mecca</string>
 
 </resources>

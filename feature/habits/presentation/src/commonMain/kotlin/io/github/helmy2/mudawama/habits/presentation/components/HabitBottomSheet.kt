@@ -28,7 +28,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -49,11 +49,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import io.github.helmy2.mudawama.designsystem.components.MudawamaBottomSheet
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.presentation.model.BottomSheetMode
 import io.github.helmy2.mudawama.habits.presentation.model.HabitsUiAction
 import io.github.helmy2.mudawama.habits.presentation.util.HABIT_ICONS
-import io.github.helmy2.mudawama.habits.presentation.util.iconKeyToImageVector
 import kotlinx.datetime.DayOfWeek
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.action_close
@@ -86,14 +86,6 @@ private val DAYS_ORDERED = listOf(
 
 /**
  * Add / Edit habit bottom sheet — matches new_habit_bottom_sheet.png exactly.
- *
- * Structure:
- *   Header: × close | title | [Save] pill button
- *   HABIT NAME label + filled rounded TextField
- *   IDENTITY ICON label + horizontal LazyRow of circular icon chips
- *   FREQUENCY label + 7 circular day chips
- *   GOAL TYPE label + two side-by-side goal type cards
- *   Daily Reminder row + Switch
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,19 +111,15 @@ fun HabitBottomSheet(
     var nameError by remember { mutableStateOf(false) }
     var daysError by remember { mutableStateOf(false) }
 
-    ModalBottomSheet(
+    MudawamaBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-        containerColor = MudawamaTheme.colors.background,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        dragHandle = null,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp)
-                .padding(top = 20.dp, bottom = 36.dp),
+                .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
             // ── Header ────────────────────────────────────────────────────────
@@ -143,15 +131,15 @@ fun HabitBottomSheet(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = stringResource(Res.string.action_close),
-                        tint = MudawamaTheme.colors.onSurface,
+                        tint = MaterialTheme.colorScheme.onSurface,
                     )
                 }
                 Text(
                     text = if (existingHabit != null) stringResource(Res.string.title_edit_habit)
                     else stringResource(Res.string.title_new_habit),
-                    style = MudawamaTheme.typography.h3,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MudawamaTheme.colors.onSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.weight(1f).padding(start = 4.dp),
                 )
                 Button(
@@ -173,8 +161,8 @@ fun HabitBottomSheet(
                     },
                     shape = CircleShape,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MudawamaTheme.colors.primary,
-                        contentColor = MudawamaTheme.colors.onPrimary,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                     contentPadding = androidx.compose.foundation.layout.PaddingValues(
                         horizontal = 20.dp, vertical = 10.dp,
@@ -182,7 +170,7 @@ fun HabitBottomSheet(
                 ) {
                     Text(
                         text = stringResource(Res.string.action_save),
-                        style = MudawamaTheme.typography.h5,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -199,8 +187,8 @@ fun HabitBottomSheet(
                 placeholder = {
                     Text(
                         text = stringResource(Res.string.hint_habit_name_placeholder),
-                        style = MudawamaTheme.typography.body1,
-                        color = MudawamaTheme.colors.onSurface.copy(alpha = 0.35f),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
                     )
                 },
                 isError = nameError,
@@ -208,14 +196,14 @@ fun HabitBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MudawamaTheme.colors.surface,
-                    unfocusedContainerColor = MudawamaTheme.colors.surface,
-                    errorContainerColor = MudawamaTheme.colors.error.copy(alpha = 0.08f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    errorContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.08f),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
                     errorIndicatorColor = Color.Transparent,
-                    focusedTextColor = MudawamaTheme.colors.onSurface,
-                    unfocusedTextColor = MudawamaTheme.colors.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                 ),
             )
 
@@ -225,7 +213,7 @@ fun HabitBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .background(MudawamaTheme.colors.surface)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .padding(horizontal = 12.dp, vertical = 12.dp),
             ) {
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -237,7 +225,7 @@ fun HabitBottomSheet(
                                 .size(52.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(
-                                    if (selected) MudawamaTheme.colors.primary
+                                    if (selected) MaterialTheme.colorScheme.primary
                                     else Color.Transparent
                                 )
                                 .clickable { iconKey = key }
@@ -246,8 +234,8 @@ fun HabitBottomSheet(
                             Icon(
                                 imageVector = vector,
                                 contentDescription = key,
-                                tint = if (selected) MudawamaTheme.colors.onPrimary
-                                else MudawamaTheme.colors.onSurface,
+                                tint = if (selected) MaterialTheme.colorScheme.onPrimary
+                                else MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.size(26.dp),
                             )
                         }
@@ -269,12 +257,12 @@ fun HabitBottomSheet(
                             .size(42.dp)
                             .clip(CircleShape)
                             .background(
-                                if (selected) MudawamaTheme.colors.primary
-                                else MudawamaTheme.colors.surface
+                                if (selected) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.surfaceContainerLow
                             )
                             .then(
                                 if (daysError && !selected)
-                                    Modifier.border(1.dp, MudawamaTheme.colors.error, CircleShape)
+                                    Modifier.border(1.dp, MaterialTheme.colorScheme.error, CircleShape)
                                 else Modifier
                             )
                             .clickable {
@@ -285,10 +273,10 @@ fun HabitBottomSheet(
                     ) {
                         Text(
                             text = abbrev,
-                            style = MudawamaTheme.typography.caption,
+                            style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
-                            color = if (selected) MudawamaTheme.colors.onPrimary
-                            else MudawamaTheme.colors.onSurface.copy(alpha = 0.6f),
+                            color = if (selected) MaterialTheme.colorScheme.onPrimary
+                            else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         )
                     }
                 }
@@ -310,12 +298,12 @@ fun HabitBottomSheet(
                             modifier = Modifier
                                 .size(44.dp)
                                 .clip(CircleShape)
-                                .background(MudawamaTheme.colors.primary.copy(alpha = 0.12f)),
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = null,
-                                tint = MudawamaTheme.colors.primary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(22.dp),
                             )
                         }
@@ -333,13 +321,13 @@ fun HabitBottomSheet(
                             modifier = Modifier
                                 .size(44.dp)
                                 .clip(CircleShape)
-                                .background(MudawamaTheme.colors.onSurface.copy(alpha = 0.08f)),
+                                .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
                         ) {
                             Text(
                                 text = "123",
-                                style = MudawamaTheme.typography.caption,
+                                style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Bold,
-                                color = MudawamaTheme.colors.onSurface,
+                                color = MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     },
@@ -359,8 +347,8 @@ fun HabitBottomSheet(
                     placeholder = {
                         Text(
                             text = stringResource(Res.string.hint_daily_goal),
-                            style = MudawamaTheme.typography.body1,
-                            color = MudawamaTheme.colors.onSurface.copy(alpha = 0.35f),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
                         )
                     },
                     singleLine = true,
@@ -368,13 +356,13 @@ fun HabitBottomSheet(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MudawamaTheme.colors.surface,
-                        unfocusedContainerColor = MudawamaTheme.colors.surface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                         errorIndicatorColor = Color.Transparent,
-                        focusedTextColor = MudawamaTheme.colors.onSurface,
-                        unfocusedTextColor = MudawamaTheme.colors.onSurface,
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                     ),
                 )
             }
@@ -384,7 +372,7 @@ fun HabitBottomSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .background(MudawamaTheme.colors.surface)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .padding(horizontal = 16.dp, vertical = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -394,36 +382,36 @@ fun HabitBottomSheet(
                     modifier = Modifier
                         .size(44.dp)
                         .clip(CircleShape)
-                        .background(MudawamaTheme.colors.onSurface.copy(alpha = 0.08f)),
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Notifications,
                         contentDescription = null,
-                        tint = MudawamaTheme.colors.onSurface,
+                        tint = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.size(22.dp),
                     )
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = stringResource(Res.string.label_daily_reminder),
-                        style = MudawamaTheme.typography.h4,
+                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = MudawamaTheme.colors.onSurface,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                     Text(
                         text = stringResource(Res.string.label_daily_reminder_subtitle),
-                        style = MudawamaTheme.typography.body2,
-                        color = MudawamaTheme.colors.onSurface.copy(alpha = 0.5f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     )
                 }
                 Switch(
                     checked = reminderEnabled,
                     onCheckedChange = { reminderEnabled = it },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = MudawamaTheme.colors.onPrimary,
-                        checkedTrackColor = MudawamaTheme.colors.primary,
-                        uncheckedThumbColor = MudawamaTheme.colors.onSurface.copy(alpha = 0.4f),
-                        uncheckedTrackColor = MudawamaTheme.colors.onSurface.copy(alpha = 0.12f),
+                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary,
+                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
+                        uncheckedTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
                     ),
                 )
             }
@@ -435,9 +423,9 @@ fun HabitBottomSheet(
 private fun SheetSectionLabel(text: String) {
     Text(
         text = text,
-        style = MudawamaTheme.typography.caption,
+        style = MaterialTheme.typography.labelSmall,
         fontWeight = FontWeight.Bold,
-        color = MudawamaTheme.colors.onSurface.copy(alpha = 0.5f),
+        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         letterSpacing = androidx.compose.ui.unit.TextUnit(
             1.2f, androidx.compose.ui.unit.TextUnitType.Sp,
         ),
@@ -453,13 +441,13 @@ private fun GoalTypeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val borderColor = if (isSelected) MudawamaTheme.colors.primary
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary
     else Color.Transparent
 
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(MudawamaTheme.colors.surface)
+            .background(MaterialTheme.colorScheme.surfaceContainerLow)
             .border(2.dp, borderColor, RoundedCornerShape(16.dp))
             .clickable { onClick() }
             .padding(16.dp),
@@ -474,13 +462,13 @@ private fun GoalTypeCard(
                     modifier = Modifier
                         .size(20.dp)
                         .clip(CircleShape)
-                        .background(MudawamaTheme.colors.primary)
+                        .background(MaterialTheme.colorScheme.primary)
                         .align(Alignment.TopEnd),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
-                        tint = MudawamaTheme.colors.onPrimary,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(12.dp),
                     )
                 }
@@ -489,14 +477,14 @@ private fun GoalTypeCard(
         Spacer(Modifier.height(4.dp))
         Text(
             text = title,
-            style = MudawamaTheme.typography.h4,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
-            color = MudawamaTheme.colors.onSurface,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
             text = subtitle,
-            style = MudawamaTheme.typography.body2,
-            color = MudawamaTheme.colors.onSurface.copy(alpha = 0.5f),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
     }
 }
