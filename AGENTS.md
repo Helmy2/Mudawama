@@ -1,6 +1,6 @@
 # Mudawama Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-12
+Auto-generated from all feature plans. Last updated: 2026-04-13
 
 ## Active Technologies
 - **Kotlin** 2.3.20 (Kotlin Multiplatform) — Android (minSdk 30) + iOS 15+
@@ -14,6 +14,8 @@ Auto-generated from all feature plans. Last updated: 2026-04-12
 - **androidx.datastore.preferences** — session storage + 6 Athkar notification pref keys
 - **Android Sensor API** (TYPE_ROTATION_VECTOR) + **iOS CoreLocation** (CLLocationManager) — compass sensor (011-qibla-compass)
 - DataStore (settings location), no new DB entities required (011-qibla-compass)
+- Kotlin 2.3.20 + Compose Multiplatform, DataStore, Koin (012-dynamic-theming)
+- DataStore (for `use_dynamic_theme` preference) (012-dynamic-theming)
 
 ## Project Structure
 
@@ -163,6 +165,6 @@ sourceSets {
 
 
 ## Recent Changes
+- 012-dynamic-theming: Added Kotlin 2.3.20 + Compose Multiplatform, DataStore, Koin
 - 011-qibla-compass: Fixed iOS CompassSensorManager to use callbackFlow + object delegation instead of NSObject inheritance (Kotlin/Native limitation)
 - 011-qibla-compass: Integrated native iOS SwiftUI view via `IosQiblaViewControllerProvider` pattern for optimal performance
-- 009-home-dashboard: Added `SeedPrayerHabitsUseCase` to `HomeViewModel.init` to fix prayer times not showing on first app launch

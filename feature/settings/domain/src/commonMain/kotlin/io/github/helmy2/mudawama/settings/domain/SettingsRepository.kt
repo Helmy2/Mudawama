@@ -12,4 +12,5 @@ interface SettingsRepository {
     suspend fun setEveningNotificationEnabled(enabled: Boolean)
     suspend fun setMorningNotificationTime(hour: Int, minute: Int)
     suspend fun setEveningNotificationTime(hour: Int, minute: Int)
+    suspend fun setDynamicThemeEnabled(enabled: Boolean)
 }

@@ -87,6 +87,9 @@ The palette is anchored in nature: the deep permanence of the emerald forest and
 - **Secondary (Success):** `#006e1c` (The 'Completed' Growth)
 - **Tertiary (Pending):** `#444646` (The Quiet Neutral)
 
+### Dynamic Theming (Android 12+)
+On supported Android devices (API 31+), if the user enables "Dynamic Theme" in Settings, the app will override this static palette with colors extracted from the device's wallpaper (Material You). The brand palette acts as a fallback for users who disable the dynamic option, or for iOS/older Android devices.
+
 ### The "No-Line" Rule
 **Explicit Instruction:** Designers are prohibited from using 1px solid borders to section content. Boundaries must be defined solely through background color shifts. For example, a `surface-container-low` section sitting on a `surface` background creates a clear but "borderless" transition.
 

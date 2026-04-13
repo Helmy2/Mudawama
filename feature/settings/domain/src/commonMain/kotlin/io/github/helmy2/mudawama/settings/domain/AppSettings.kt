@@ -10,7 +10,8 @@ data class AppSettings(
     val morningNotificationHour: Int = 6,
     val morningNotificationMinute: Int = 0,
     val eveningNotificationHour: Int = 18,
-    val eveningNotificationMinute: Int = 0
+    val eveningNotificationMinute: Int = 0,
+    val useDynamicTheme: Boolean = true
 ) {
     companion object {
         val DEFAULT = AppSettings()

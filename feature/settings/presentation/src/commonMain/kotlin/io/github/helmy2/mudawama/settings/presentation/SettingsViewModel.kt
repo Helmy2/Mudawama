@@ -9,11 +9,12 @@ import io.github.helmy2.mudawama.settings.domain.ObserveSettingsUseCase
 import io.github.helmy2.mudawama.settings.domain.SetAppLanguageUseCase
 import io.github.helmy2.mudawama.settings.domain.SetAppThemeUseCase
 import io.github.helmy2.mudawama.settings.domain.SetCalculationMethodUseCase
+import io.github.helmy2.mudawama.settings.domain.SetDynamicThemeUseCase
 import io.github.helmy2.mudawama.settings.domain.SetEveningNotificationUseCase
 import io.github.helmy2.mudawama.settings.domain.SetLocationModeUseCase
 import io.github.helmy2.mudawama.settings.domain.SetMorningNotificationUseCase
 import kotlinx.coroutines.launch
-
+ 
 class SettingsViewModel(
     private val observeSettingsUseCase: ObserveSettingsUseCase,
     private val setCalculationMethodUseCase: SetCalculationMethodUseCase,
@@ -23,13 +24,14 @@ class SettingsViewModel(
     private val setGoalUseCase: SetGoalUseCase,
     private val setMorningNotificationUseCase: SetMorningNotificationUseCase,
     private val setEveningNotificationUseCase: SetEveningNotificationUseCase,
+    private val setDynamicThemeUseCase: SetDynamicThemeUseCase,
     private val notificationScheduler: NotificationScheduler
 ) : MviViewModel<SettingsState, SettingsAction, SettingsEvent>(SettingsState()) {
-
+ 
     init {
         observeSettings()
     }
-
+ 
     private fun observeSettings() {
         viewModelScope.launch {
             observeSettingsUseCase().collect { settings ->
@@ -42,21 +44,23 @@ class SettingsViewModel(
                             latitudeInput = locationMode.latitude.toString(),
                             longitudeInput = locationMode.longitude.toString(),
                             morningNotificationEnabled = settings.morningNotificationEnabled,
-                            eveningNotificationEnabled = settings.eveningNotificationEnabled
+                            eveningNotificationEnabled = settings.eveningNotificationEnabled,
+                            useDynamicTheme = settings.useDynamicTheme
                         )
                     } else {
                         copy(
                             settings = settings,
                             isLoading = false,
                             morningNotificationEnabled = settings.morningNotificationEnabled,
-                            eveningNotificationEnabled = settings.eveningNotificationEnabled
+                            eveningNotificationEnabled = settings.eveningNotificationEnabled,
+                            useDynamicTheme = settings.useDynamicTheme
                         )
                     }
                 }
             }
         }
     }
-
+ 
     override fun onAction(action: SettingsAction) {
         viewModelScope.launch {
             when (action) {
@@ -96,11 +100,15 @@ class SettingsViewModel(
                     setEveningNotificationUseCase(action.enabled)
                     updateNotificationSchedule(false, action.enabled)
                 }
+                is SettingsAction.SetDynamicTheme -> {
+                    setDynamicThemeUseCase(action.enabled)
+                }
             }
         }
     }
 
-    private suspend fun updateNotificationSchedule(isMorning: Boolean, enabled: Boolean) {
+
+    private fun updateNotificationSchedule(isMorning: Boolean, enabled: Boolean) {
         val settings = state.value.settings
         if (enabled) {
             val hour = if (isMorning) settings.morningNotificationHour else settings.eveningNotificationHour

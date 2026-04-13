@@ -153,6 +153,7 @@ Settings are stored in DataStore Preferences for persistence across sessions:
 | `evening_notification_enabled` | Boolean | Evening Athkar reminder on/off (default `false`) |
 | `evening_notification_hour` | Int | Hour for evening reminder, 0–23 (default `18`) |
 | `evening_notification_minute` | Int | Minute for evening reminder, 0–59 (default `0`) |
+| `use_dynamic_theme` | Boolean | Enables Material You dynamic theming on Android 12+ (default: `true`) |
 
 **Note:** Legacy preferences (`theme_preference`, `language_preference`, `calculation_method_id`, `daily_reset_preference`) are deprecated. All new settings use the structured keys above.
 
