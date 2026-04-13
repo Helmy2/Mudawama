@@ -58,8 +58,8 @@ fun App() {
         quranScreen = { QuranScreen() },
         athkarScreen = { AthkarScreen() },
         qiblaScreen = { onBack -> QiblaScreen(onNavigateBack = onBack) },
-        tasbeehScreen = { TasbeehScreen() },
-        habitsScreen = { _ -> HabitsScreen() },
+        tasbeehScreen = { onBack -> TasbeehScreen(onBack) },
+        habitsScreen = { onBack -> HabitsScreen(onBack = onBack) },
         settingsScreen = { onBack -> SettingsScreen(onNavigateBack = onBack) },
     )
 }

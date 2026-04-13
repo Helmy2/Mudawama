@@ -20,16 +20,14 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,13 +37,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.helmy2.mudawama.core.domain.model.LogStatus
 import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
 import io.github.helmy2.mudawama.habits.domain.model.Habit
 import io.github.helmy2.mudawama.habits.domain.model.HabitType
 import io.github.helmy2.mudawama.habits.domain.model.HabitWithStatus
 import io.github.helmy2.mudawama.habits.presentation.util.iconKeyToImageVector
 import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.todayIn
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.cd_decrement_count
 import mudawama.shared.designsystem.cd_increment_count
@@ -58,7 +55,6 @@ import mudawama.shared.designsystem.prayer_fajr
 import mudawama.shared.designsystem.prayer_isha
 import mudawama.shared.designsystem.prayer_maghrib
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Clock
 
 /**
  * Row for a CORE RITUAL habit (isCore = true).
@@ -104,12 +100,10 @@ fun HabitCoreRitualItem(
         HabitType.NUMERIC -> onIncrement
     }
 
-    Card(
+    MudawamaSurfaceCard(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MudawamaTheme.colors.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
     ) {
         Row(
             modifier = Modifier
@@ -126,7 +120,7 @@ fun HabitCoreRitualItem(
                 CircularProgressIndicator(
                     progress = { 1f },
                     modifier = Modifier.size(56.dp),
-                    color = MudawamaTheme.colors.primary.copy(alpha = 0.12f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                     strokeWidth = 4.dp,
                     strokeCap = StrokeCap.Round,
                 )
@@ -134,15 +128,15 @@ fun HabitCoreRitualItem(
                 CircularProgressIndicator(
                     progress = { progressFraction },
                     modifier = Modifier.size(56.dp),
-                    color = MudawamaTheme.colors.primary,
+                    color = MaterialTheme.colorScheme.primary,
                     strokeWidth = 4.dp,
                     strokeCap = StrokeCap.Round,
                 )
                 // Center label
                 Text(
                     text = progressLabel,
-                    style = MudawamaTheme.typography.caption,
-                    color = MudawamaTheme.colors.onSurface,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
 
@@ -152,14 +146,14 @@ fun HabitCoreRitualItem(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = getLocalizedHabitName(habit),
-                    style = MudawamaTheme.typography.h4,
-                    color = MudawamaTheme.colors.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 if (isCompleted) {
                     Text(
                         text = stringResource(Res.string.cd_mark_incomplete),
-                        style = MudawamaTheme.typography.body2,
-                        color = MudawamaTheme.colors.onSurface.copy(alpha = 0.5f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                     )
                 }
             }
@@ -168,7 +162,7 @@ fun HabitCoreRitualItem(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                 contentDescription = null,
-                tint = MudawamaTheme.colors.onSurface.copy(alpha = 0.35f),
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
                 modifier = Modifier.size(20.dp),
             )
         }
@@ -196,14 +190,6 @@ fun HabitPersonalItem(
     val habit = habitWithStatus.habit
     val todayLog = habitWithStatus.todayLog
     val isCompleted = todayLog?.status == LogStatus.COMPLETED
-    val todayDayOfWeek =
-        remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).dayOfWeek }
-    val isDueToday = todayDayOfWeek in habit.frequencyDays
-
-    val cardColors = CardDefaults.cardColors(
-        containerColor = MudawamaTheme.colors.surface.copy(alpha = if (isDueToday) 1f else 0.6f),
-    )
-    val cardElevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     val cardShape = RoundedCornerShape(16.dp)
 
     val rowContent: @Composable () -> Unit = {
@@ -220,12 +206,12 @@ fun HabitPersonalItem(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(MudawamaTheme.colors.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
             ) {
                 Icon(
                     imageVector = iconKeyToImageVector(habit.iconKey),
                     contentDescription = null,
-                    tint = MudawamaTheme.colors.primary,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -233,11 +219,11 @@ fun HabitPersonalItem(
             // ── Habit name ─────────────────────────────────────────────────
             Text(
                 text = getLocalizedHabitName(habit),
-                style = MudawamaTheme.typography.h4,
+                style = MaterialTheme.typography.titleMedium,
                 color = if (isCompleted && habit.type == HabitType.BOOLEAN)
-                    MudawamaTheme.colors.onSurface.copy(alpha = 0.5f)
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 else
-                    MudawamaTheme.colors.onSurface,
+                    MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.weight(1f),
             )
 
@@ -252,14 +238,14 @@ fun HabitPersonalItem(
                             Icon(
                                 imageVector = Icons.Filled.CheckCircle,
                                 contentDescription = stringResource(Res.string.cd_mark_incomplete),
-                                tint = MudawamaTheme.colors.primary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(22.dp),
                             )
                         } else {
                             Icon(
                                 imageVector = Icons.Outlined.RadioButtonUnchecked,
                                 contentDescription = stringResource(Res.string.cd_mark_complete),
-                                tint = MudawamaTheme.colors.onSurface.copy(alpha = 0.35f),
+                                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
                                 modifier = Modifier.size(22.dp),
                             )
                         }
@@ -278,8 +264,8 @@ fun HabitPersonalItem(
                             onClick = onDecrement,
                             modifier = Modifier.size(30.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MudawamaTheme.colors.primary.copy(alpha = 0.12f),
-                                contentColor = MudawamaTheme.colors.primary,
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                contentColor = MaterialTheme.colorScheme.primary,
                             ),
                         ) {
                             Icon(
@@ -290,9 +276,9 @@ fun HabitPersonalItem(
                         }
                         Text(
                             text = "$count/$goal",
-                            style = MudawamaTheme.typography.caption,
-                            color = if (isCompleted) MudawamaTheme.colors.primary
-                            else MudawamaTheme.colors.onSurface,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (isCompleted) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurface,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.widthIn(min = 36.dp),
                         )
@@ -300,8 +286,8 @@ fun HabitPersonalItem(
                             onClick = onIncrement,
                             modifier = Modifier.size(30.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
-                                containerColor = MudawamaTheme.colors.primary.copy(alpha = 0.12f),
-                                contentColor = MudawamaTheme.colors.primary,
+                                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
+                                contentColor = MaterialTheme.colorScheme.primary,
                             ),
                         ) {
                             Icon(
@@ -322,7 +308,7 @@ fun HabitPersonalItem(
                 Icon(
                     imageVector = Icons.Default.MoreVert,
                     contentDescription = null,
-                    tint = MudawamaTheme.colors.onSurface.copy(alpha = 0.4f),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -331,20 +317,16 @@ fun HabitPersonalItem(
 
     if (habit.type == HabitType.BOOLEAN) {
         // Whole card is tappable for boolean habits
-        Card(
+        MudawamaSurfaceCard(
             onClick = onToggle,
             modifier = modifier.fillMaxWidth(),
             shape = cardShape,
-            colors = cardColors,
-            elevation = cardElevation,
         ) { rowContent() }
     } else {
         // Non-clickable card for numeric habits — buttons handle the interaction
-        Card(
+        MudawamaSurfaceCard(
             modifier = modifier.fillMaxWidth(),
             shape = cardShape,
-            colors = cardColors,
-            elevation = cardElevation,
         ) { rowContent() }
     }
 }

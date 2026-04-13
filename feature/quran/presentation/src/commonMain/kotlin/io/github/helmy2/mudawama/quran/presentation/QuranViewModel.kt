@@ -4,20 +4,19 @@ import androidx.lifecycle.viewModelScope
 import io.github.helmy2.mudawama.core.domain.Result
 import io.github.helmy2.mudawama.core.presentation.mvi.MviViewModel
 import io.github.helmy2.mudawama.core.time.TimeProvider
+import io.github.helmy2.mudawama.quran.domain.error.QuranError
 import io.github.helmy2.mudawama.quran.domain.usecase.AdvanceBookmarkUseCase
 import io.github.helmy2.mudawama.quran.domain.usecase.ComputeStreakUseCase
 import io.github.helmy2.mudawama.quran.domain.usecase.LogReadingUseCase
 import io.github.helmy2.mudawama.quran.domain.usecase.ObserveQuranStateUseCase
 import io.github.helmy2.mudawama.quran.domain.usecase.SetGoalUseCase
 import io.github.helmy2.mudawama.quran.domain.usecase.UpdateBookmarkUseCase
-import io.github.helmy2.mudawama.quran.domain.error.QuranError
 import io.github.helmy2.mudawama.quran.presentation.model.QuranUiAction
 import io.github.helmy2.mudawama.quran.presentation.model.QuranUiEvent
 import io.github.helmy2.mudawama.quran.presentation.model.QuranUiState
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.plus
 import mudawama.shared.designsystem.Res
 import mudawama.shared.designsystem.quran_error_generic
@@ -39,7 +38,7 @@ class QuranViewModel(
         QuranUiState(
             selectedDate = today,
             today = today,
-            dateStrip = (-6..0).map { offset -> today.plus(DatePeriod(days = offset)) },
+            dateStrip = (-3..3).map { offset -> today.plus(DatePeriod(days = offset)) },
         )
     }
 ) {

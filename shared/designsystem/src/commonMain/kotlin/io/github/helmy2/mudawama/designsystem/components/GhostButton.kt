@@ -3,9 +3,9 @@ package io.github.helmy2.mudawama.designsystem.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.TextButton
@@ -14,7 +14,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import io.github.helmy2.mudawama.designsystem.MudawamaTheme
+import io.github.helmy2.mudawama.designsystem.spacing
+import io.github.helmy2.mudawama.designsystem.size
 import io.github.helmy2.mudawama.designsystem.utils.mudawamaButtonSemantics
 
 @Composable
@@ -28,27 +29,27 @@ fun MudawamaGhostButton(
     outlined: Boolean = false,
     contentDescription: String? = null
 ) {
-    val contentColor = MudawamaTheme.colors.primary
+    val contentColor = MaterialTheme.colorScheme.primary
 
     if (outlined) {
         OutlinedButton(
             onClick = onClick,
             modifier = modifier
                 .mudawamaButtonSemantics(contentDescription, enabled)
-                .defaultMinSize(minHeight = 40.dp),
+                .defaultMinSize(minHeight = MaterialTheme.size.buttonMinHeight),
             enabled = enabled,
             border = BorderStroke(1.dp, contentColor.copy(alpha = 0.28f)),
             colors = ButtonDefaults.outlinedButtonColors(contentColor = contentColor),
-            shape = MaterialTheme.shapes.small
+            shape = MaterialTheme.shapes.small,
         ) {
-            Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            Row(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.default, vertical = MaterialTheme.spacing.compact)) {
                 if (leadingIcon != null) {
                     leadingIcon()
-                    Spacer(modifier = Modifier.size(8.dp))
+                    Spacer(modifier = Modifier.size(MaterialTheme.spacing.compact))
                 }
-                Text(text = text, style = MudawamaTheme.typography.button)
+                Text(text = text, style = MaterialTheme.typography.labelLarge)
                 if (trailingIcon != null) {
-                    Spacer(modifier = Modifier.size(8.dp))
+                    Spacer(modifier = Modifier.size(MaterialTheme.spacing.compact))
                     trailingIcon()
                 }
             }
@@ -58,19 +59,19 @@ fun MudawamaGhostButton(
             onClick = onClick,
             modifier = modifier
                 .mudawamaButtonSemantics(contentDescription, enabled)
-                .defaultMinSize(minHeight = 40.dp),
+                .defaultMinSize(minHeight = MaterialTheme.size.buttonMinHeight),
             enabled = enabled,
             colors = ButtonDefaults.textButtonColors(contentColor = contentColor),
-            shape = MaterialTheme.shapes.small
+            shape = MaterialTheme.shapes.small,
         ) {
-            Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            Row(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.default, vertical = MaterialTheme.spacing.compact)) {
                 if (leadingIcon != null) {
                     leadingIcon()
-                    Spacer(modifier = Modifier.size(8.dp))
+                    Spacer(modifier = Modifier.size(MaterialTheme.spacing.compact))
                 }
-                Text(text = text, style = MudawamaTheme.typography.button)
+                Text(text = text, style = MaterialTheme.typography.labelLarge)
                 if (trailingIcon != null) {
-                    Spacer(modifier = Modifier.size(8.dp))
+                    Spacer(modifier = Modifier.size(MaterialTheme.spacing.compact))
                     trailingIcon()
                 }
             }

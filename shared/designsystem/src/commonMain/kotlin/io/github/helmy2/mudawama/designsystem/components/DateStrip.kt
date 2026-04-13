@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,23 +23,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 
-/**
- * Shared horizontal date-strip used across features (Prayer, Quran, …).
- *
- * Each pill shows:
- *   - Day abbreviation (MON, TUE …) in labelSmall, letter-spaced
- *   - Day-of-month number in bodyLarge bold
- *   - A small indicator dot below today's chip
- *
- * Selected chip: primary fill + onPrimary text.
- * Unselected chip: surfaceVariant fill + onSurfaceVariant text.
- */
 @Composable
 fun MudawamaDateStrip(
     dates: List<LocalDate>,
@@ -50,8 +38,8 @@ fun MudawamaDateStrip(
     LazyRow(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
+            .padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         contentPadding = PaddingValues(horizontal = 16.dp),
     ) {
         items(dates) { date ->
@@ -73,55 +61,50 @@ private fun DateChip(
     onClick: () -> Unit,
 ) {
     val dayAbbrev = when (date.dayOfWeek) {
-        DayOfWeek.MONDAY    -> "MON"
-        DayOfWeek.TUESDAY   -> "TUE"
-        DayOfWeek.WEDNESDAY -> "WED"
-        DayOfWeek.THURSDAY  -> "THU"
-        DayOfWeek.FRIDAY    -> "FRI"
-        DayOfWeek.SATURDAY  -> "SAT"
-        DayOfWeek.SUNDAY    -> "SUN"
+        DayOfWeek.MONDAY    -> "M"
+        DayOfWeek.TUESDAY   -> "T"
+        DayOfWeek.WEDNESDAY -> "W"
+        DayOfWeek.THURSDAY  -> "T"
+        DayOfWeek.FRIDAY    -> "F"
+        DayOfWeek.SATURDAY  -> "S"
+        DayOfWeek.SUNDAY    -> "S"
     }
 
-    val bgColor   = if (isSelected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.surfaceVariant
-    val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurfaceVariant
+    val bgColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface
+    val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
 
     Column(
         modifier = Modifier
-            .width(52.dp)
-            .clip(RoundedCornerShape(26.dp))
+            .width(48.dp)
+            .clip(RoundedCornerShape(16.dp))
             .background(bgColor)
             .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
+            .padding(vertical = 10.dp, horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         Text(
             text = dayAbbrev,
             style = MaterialTheme.typography.labelSmall.copy(
-                letterSpacing = TextUnit(0.5f, TextUnitType.Sp),
                 fontWeight = FontWeight.Medium,
             ),
-            color = textColor,
+            color = textColor.copy(alpha = 0.7f),
         )
         Text(
             text = date.day.toString(),
-            style = MaterialTheme.typography.bodyLarge.copy(
+            style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
             ),
             color = textColor,
         )
-        // Today indicator dot
         if (isToday) {
             Spacer(Modifier.height(2.dp))
             Box(
                 modifier = Modifier
-                    .size(5.dp)
-                    .clip(RoundedCornerShape(50))
+                    .size(6.dp)
+                    .clip(CircleShape)
                     .background(
-                        if (isSelected) MaterialTheme.colorScheme.onPrimary
-                        else MaterialTheme.colorScheme.primary
+                        if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
                     ),
             )
         }
