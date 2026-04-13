@@ -13,7 +13,6 @@ import io.github.helmy2.mudawama.home.presentation.HomeScreen
 import io.github.helmy2.mudawama.navigation.MudawamaAppShell
 import io.github.helmy2.mudawama.prayer.presentation.PrayerScreen
 import io.github.helmy2.mudawama.quran.presentation.QuranScreen
-import io.github.helmy2.mudawama.settings.domain.AppLanguage
 import io.github.helmy2.mudawama.settings.domain.AppSettings
 import io.github.helmy2.mudawama.settings.domain.AppTheme
 import io.github.helmy2.mudawama.settings.domain.ObserveSettingsUseCase
@@ -33,7 +32,7 @@ fun App() {
         AppTheme.DARK -> true
     }
 
-    val layoutDirection = if (settings.appLanguage == AppLanguage.ARABIC) {
+    val layoutDirection = if (settings.appLanguage.isRtl) {
         LayoutDirection.Rtl
     } else {
         LayoutDirection.Ltr

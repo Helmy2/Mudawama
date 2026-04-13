@@ -323,5 +323,15 @@
     <string name="settings_method_singapore">سنغافورة</string>
     <string name="settings_method_turkey">تركيا</string>
     <string name="settings_method_tehran">طهران</string>
+    
+    <!-- ── Qibla Compass ───────────────────────────────────────────────────────── -->
+    <string name="qibla_title">بوصلة القبلة</string>
+    <string name="qibla_calibration_warning">معايرة البوصلة</string>
+    <string name="qibla_no_location">الموقع مطلوب</string>
+    <string name="qibla_go_to_settings">انتقل إلى الإعدادات</string>
+    <string name="qibla_aligned">أنت تواجه القبلة</string>
+    <string name="qibla_turn_right">انعطف %1$d درجة يميناً</string>
+    <string name="qibla_turn_left">انعطف %1$d درجة يساراً</string>
+    <string name="qibla_subtitle">حدد اتجاه مكة المكرمة</string>
 
 </resources>

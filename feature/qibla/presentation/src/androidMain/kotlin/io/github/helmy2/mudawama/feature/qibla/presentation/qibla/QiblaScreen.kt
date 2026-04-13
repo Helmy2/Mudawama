@@ -1,23 +1,24 @@
 package io.github.helmy2.mudawama.feature.qibla.presentation.qibla
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.dp
+import io.github.helmy2.mudawama.designsystem.MudawamaTheme
 import io.github.helmy2.mudawama.feature.qibla.domain.model.QiblaAction
 import io.github.helmy2.mudawama.feature.qibla.domain.model.QiblaError
 import io.github.helmy2.mudawama.feature.qibla.domain.model.QiblaState
@@ -31,7 +32,6 @@ import mudawama.shared.designsystem.qibla_title
 import mudawama.shared.designsystem.qibla_turn_left
 import mudawama.shared.designsystem.qibla_turn_right
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 actual fun QiblaScreen(
@@ -67,9 +67,6 @@ internal fun QiblaScreenContent(
     onAction: (QiblaAction) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    // Show content even while loading with qibla angle
-    val showContent = (state.qiblaAngle != null) || (state.currentHeading > 0)
-    
     Scaffold(
         topBar = {
             TopAppBar(
@@ -77,7 +74,7 @@ internal fun QiblaScreenContent(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
-                            imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null
                         )
                     }
@@ -106,11 +103,7 @@ internal fun QiblaScreenContent(
                 state.isLoading && state.qiblaAngle == null -> {
                     CircularProgressIndicator()
                 }
-                state.qiblaAngle != null -> {
-                    CompassContent(state = state)
-                }
                 else -> {
-                    // Initial state - show compass content anyway
                     CompassContent(state = state)
                 }
             }
@@ -145,27 +138,16 @@ private fun ErrorContent(
 }
 
 @Composable
-private fun NoLocationContent(onAction: (QiblaAction) -> Unit) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = stringResource(Res.string.qibla_no_location),
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(onClick = { onAction(QiblaAction.RequestLocationPermission) }) {
-            Text(stringResource(Res.string.qibla_go_to_settings))
-        }
-    }
-}
-
-@Composable
 private fun CompassContent(
     state: QiblaState,
 ) {
+    // Rotate to point to Qibla: (Current Heading + Qibla Angle)
+    val rotation by animateFloatAsState(
+        targetValue = (state.qiblaAngle?.toFloat() ?: 0f) - state.currentHeading.toFloat(),
+        animationSpec = tween(durationMillis = 300),
+        label = "compassRotation"
+    )
+
     val directionText = if (state.isAligned) {
         stringResource(Res.string.qibla_aligned)
     } else {
@@ -178,7 +160,7 @@ private fun CompassContent(
     }
 
     val directionColor = if (state.isAligned) {
-        MaterialTheme.colorScheme.primary
+        Color(0xFF4CAF50) // Green when aligned
     } else {
         MaterialTheme.colorScheme.onSurface
     }
@@ -187,26 +169,30 @@ private fun CompassContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = directionText,
-            style = MaterialTheme.typography.headlineMedium,
-            color = directionColor
+        // Arrow pointing to Qibla
+        Icon(
+            imageVector = Icons.Default.Navigation,
+            contentDescription = null,
+            modifier = Modifier
+                .size(150.dp)
+                .rotate(rotation),
+            tint = directionColor
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         Text(
+            text = directionText,
+            style = MudawamaTheme.typography.h3,
+            color = directionColor
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
             text = "${state.qiblaAngle?.toInt() ?: 0}°",
             style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.primary
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Text(
-            text = "${state.currentHeading.toInt()}°",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
 
         if (state.accuracy == io.github.helmy2.mudawama.feature.qibla.domain.model.CompassAccuracy.LOW ||
@@ -228,13 +214,11 @@ private fun CalibrationWarning() {
             )
             .padding(12.dp)
     ) {
-        Icons.Filled.Warning.let {
-            Icon(
-                imageVector = it,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.error
-            )
-        }
+        Icon(
+            imageVector = Icons.Default.Warning,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.error
+        )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(Res.string.qibla_calibration_warning),

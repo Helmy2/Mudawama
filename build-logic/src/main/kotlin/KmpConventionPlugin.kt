@@ -17,6 +17,10 @@ class KmpConventionPlugin : Plugin<Project> {
             extensions.configure<KotlinMultiplatformExtension> {
                 jvmToolchain(17)
 
+                compilerOptions {
+                    freeCompilerArgs.addAll("-Xexpect-actual-classes")
+                }
+
                 android {
                     compileSdk {
                         version = release(libs.versions.android.compileSdk.get().toInt()) {

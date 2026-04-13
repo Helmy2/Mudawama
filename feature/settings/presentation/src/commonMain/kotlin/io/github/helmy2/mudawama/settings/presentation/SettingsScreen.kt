@@ -12,8 +12,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,11 +33,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import io.github.helmy2.mudawama.designsystem.components.MudawamaSurfaceCard
 import io.github.helmy2.mudawama.settings.domain.AppLanguage
 import io.github.helmy2.mudawama.settings.domain.AppTheme
 import io.github.helmy2.mudawama.settings.domain.CalculationMethod
 import io.github.helmy2.mudawama.settings.domain.LocationMode
 import mudawama.shared.designsystem.Res
+import mudawama.shared.designsystem.action_save
 import mudawama.shared.designsystem.settings_label_latitude
 import mudawama.shared.designsystem.settings_label_longitude
 import mudawama.shared.designsystem.settings_method_dubai
@@ -54,6 +54,8 @@ import mudawama.shared.designsystem.settings_method_singapore
 import mudawama.shared.designsystem.settings_method_tehran
 import mudawama.shared.designsystem.settings_method_turkey
 import mudawama.shared.designsystem.settings_method_umm_alqura
+import mudawama.shared.designsystem.settings_notification_evening
+import mudawama.shared.designsystem.settings_notification_morning
 import mudawama.shared.designsystem.settings_option_gps_automatic
 import mudawama.shared.designsystem.settings_option_language_arabic
 import mudawama.shared.designsystem.settings_option_language_english
@@ -67,9 +69,6 @@ import mudawama.shared.designsystem.settings_section_calculation_method
 import mudawama.shared.designsystem.settings_section_language
 import mudawama.shared.designsystem.settings_section_location
 import mudawama.shared.designsystem.settings_section_notifications
-import mudawama.shared.designsystem.settings_notification_morning
-import mudawama.shared.designsystem.settings_notification_evening
-import mudawama.shared.designsystem.action_save
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -147,7 +146,14 @@ fun SettingsScreen(
                                 onClick = {
                                     val lat = state.latitudeInput.toDoubleOrNull() ?: 21.3891
                                     val lon = state.longitudeInput.toDoubleOrNull() ?: 39.8579
-                                    viewModel.onAction(SettingsAction.SetLocationMode(LocationMode.Manual(lat, lon)))
+                                    viewModel.onAction(
+                                        SettingsAction.SetLocationMode(
+                                            LocationMode.Manual(
+                                                lat,
+                                                lon
+                                            )
+                                        )
+                                    )
                                 }
                             )
                             Text(stringResource(Res.string.settings_option_manual))
@@ -268,12 +274,7 @@ private fun SettingsSection(
     title: String,
     content: @Composable () -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        )
-    ) {
+    MudawamaSurfaceCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = title,

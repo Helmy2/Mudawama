@@ -10,14 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,6 +47,7 @@ import mudawama.shared.designsystem.action_view_all
 import mudawama.shared.designsystem.home_daily_habits_button
 import mudawama.shared.designsystem.home_daily_rituals_label
 import mudawama.shared.designsystem.home_settings_icon_description
+import mudawama.shared.designsystem.qibla_subtitle
 import mudawama.shared.designsystem.qibla_title
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -200,7 +199,7 @@ internal fun HomeScreenContent(
                             color = MudawamaTheme.colors.onSurface,
                         )
                         Text(
-                            text = "Find the direction of Mecca",
+                            text = stringResource(Res.string.qibla_subtitle),
                             style = MudawamaTheme.typography.body2,
                             color = MudawamaTheme.colors.onSurface.copy(alpha = 0.6f),
                         )

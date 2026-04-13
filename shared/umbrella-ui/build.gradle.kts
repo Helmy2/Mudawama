@@ -1,6 +1,7 @@
 plugins {
     id("mudawama.kmp.compose")
     id("mudawama.kmp.koin")
+    alias(libs.plugins.skie)
 }
 
 kotlin {

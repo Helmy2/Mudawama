@@ -21,6 +21,7 @@ lifecycle = "2.10.0"
 room = "2.8.4"
 sqlite = "2.6.2"
 ksp = "2.3.6"
+skie = "0.10.11"
 kotlinxDatetime = "0.7.1"
 navigation3 = "1.0.0-alpha06"
 playServicesLocation = "21.3.0"
@@ -73,6 +74,7 @@ androidKotlinMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.lib
 androidLint = { id = "com.android.lint", version.ref = "agp" }
 room = { id = "androidx.room", version.ref = "room" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+skie = { id = "co.touchlab.skie", version.ref = "skie" }
 
 [bundles]
 ktor = [
