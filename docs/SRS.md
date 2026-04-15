@@ -21,8 +21,8 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 - **Developer Audience:** Developers following the open-source repository and YouTube series to learn KMP, Compose Multiplatform (CMP), Room database integration, and Spec Kit usage.
 
 ### 2.2 Operating Environment
-- **Android:** Minimum SDK as defined in `libs.versions.toml` (see project root), developed via Compose Multiplatform.
-- **iOS:** iOS 15+, utilizing Compose Multiplatform UI (with ViewModels architected to support a future native SwiftUI implementation).
+- **Android:** Minimum SDK 30, Compose Multiplatform UI via `MudawamaUI` (`shared:umbrella-ui`).
+- **iOS:** iOS 15+, fully native SwiftUI UI via `MudawamaCore` (`shared:umbrella-core`). No Compose runtime on iOS. SKIE 0.10.11 bridges Kotlin domain/data to Swift.
 
 ---
 
@@ -108,3 +108,19 @@ Mudawama MVP provides an offline-first habit-tracking experience for Android and
 - **FR-6.3:** The system shall provide a toggle in the Settings screen to enable/disable dynamic theming.
 - **FR-6.4:** The system shall hide the dynamic theming toggle on unsupported devices (Android < 12 and iOS).
 - **FR-6.5:** The system shall fallback to Mudawama's default brand colors (Light/Dark variants) when dynamic theming is disabled or unsupported.
+
+---
+
+## 7. iOS Native UI Requirements (spec 013 — delivered)
+
+- **FR-7.1:** The iOS application shall use 100% native SwiftUI for all screens. No Compose runtime shall be present in the iOS binary.
+- **FR-7.2:** The iOS application shall link only `MudawamaCore.framework` (`shared:umbrella-core`). `MudawamaUI.framework` must not be linked.
+- **FR-7.3:** All business logic (prayer time calculation, reading streak, Qibla angle, Athkar counters) shall remain in Kotlin use cases. Swift ViewModels shall contain zero business logic.
+- **FR-7.4:** All user-visible strings in Swift shall be accessed via `String.loc(_ key:)` from `Localizable.xcstrings`. Hardcoded English strings in Swift source are forbidden.
+- **FR-7.5:** The iOS app shall support Arabic RTL layout. SwiftUI's automatic RTL mirroring handles the majority; `String.loc()` with `CurrentBundle` singleton handles runtime language switching without app restart.
+- **FR-7.6:** The Athkar screen shall display tap-to-count dhikr cards directly inline (not behind an intermediate sheet). Live counters shall be driven by `ObserveAthkarLogUseCase` via the DB — no local Swift state for counts.
+- **FR-7.7:** The iOS Qibla compass shall use `CLLocationManager` managed entirely in Swift (`QiblaViewModel`). The Kotlin `QiblaViewControllerProvider` interface is not used on iOS as of spec 013.
+- **FR-7.8:** The Prayer and Quran screens shall support pull-to-refresh via SwiftUI `.refreshable {}` to re-trigger the Kotlin observe flow.
+- **FR-7.9:** All 8 feature screens shall show a teal `ProgressView` loading state, an error state with retry button, and appropriate empty states.
+- **FR-7.10:** Athkar morning/evening notification reminders shall be configurable from both the Settings screen and from a bell-icon sheet on the Athkar screen (`AthkarNotificationSheet`).
+

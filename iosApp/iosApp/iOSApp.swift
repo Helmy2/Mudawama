@@ -1,24 +1,29 @@
 import SwiftUI
-import MudawamaUI
+import MudawamaCore
 
 @main
 struct iOSApp: App {
+
+    private let notificationProvider = IosNotificationProvider()
+
     init() {
         let swiftEncryptor = IosEncryptor()
         let swiftLocationProvider = IosLocationProvider()
-        let swiftNotificationProvider = IosNotificationProvider()
-        let swiftQiblaViewControllerProvider = IosQiblaViewControllerProvider()
         KoinInitializerKt.initializeKoin(
             iosEncryptor: swiftEncryptor,
             iosLocationProvider: swiftLocationProvider,
-            iosNotificationProvider: swiftNotificationProvider,
-            iosQiblaViewControllerProvider: swiftQiblaViewControllerProvider
+            iosNotificationProvider: notificationProvider
         )
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView().ignoresSafeArea()
+            RootNavigationView()
+                .task {
+                    // Request notification permission on first launch.
+                    // IosNotificationProvider shows a welcome notification when the user accepts.
+                    await notificationProvider.requestPermissionAndNotifyIfGranted()
+                }
         }
     }
 }

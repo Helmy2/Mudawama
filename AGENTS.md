@@ -1,6 +1,6 @@
 # Mudawama Development Guidelines
 
-Auto-generated from all feature plans. Last updated: 2026-04-13
+Auto-generated from all feature plans. Last updated: 2026-04-15
 
 ## Active Technologies
 - **Kotlin** 2.3.20 (Kotlin Multiplatform) — Android (minSdk 30) + iOS 15+
@@ -16,6 +16,8 @@ Auto-generated from all feature plans. Last updated: 2026-04-13
 - DataStore (settings location), no new DB entities required (011-qibla-compass)
 - Kotlin 2.3.20 + Compose Multiplatform, DataStore, Koin (012-dynamic-theming)
 - DataStore (for `use_dynamic_theme` preference) (012-dynamic-theming)
+- Kotlin 2.3.20 (KMP — domain/data only) + Swift 5.10 / SwiftUI (iOS UI layer) (013-ios-native-ui)
+- Room KMP (SQLite) via `shared:core:database` — unchanged (013-ios-native-ui)
 
 ## Project Structure
 
@@ -165,6 +167,6 @@ sourceSets {
 
 
 ## Recent Changes
+- 013-ios-native-ui: Added Kotlin 2.3.20 (KMP — domain/data only) + Swift 5.10 / SwiftUI (iOS UI layer)
 - 012-dynamic-theming: Added Kotlin 2.3.20 + Compose Multiplatform, DataStore, Koin
 - 011-qibla-compass: Fixed iOS CompassSensorManager to use callbackFlow + object delegation instead of NSObject inheritance (Kotlin/Native limitation)
-- 011-qibla-compass: Integrated native iOS SwiftUI view via `IosQiblaViewControllerProvider` pattern for optimal performance

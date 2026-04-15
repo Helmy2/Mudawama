@@ -1,6 +1,10 @@
-# 🏛 Mudawama Architecture & Module Structure
+# Architecture & Module Structure: Mudawama (مُداوَمَة)
 
 Mudawama is built using a highly scalable, enterprise-grade Kotlin Multiplatform (KMP) architecture. It strictly enforces **Clean Architecture** via physical Gradle module boundaries and uses a **"Packaging by Feature"** strategy to ensure fast build times and zero circular dependencies.
+
+**Platform status:**
+- **Android** — Compose Multiplatform UI, linked against `MudawamaUI` (`shared:umbrella-ui`).
+- **iOS** — 100% native SwiftUI UI, linked against `MudawamaCore` (`shared:umbrella-core`). No Compose runtime on iOS. Migration complete as of spec 013.
 
 ## 📂 The Directory Blueprint
 
@@ -192,17 +196,115 @@ Any module whose `Res` is consumed outside its own compilation unit must do the 
 
 ## ☂️ The Dual-Umbrella Strategy (iOS Exports)
 
-Because Xcode requires a single compiled `.framework` to link against, we use "Umbrella" modules to aggregate our KMP code. We maintain two distinct umbrellas to support the project's evolution.
+Because Xcode requires a single compiled `.framework` to link against, we use "Umbrella" modules to aggregate our KMP code. Two distinct umbrellas exist to support both platforms.
 
-### Phase 1: `shared:umbrella-ui`
-* **What it is:** The complete cross-platform application composition root.
-* **Dependencies:** Aggregates all `feature:x:presentation` modules, depends on `shared:navigation` (which owns the routing graph), and the `designsystem`.
-* **Usage:** Used to launch the MVP quickly. The iOS app simply instantiates a `ComposeUIViewController` to render the app via `MudawamaAppShell`.
+### `shared:umbrella-ui` → `MudawamaUI.framework` (Android iOS legacy)
+- **What it is:** The complete cross-platform application composition root including all Compose UI.
+- **Dependencies:** Aggregates all `feature:x:presentation` modules, `shared:navigation`, `shared:designsystem`.
+- **Usage:** Android links this (indirectly via the Android app module). **iOS no longer links this framework** as of spec 013.
 
-### Phase 2: `shared:umbrella-core`
-* **What it is:** The pure brain of the app (Zero UI).
-* **Dependencies:** Aggregates *only* the `:domain` and `:data` modules. It explicitly hides Compose Multiplatform from the Swift compiler.
-* **Usage:** When the team is ready to rewrite the UI in native SwiftUI for maximum performance, they simply swap their Xcode import from `MudawamaUI` to `MudawamaCore`. They immediately get access to all local databases and Use Cases, without inflating the iOS binary with the Compose runtime.
+### `shared:umbrella-core` → `MudawamaCore.framework` (iOS — current)
+- **What it is:** The pure business logic of the app. Zero UI, zero Compose runtime.
+- **Dependencies:** Aggregates all feature `:domain` and `:data` modules, plus `shared:core:domain`, `shared:core:data`, `shared:core:time`.
+- **SKIE 0.10.11** applied — bridges Kotlin `Flow<T>` as `AsyncSequence` and `suspend` functions as `async throws` for Swift.
+- **Usage:** The iOS app (`iosApp`) links only `MudawamaCore`. All Swift ViewModels inject use cases via `KoinComponent` provider classes in `umbrella-core/src/iosMain/kotlin/di/IosKoinHelpers.kt`.
+- **Koin initialization:** `KoinInitializerKt.initializeKoin(iosEncryptor:iosLocationProvider:iosNotificationProvider:)` is called from `iOSApp.swift` on launch. It registers all feature domain + data Koin modules.
+
+---
+
+## iOS Native UI Architecture (spec 013 — shipped)
+
+The iOS app is a fully native SwiftUI application. All screens, navigation, and platform integrations are written in Swift. The KMP layer provides only domain models and use cases.
+
+### Layer Separation
+
+```
+Swift (iosApp/)
+├── iOSApp.swift               — app entry, Koin init, notification permission
+├── Navigation/
+│   └── RootNavigationView     — TabView (4 tabs) + NavigationStack per tab
+├── DesignSystem/
+│   ├── MudawamaTheme.swift    — iOS color tokens, spacing, radius constants
+│   └── AppSettingsViewModel   — observes Kotlin settings flow, publishes colorScheme/locale
+├── Strings/
+│   ├── Localizable.xcstrings  — Xcode String Catalog (EN + AR, 60+ keys)
+│   ├── LocalizedKey.swift     — String.loc() helper + CurrentBundle singleton
+│   └── ErrorKeys.swift        — DomainError → localized key mapping
+├── Features/
+│   ├── Home/                  — HomeViewModel + HomeView + 5 component cards
+│   ├── Prayer/                — PrayerViewModel + PrayerView (date strip, pull-to-refresh)
+│   ├── Quran/                 — QuranViewModel + QuranView + 3 sheets
+│   ├── Athkar/                — AthkarViewModel + AthkarView (inline cards) + AthkarNotificationSheet
+│   ├── Tasbeeh/               — TasbeehViewModel + TasbeehView + TasbeehGoalSheet
+│   ├── Habits/                — HabitsViewModel + HabitsView + NewHabitSheet + ManageHabitSheet
+│   ├── Settings/              — SettingsViewModel + SettingsView
+│   └── Qibla/                 — QiblaViewModel (CLLocationManager) + QiblaView (animated compass)
+└── Platform/
+    ├── IosEncryptor.swift
+    ├── IosLocationProvider.swift
+    └── IosNotificationProvider.swift
+
+Kotlin (shared/umbrella-core/src/iosMain/)
+└── di/IosKoinHelpers.kt       — 8 KoinComponent provider classes (one per feature)
+    KoinInitializer.kt         — initializeKoin() composition root for iOS
+```
+
+### Swift ViewModel Pattern
+
+Every Swift ViewModel follows the same structure:
+
+```swift
+@MainActor
+class FeatureViewModel: ObservableObject {
+    @Published var state: FeatureState = ...
+    @Published var isLoading = true
+    @Published var errorMessage: String? = nil
+
+    private let provider = FeatureUseCaseProvider()  // KoinComponent
+    private var observeTask: Task<Void, Never>? = nil
+
+    func observe(...) {
+        observeTask?.cancel()
+        isLoading = true
+        observeTask = Task {
+            for await value in provider.someUseCase.invoke(...) {  // AsyncSequence (SKIE)
+                if Task.isCancelled { return }
+                self.state = value
+                self.isLoading = false
+            }
+        }
+    }
+
+    deinit { observeTask?.cancel() }
+}
+```
+
+Key rules:
+- `@MainActor` on every ViewModel — `@Published` mutations from background threads crash on iOS 17+.
+- **Never** use `for try await` around Flows — SKIE bridges all `Flow<T>` as non-throwing `AsyncSequence`.
+- Kotlin `suspend` functions bridged by SKIE may throw — always call them with `try? await` or inside a `do { try await } catch`.
+- Kotlin default parameters are NOT bridged — always pass all parameters explicitly.
+
+### Navigation Architecture
+
+```
+TabView (4 tabs)
+├── Home tab   → NavigationStack → HomeView → push: HabitsView, TasbeehView, QiblaView, SettingsView
+├── Prayer tab → NavigationStack → PrayerView
+├── Quran tab  → NavigationStack → QuranView
+└── Athkar tab → NavigationStack → AthkarView
+```
+
+- Tab bar hidden on push destinations via `.toolbar(.hidden, for: .tabBar)`.
+- Settings accessible from toolbar gear button on every top-level tab.
+- No Kotlin back-stack involved — all navigation is pure SwiftUI.
+
+### Language / Theme System
+
+- `AppSettingsViewModel` observes `ObserveSettingsUseCase` (Kotlin), publishes `colorScheme`, `layoutDirection`, `locale`.
+- `RootNavigationView` applies `.preferredColorScheme`, `.environment(\.layoutDirection)`, `.environment(\.locale)`, `.environmentObject(appSettings)`.
+- `CurrentBundle` singleton (in `LocalizedKey.swift`) is updated by `AppSettingsViewModel` when language changes; `String.loc(_ key:)` reads from it — overrides `NSLocalizedString` to support runtime language switching.
+- Views that need re-rendering on language change declare `@EnvironmentObject private var appSettings: AppSettingsViewModel` to create a SwiftUI dependency on `appSettings.locale`.
 
 ---
 
@@ -248,70 +350,27 @@ Our Koin architecture follows the **Composition Root** pattern, ensuring that de
 
 By restricting `startKoin` to the top-level composition root (the umbrella module or native apps), we ensure that feature modules can easily register their dependencies (such as Use Cases or ViewModels) into the DI graph without encountering race conditions or initialization limitations.
 
-### iOS Swift Integration Pattern
+### iOS Koin Integration (current — spec 013)
 
-For performance-critical features (e.g., Qibla Compass with 60-120fps compass rotation), Mudawama uses **native SwiftUI views** on iOS while keeping Compose Multiplatform for Android. This hybrid approach follows a strict dependency injection pattern:
+iOS Swift code accesses Kotlin use cases through `KoinComponent` provider classes defined in `shared/umbrella-core/src/iosMain/kotlin/di/IosKoinHelpers.kt`. There is one provider per feature:
 
-#### The Pattern
+| Provider class | Feature |
+|---|---|
+| `HomeUseCaseProvider` | Home Dashboard |
+| `PrayerUseCaseProvider` | Prayer |
+| `QuranUseCaseProvider` | Quran |
+| `AthkarUseCaseProvider` | Athkar |
+| `TasbeehUseCaseProvider` | Tasbeeh |
+| `HabitsUseCaseProvider` | Habits |
+| `SettingsUseCaseProvider` | Settings |
+| `QiblaUseCaseProvider` | Qibla |
 
-1. **Define a Kotlin interface** in the feature's `:domain` layer (e.g., `QiblaViewControllerProvider`). This interface exposes a factory method that returns a platform-specific view controller (`Any` in Kotlin, `UIViewController` in Swift).
+Each provider is instantiated directly from Swift (`let provider = FeatureUseCaseProvider()`) — no Swift-side DI framework needed.
 
-2. **Implement the interface in Swift** (e.g., `IosQiblaViewControllerProvider: QiblaViewControllerProvider`). The Swift class creates a `UIHostingController` wrapping the native SwiftUI view and observes the Kotlin ViewModel's `StateFlow` using a Timer-based polling approach (100ms / 10 FPS).
+`KoinInitializerKt.initializeKoin(iosEncryptor:iosLocationProvider:iosNotificationProvider:)` is called once from `iOSApp.swift` on launch and registers all platform + feature Koin modules.
 
-3. **Register via `initializeKoin()`**: The Swift implementation is instantiated in `iOSApp.swift` and passed to `KoinInitializerKt.initializeKoin(...)` alongside other iOS providers (e.g., `IosLocationProvider`, `IosNotificationProvider`).
+### iOS Swift Integration Pattern (Historical — pre-013)
 
-4. **Platform-specific Koin modules**: The feature's `:presentation` layer provides an iOS-specific Koin module (e.g., `iosQiblaPresentationModule(iosQiblaViewControllerProvider)`) that registers the Swift provider as a singleton.
-
-5. **expect/actual QiblaScreen**: The `QiblaScreen` composable uses `expect/actual`:
-   - **Android**: Full Compose implementation with `Canvas`, compass dial rendering, and `SensorManager` for compass readings.
-   - **iOS**: `UIKitViewController` factory that injects the `QiblaViewControllerProvider` from Koin and calls `createViewController()`.
-
-6. **Communication bridge**: A Kotlin `object QiblaScreenBridge` stores the ViewModel and navigation callback temporarily. Swift retrieves these from the bridge when `createViewController()` is called.
-
-#### Example Files
-
-```kotlin
-// feature/qibla/domain/.../ui/QiblaViewControllerProvider.kt
-interface QiblaViewControllerProvider {
-    fun createViewController(): Any  // UIViewController on iOS
-}
-```
-
-```swift
-// iosApp/iosApp/IosQiblaViewControllerProvider.swift
-@MainActor
-class IosQiblaViewControllerProvider: NSObject, QiblaViewControllerProvider {
-    func createViewController() -> Any {
-        let viewModel = QiblaScreenBridge.shared.viewModel!
-        let onNavigateBack = QiblaScreenBridge.shared.onNavigateBack!
-        let swiftUIView = QiblaViewWrapper(viewModel: viewModel, onNavigateBack: onNavigateBack)
-        return UIHostingController(rootView: swiftUIView)
-    }
-}
-```
-
-```kotlin
-// feature/qibla/presentation/src/iosMain/.../QiblaScreen.kt
-@Composable
-actual fun QiblaScreen(onNavigateBack: () -> Unit, viewModel: QiblaViewModel) {
-    val provider = koinInject<QiblaViewControllerProvider>()
-    QiblaScreenBridge.viewModel = viewModel
-    QiblaScreenBridge.onNavigateBack = onNavigateBack
-    
-    UIKitViewController(
-        factory = { provider.createViewController() as UIViewController },
-        modifier = Modifier
-    )
-}
-```
-
-#### When to Use This Pattern
-
-Use native SwiftUI for iOS when:
-- **Performance is critical** (e.g., 60-120fps animations, sensor-driven real-time updates)
-- **Platform APIs are complex** (e.g., CLLocationManager delegate pattern, advanced CoreMotion)
-- **Native UX is preferred** (e.g., platform-specific gestures, haptics, or animations)
-
-For standard CRUD screens, lists, and forms, stick with Compose Multiplatform for code sharing.
+Prior to spec 013, iOS used a hybrid approach where Compose UI was the default and only performance-critical screens (e.g., Qibla Compass) used native SwiftUI via a `QiblaViewControllerProvider` interface + `UIKitViewController` bridge. This approach is retired — the entire iOS UI is now native SwiftUI as of spec 013. The files `IosQiblaViewControllerProvider.swift`, `ContentView.swift`, and the `QiblaViewControllerProvider` Kotlin interface are no longer used by iOS.
 
 ---

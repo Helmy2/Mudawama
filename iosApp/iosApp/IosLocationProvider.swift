@@ -1,6 +1,6 @@
 import Foundation
 import CoreLocation
-import MudawamaUI
+import MudawamaCore
 
 /// Swift implementation of the KMP `LocationProvider` interface.
 /// Uses CLLocationManager natively on the main thread, avoiding all

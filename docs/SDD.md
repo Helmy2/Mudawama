@@ -1,7 +1,8 @@
 # System Design Document: Mudawama (مُداوَمَة)
 
-**Version:** 1.0.0  
-**Date:** March 2026
+**Version:** 2.0.0
+**Date:** April 2026
+**iOS UI:** Native SwiftUI (spec 013 — complete)
 
 ---
 
@@ -11,7 +12,10 @@
 This System Design Document specifies the technical architecture, data design, and component interactions for the Mudawama application. It acts as the technical blueprint for the engineering team and provides the structural context required for AI-driven development via GitHub Spec Kit to implement features correctly without violating architectural boundaries.
 
 ### 1.2 System Overview
-Mudawama is an offline-first application built with Kotlin Multiplatform (KMP) and Compose Multiplatform (CMP). It leverages a local Room database for data persistence, Ktor for network caching, Clean Architecture for strict module boundaries, Railway-Oriented Programming for error handling, and a custom Orbit-style MVI pattern for state management. The UI is built using Compose Multiplatform for both platforms, with a "dual-umbrella" framework design allowing a clean, future transition to native iOS SwiftUI.
+Mudawama is an offline-first application built with Kotlin Multiplatform (KMP). It leverages a local Room database for data persistence, Ktor for network calls, Clean Architecture for strict module boundaries, Railway-Oriented Programming for error handling, and a custom Orbit-style MVI pattern for Android state management.
+
+**Android UI:** Compose Multiplatform, linked against `MudawamaUI` (`shared:umbrella-ui`).
+**iOS UI:** 100% native SwiftUI, linked against `MudawamaCore` (`shared:umbrella-core`). No Compose runtime on iOS. SKIE 0.10.11 bridges Kotlin Flows as Swift `AsyncSequence` and `suspend` as `async throws`. Swift `@MainActor ObservableObject` ViewModels consume Kotlin use cases via `KoinComponent` provider classes.
 
 ---
 
@@ -308,3 +312,68 @@ Error messaging is decoupled from individual ViewModels via a Chain of Responsib
   - **alquran.cloud API** (`api.alquran.cloud`) — resolves the first Surah+Ayah on a given Madinah Mushaf page number (used by `AdvanceBookmarkUseCase` when auto-advancing the reading position). Falls back to `ayah = 1` on network failure.
 
   No analytic SDKs or third-party trackers are integrated, physically preventing data exfiltration and guaranteeing privacy.
+
+---
+
+## 6. iOS Native UI Layer (spec 013)
+
+### 6.1 Framework & Toolchain
+
+| Concern | Detail |
+|---|---|
+| Framework linked by Xcode | `MudawamaCore.framework` (`shared:umbrella-core`) |
+| Swift/Kotlin bridge | SKIE 0.10.11 — `Flow<T>` → `AsyncSequence`, `suspend` → `async throws` |
+| Minimum iOS | iOS 15 |
+| Koin access from Swift | `KoinComponent` provider classes in `umbrella-core/src/iosMain/kotlin/di/IosKoinHelpers.kt` |
+| Koin initialization | `KoinInitializerKt.initializeKoin(iosEncryptor:iosLocationProvider:iosNotificationProvider:)` in `iOSApp.swift` |
+
+### 6.2 Screen Inventory
+
+| Screen | Swift file | ViewModel | Sheet(s) |
+|---|---|---|---|
+| Home Dashboard | `HomeView.swift` | `HomeViewModel` | — |
+| Prayer | `PrayerView.swift` | `PrayerViewModel` | — |
+| Quran | `QuranView.swift` | `QuranViewModel` | `LogReadingSheet`, `QuranGoalSheet`, `QuranPositionSheet` |
+| Athkar | `AthkarView.swift` | `AthkarViewModel` | `AthkarNotificationSheet` |
+| Tasbeeh | `TasbeehView.swift` | `TasbeehViewModel` | `TasbeehGoalSheet` |
+| Habits | `HabitsView.swift` | `HabitsViewModel` | `NewHabitSheet`, `ManageHabitSheet` |
+| Settings | `SettingsView.swift` | `SettingsViewModel` | — |
+| Qibla | `QiblaView.swift` | `QiblaViewModel` | — |
+
+### 6.3 Navigation Model
+
+```
+TabView (4 tabs, teal tint)
+├── Home tab   → NavigationStack → HomeView
+│                                  └─ push → HabitsView, TasbeehView, QiblaView, SettingsView
+├── Prayer tab → NavigationStack → PrayerView
+├── Quran tab  → NavigationStack → QuranView
+└── Athkar tab → NavigationStack → AthkarView
+```
+
+All push destinations hide the tab bar via `.toolbar(.hidden, for: .tabBar)`. Navigation is entirely SwiftUI — no Kotlin back-stack.
+
+### 6.4 Athkar Screen Design
+
+The Athkar screen shows tap-to-count dhikr cards **inline** (not behind a sheet). The segmented picker (Morning / Evening / Post-Prayer) filters the active group. Tapping a card increments the counter directly via `AthkarViewModel.increment()`. Live DB counters are observed via `ObserveAthkarLogUseCase` and published on `AthkarViewModel.counters`. A bell toolbar button opens `AthkarNotificationSheet` for morning/evening reminders.
+
+### 6.5 Language & Theme System
+
+- `AppSettingsViewModel` (Swift) observes `ObserveSettingsUseCase` and publishes `colorScheme`, `layoutDirection`, and `locale`.
+- `RootNavigationView` injects all three into the SwiftUI environment and passes `appSettings` as `@EnvironmentObject`.
+- `CurrentBundle` singleton (`LocalizedKey.swift`) is updated on language change so `String.loc(_ key:)` returns the correct language immediately without restarting the app.
+
+### 6.6 State Management Pattern
+
+Every Swift ViewModel follows:
+1. `@Published var isLoading = true` — shown until first Flow emission.
+2. `@Published var errorMessage: String? = nil` — set on `ResultFailure`; triggers retry UI.
+3. A cancellable `Task` wrapping `for await` over a SKIE-bridged `AsyncSequence`.
+4. `deinit` cancels all tasks.
+
+Views show: loading → `ProgressView`; error → icon + message + Retry button; content → feature UI.
+
+### 6.7 Qibla Compass (iOS)
+
+`QiblaViewModel` manages `CLLocationManager` directly in Swift (object delegation pattern via a private inner class, not NSObject subclass — Kotlin/Native limitation). It publishes `QiblaUiState` (`.loading`, `.permissionDenied`, `.error`, `.active(compassHeading:qiblaAngle:)`). `QiblaView` renders an animated compass needle with `.rotationEffect`, aligned-state label, turn-left/right hints, and haptic feedback via `UIImpactFeedbackGenerator` on alignment within ±2°.
+
