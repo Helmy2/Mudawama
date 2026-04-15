@@ -207,3 +207,72 @@ Our spacing is intentional to prevent "crowding."
 - **Standard Padding:** `spacing-4` (1.4rem) for internal card padding.
 - **Section Gaps:** `spacing-8` (2.75rem) between major habit categories (e.g., Salah vs. Personal Habits).
 - **Touch Targets:** Minimum `spacing-12` (4rem) for any interactive element.
+
+---
+
+## 8. iOS Design System (spec 013)
+
+The iOS native SwiftUI app has its own design system defined in `iosApp/iosApp/DesignSystem/MudawamaTheme.swift`. It mirrors the brand intent of the Compose design system using native iOS APIs.
+
+### Color Tokens (`MudawamaTheme.Colors`)
+
+| Token | Value | Usage |
+|---|---|---|
+| `primary` | `#006B5E` (teal) | Navigation tint, progress rings, primary buttons, active icons |
+| `done` | `#34C759` (system green) | Completion indicators, checkmarks, aligned Qibla label |
+| `missed` | `#FF3B30` (system red) | Missed prayer icons, error states |
+| `onPrimary` | `.white` | Text/icons on primary background |
+| `surface` | `.secondarySystemGroupedBackground` | Card backgrounds (adapts to dark mode automatically) |
+| `background` | `.systemGroupedBackground` | Screen backgrounds |
+
+Dark mode is fully automatic — all colors use semantic system colors that adapt to the user's appearance setting.
+
+### Spacing & Radius (`MudawamaTheme.Spacing`, `MudawamaTheme.Radius`)
+
+| Token | Value |
+|---|---|
+| `Spacing.xs` | 4pt |
+| `Spacing.sm` | 8pt |
+| `Spacing.md` | 16pt |
+| `Spacing.lg` | 24pt |
+| `Spacing.xl` | 32pt |
+| `Radius.card` | 16pt |
+| `Radius.button` | 12pt |
+
+### Shared Component: `MudawamaSurfaceCard`
+
+Defined in `MudawamaTheme.swift`. A rounded card with:
+- `background(.secondarySystemGroupedBackground)`
+- `cornerRadius(16)`
+- `shadow(color: .black.opacity(0.06), radius: 4, y: 2)`
+- Optional `action: (() -> Void)?` — tappable when provided, adds `.contentShape(Rectangle())` and `onTapGesture`.
+
+Used across all feature screens for card-style content.
+
+### Strings: `Localizable.xcstrings`
+
+The iOS string system uses Xcode String Catalog (`iosApp/iosApp/Strings/Localizable.xcstrings`):
+- 60+ keys covering all 8 screens, navigation labels, actions, errors, and notifications.
+- English and Arabic translations for every key.
+- Accessed via `String.loc(_ key:)` helper to support runtime language switching.
+- `CurrentBundle` singleton (`LocalizedKey.swift`) updated by `AppSettingsViewModel` when language changes.
+
+### Tab Bar
+
+4-tab SwiftUI `TabView` with teal `.primary` tint. Tab icons (SF Symbols):
+
+| Tab | Icon |
+|---|---|
+| Home | `house.fill` |
+| Prayers | `moon.stars.fill` |
+| Quran | `book.fill` |
+| Athkar | `heart.fill` |
+
+Push destinations (Habits, Tasbeeh, Qibla, Settings) hide the tab bar via `.toolbar(.hidden, for: .tabBar)`.
+
+### Screen States (consistent across all screens)
+
+1. **Loading:** Centered `ProgressView()` with `MudawamaTheme.Colors.primary` tint and `"common_loading"` caption.
+2. **Error:** `exclamationmark.triangle` icon + localized error message + `"common_retry"` button (`.borderedProminent`, teal).
+3. **Empty:** Feature-specific SF Symbol icon + localized prompt (e.g., `book.closed` for Quran, `checklist` for Habits, `moon.stars` for Prayer).
+

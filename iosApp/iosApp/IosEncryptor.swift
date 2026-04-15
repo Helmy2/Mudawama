@@ -1,6 +1,6 @@
 import Foundation
 import CryptoKit
-import MudawamaUI
+import MudawamaCore
 
 class IosEncryptor: Encryptor {
     private let keychainAccount = "mudawama_session_key"

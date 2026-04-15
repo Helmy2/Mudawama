@@ -2,7 +2,7 @@
 
 **Mudawama** is a serene, offline-first, open-source Muslim habit tracker designed to help users build and maintain consistency in their daily spiritual obligations (Wird).
 
-Built entirely with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (CMP)**, this project demonstrates modern, AI-driven mobile development using an enterprise-grade modular architecture.
+Built with **Kotlin Multiplatform (KMP)**, this project demonstrates modern, AI-driven mobile development using an enterprise-grade modular architecture. Android uses **Compose Multiplatform** for its UI; iOS uses a fully **native SwiftUI** layer backed by the same Kotlin domain and data logic.
 
 > **Developers:** Please read the [Architecture & Module Structure Guide](docs/ARCHITECTURE.md) before exploring the codebase.
 
@@ -37,12 +37,13 @@ You can view the complete set of high-fidelity UI mockups in the [`docs/ui`](doc
 
 This repository is thoroughly documented to simulate a complete product lifecycle. All foundational documents can be found in the [`docs/`](docs/) folder:
 
-* **[Architecture Blueprint](docs/ARCHITECTURE.md):** Multi-Module "Dual-Umbrella" strategy, module dependency rules, navigation shell.
-* **[System Design Document (SDD)](docs/SDD.md):** Data models, MVI flow, navigation shell, error handling.
+* **[Architecture Blueprint](docs/ARCHITECTURE.md):** Multi-Module "Dual-Umbrella" strategy, module dependency rules, navigation shell, iOS native UI architecture.
+* **[System Design Document (SDD)](docs/SDD.md):** Data models, MVI flow, navigation shell, error handling, iOS native UI layer.
 * **[Product Requirements Document (PRD)](docs/PRD.md):** Scope, goals, and feature definitions.
 * **[Software Requirements Spec (SRS)](docs/SRS.md):** Functional and non-functional requirements.
 * **[User Stories](docs/USER_STORIES.md):** Agile use cases for the MVP.
-* **[Design Guidelines](docs/DESIGN.md):** Global design system rules and theming constraints.
+* **[Design Guidelines](docs/DESIGN.md):** Global design system rules and theming constraints (Android + iOS).
+* **[iOS Native UI Reference](docs/IOS_UI.md):** Complete guide to the SwiftUI layer — ViewModels, navigation, design tokens, SKIE interop rules, full file tree.
 
 Feature specifications live in [`specs/`](specs/):
 * [`specs/007-quran-tracking/`](specs/007-quran-tracking/) — Quran reading tracker
@@ -50,22 +51,25 @@ Feature specifications live in [`specs/`](specs/):
 * [`specs/009-home-dashboard/`](specs/009-home-dashboard/) — Home Dashboard aggregator
 * [`specs/010-settings-screen/`](specs/010-settings-screen/) — Settings screen with prayer calculation, location, theme, language, and notification preferences
 * [`specs/011-qibla-compass/`](specs/011-qibla-compass/) — Qibla Compass with native iOS SwiftUI integration
+* [`specs/012-dynamic-theming/`](specs/012-dynamic-theming/) — Dynamic theming (light/dark/system) via DataStore
+* [`specs/013-ios-native-ui/`](specs/013-ios-native-ui/) — Full native SwiftUI iOS app backed by `MudawamaCore` KMP framework
 
 ---
 
 ## Tech Stack
 
-* **Language:** Kotlin 2.3.20 (KMP — Android minSdk 30 + iOS 15+)
-* **UI:** Compose Multiplatform 1.10.3 (Android & iOS)
-  * **iOS Native UI:** Selected features (e.g., Qibla Compass) use native SwiftUI views via Swift-Kotlin interop for optimal performance
+* **Language:** Kotlin 2.3.20 (KMP — Android minSdk 30 + iOS 15+) · Swift 5.10
+* **UI (Android):** Compose Multiplatform 1.10.3
+* **UI (iOS):** Native SwiftUI — zero Compose runtime on iOS
+  * Kotlin domain/data exposed via `MudawamaCore` XCFramework (`:shared:umbrella-core`) bridged by **SKIE 0.10.11** (`Flow` → `AsyncSequence`, `suspend` → `async throws`)
 * **Architecture:** Clean Architecture + Custom MVI (Orbit-style) + strict module boundaries
 * **Local Database:** Room 2.8.4 for KMP (SQLite, schema v4)
 * **Settings Storage:** DataStore Preferences (prayer method, location, theme, language, notifications)
 * **Networking:** Ktor 3.4.1 (Aladhan API for prayer times, alquran.cloud for bookmark resolution)
 * **Dependency Injection:** Koin 4.2.0 (BOM + Platform Extensions)
-  * **iOS Swift Integration:** Swift classes implement Kotlin interfaces and are injected via `initializeKoin()` (e.g., `IosLocationProvider`, `IosQiblaViewControllerProvider`)
+  * **iOS Swift Integration:** Swift classes implement Kotlin interfaces and are injected via `initializeKoin()` (`IosEncryptor`, `IosLocationProvider`, `IosNotificationProvider`)
 * **Async / Date:** kotlinx-coroutines 1.10.2, kotlinx-datetime 0.7.1
-* **Notifications:** Android AlarmManager + BroadcastReceiver; iOS UNCalendarNotificationTrigger
+* **Notifications:** Android AlarmManager + BroadcastReceiver; iOS `UNCalendarNotificationTrigger`
 * **Sensors:** Android TYPE_ROTATION_VECTOR; iOS CLLocationManager (CoreLocation)
 * **Tooling:** Gradle Convention Plugins (Configuration Cache ready) + GitHub Spec Kit
 
@@ -73,18 +77,20 @@ Feature specifications live in [`specs/`](specs/):
 
 ## Project Structure
 
-The project follows a modular "Packaging by Feature" strategy.
+The project follows a modular "Packaging by Feature" strategy. Android and iOS share all domain and data layers; their UI layers are separate umbrellas.
 
 ```mermaid
 graph TD
-    App[androidApp / iosApp] --> Umbrella[shared:umbrella-ui]
-    Umbrella --> HomeP[feature:home:presentation]
-    Umbrella --> HabitsP[feature:habits:presentation]
-    Umbrella --> PrayerP[feature:prayer:presentation]
-    Umbrella --> QuranP[feature:quran:presentation]
-    Umbrella --> AthkarP[feature:athkar:presentation]
-    Umbrella --> Nav[shared:navigation]
-    Umbrella --> Design[shared:designsystem]
+    Android[androidApp] --> UmbrellaUI[shared:umbrella-ui\nAndroid only]
+    iOS[iosApp SwiftUI] --> UmbrellaCore[shared:umbrella-core\nMudawamaCore XCFramework]
+
+    UmbrellaUI --> HomeP[feature:home:presentation]
+    UmbrellaUI --> HabitsP[feature:habits:presentation]
+    UmbrellaUI --> PrayerP[feature:prayer:presentation]
+    UmbrellaUI --> QuranP[feature:quran:presentation]
+    UmbrellaUI --> AthkarP[feature:athkar:presentation]
+    UmbrellaUI --> Nav[shared:navigation]
+    UmbrellaUI --> Design[shared:designsystem]
 
     HomeP --> HabitsDomain[feature:habits:domain]
     HomeP --> PrayerDomain[feature:prayer:domain]
@@ -96,7 +102,13 @@ graph TD
     QuranP --> QuranDomain
     AthkarP --> AthkarDomain
 
-    HabitsDomain --> CoreDomain[shared:core:domain]
+    UmbrellaCore --> HabitsDomain
+    UmbrellaCore --> PrayerDomain
+    UmbrellaCore --> QuranDomain
+    UmbrellaCore --> AthkarDomain
+    UmbrellaCore --> CoreDomain[shared:core:domain]
+
+    HabitsDomain --> CoreDomain
     PrayerDomain --> CoreDomain
     QuranDomain --> CoreDomain
     AthkarDomain --> CoreDomain
@@ -105,6 +117,11 @@ graph TD
     PrayerP --> PrayerData[feature:prayer:data]
     QuranP --> QuranData[feature:quran:data]
     AthkarP --> AthkarData[feature:athkar:data]
+
+    UmbrellaCore --> HabitsData
+    UmbrellaCore --> PrayerData
+    UmbrellaCore --> QuranData
+    UmbrellaCore --> AthkarData
 
     HabitsData --> HabitsDomain
     PrayerData --> PrayerDomain

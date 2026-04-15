@@ -1,6 +1,6 @@
 import Foundation
 import UserNotifications
-import MudawamaUI
+import MudawamaCore
 
 /// Swift implementation of the KMP `NotificationPermissionProvider` interface.
 /// Requests `UNUserNotificationCenter` authorisation on first call and schedules
